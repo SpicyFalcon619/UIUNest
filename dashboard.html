@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — UIUNest</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="container" id="content"></div>
+
+<!-- Edit Listing Modal -->
+<div class="modal-bg" id="editListingModal">
+  <div class="modal" style="max-width: 600px;">
+    <button class="modal-close" onclick="document.getElementById('editListingModal').classList.remove('open')">×</button>
+    <h3>Edit Listing</h3>
+    <form id="editListingForm" onsubmit="saveEditedListing(event)">
+      <input type="hidden" id="editLstId">
+      <div class="form-group"><label>Title</label><input type="text" id="editLstTitle" required></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Zone</label><select id="editLstZone" required></select></div>
+        <div class="form-group"><label>Property Type</label>
+          <select id="editLstType" required>
+            <option value="single_room">Single Room</option>
+            <option value="shared_room">Shared Room</option>
+            <option value="full_mess">Full Mess</option>
+            <option value="sublet">Sub-let</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="form-group"><label>Total Rooms</label><input type="number" id="editLstRooms" required min="1"></div>
+        <div class="form-group"><label>Current Occupancy</label><input type="number" id="editLstOccupancy" required min="0"></div>
+        <div class="form-group"><label>Gender Preference</label>
+          <select id="editLstGender" required>
+            <option value="any">Any</option>
+            <option value="male">Male Only</option>
+            <option value="female">Female Only</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Base Rent (৳)</label><input type="number" id="editLstBaseRent" required min="0"></div>
+      <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Exchange Item Modal -->
+<div class="modal-bg" id="editItemModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('editItemModal').classList.remove('open')">×</button>
+    <h3>Edit Exchange Item</h3>
+    <form id="editItemForm" onsubmit="saveEditedItem(event)">
+      <input type="hidden" id="editItemId">
+      <div class="form-group"><label>Title</label><input type="text" id="editItemTitle" required></div>
+      <div class="form-group"><label>Price (৳)</label><input type="number" id="editItemPrice" required min="0"></div>
+      <div class="form-group"><label>Condition</label>
+        <select id="editItemCondition" required>
+          <option value="new">New</option>
+          <option value="like_new">Like New</option>
+          <option value="good">Good</option>
+          <option value="fair">Fair</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome('dashboard');
+const root = document.getElementById('content');
+
+function renderDashboard() {
+  if (!isLoggedIn()) {
+    root.innerHTML = `
+      <div class="auth-wrap">
+        <div class="auth-card" style="max-width:420px;width:100%">
+          <h1>Please log in</h1>
+          <p class="subtitle">You need to be logged in to view your dashboard.</p>
+          <a class="btn btn-primary btn-block" href="login.html">Log In</a>
+          <div style="text-align:center;margin-top:10px"><a href="register.html">Register</a></div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const user = window.mockData.currentUser;
+  const wl = getWatchlist();
+  const watched = mockData.listings.filter(l => wl.includes(l.id));
+
+  // User's owned listings
+  const myListings = mockData.listings.filter(l => l.ownerEmail === user.email);
+  // User's owned exchange items
+  const myItems = mockData.exchangeItems.filter(it => it.sellerEmail === user.email);
+
+  // User's offers (sent or received)
+  const offersSent = mockData.offers.filter(o => o.buyerEmail === user.email);
+  const offersRecv = mockData.offers.filter(o => o.sellerEmail === user.email);
+  const activeOffersCount = offersSent.filter(o => o.status === 'pending' || o.status === 'countered').length +
+                            offersRecv.filter(o => o.status === 'pending' || o.status === 'countered').length;
+
+  const compatStatus = (user.role === 'student' && user.preferences) ? 'Complete <i data-lucide="check" class="lucide-sm"></i>' : 'Setup Required';
+  const compatColor = (user.role === 'student' && user.preferences) ? 'var(--success)' : 'var(--warning)';
+
+  root.innerHTML = `
+    <h1 class="page-title">Welcome back, ${user.name}</h1>
+    <div class="stats-row" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-value">${myListings.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Watchlisted</div><div class="stat-value">${watched.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Active Offers</div><div class="stat-value">${activeOffersCount}</div></div>
+      <div class="stat-card">
+        <div class="stat-label">Compatibility</div>
+        <div class="stat-value" style="font-size:18px;color:${compatColor};padding-top:10px">
+          ${compatStatus}
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="listings" onclick="switchTab('listings')">My Listings</div>
+      <div class="tab" data-tab="items" onclick="switchTab('items')">My Exchange Items</div>
+      <div class="tab" data-tab="watch" onclick="switchTab('watch')">Watchlist</div>
+      <div class="tab" data-tab="offers" onclick="switchTab('offers')">Offers</div>
+    </div>
+
+    <div id="tab-listings">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">My Properties</h3>
+        ${myListings.length === 0 ? `
+          <p style="color:var(--gray);text-align:center;padding:24px 0">You haven't listed any properties yet. <a href="listings.html">List property now</a></p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>Title</th><th>Zone</th><th>Status</th><th>Total Cost</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${myListings.map(l => `
+                <tr>
+                  <td><strong>${l.title}</strong></td>
+                  <td>${l.zone}</td>
+                  <td>${statusBadge(l.status)}</td>
+                  <td>${fmt(l.costs.totalMonthly)}</td>
+                  <td>
+                    <button class="btn btn-outline btn-sm" onclick="editListing(${l.id})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteListing(${l.id})">Delete</button>
+                    <a class="btn btn-primary btn-sm" href="listing-detail.html?id=${l.id}">View</a>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+    </div>
+
+    <div id="tab-items" style="display:none">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">My Marketplace Items</h3>
+        ${myItems.length === 0 ? `
+          <p style="color:var(--gray);text-align:center;padding:24px 0">You haven't listed any items for sale. <a href="exchange.html">Sell an item now</a></p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>Title</th><th>Price</th><th>Condition</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${myItems.map(it => `
+                <tr>
+                  <td><strong>${it.title}</strong></td>
+                  <td>${fmt(it.price)}</td>
+                  <td>${conditionBadge(it.condition)}</td>
+                  <td>${statusBadge(it.status || 'available')}</td>
+                  <td>
+                    <button class="btn btn-outline btn-sm" onclick="editItem(${it.id})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteItem(${it.id})">Delete</button>
+                    <a class="btn btn-primary btn-sm" href="item-detail.html?id=${it.id}">View</a>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+    </div>
+
+    <div id="tab-watch" style="display:none">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy);margin-bottom:14px">Saved Properties</h3>
+        ${watched.length === 0 ? `
+          <p style="color:var(--gray);text-align:center;padding:24px 0">Your watchlist is empty. <a href="listings.html">Browse properties</a></p>
+        ` : `
+          <div class="grid-3">${watched.map(renderListingCard).join('')}</div>
+        `}
+      </div>
+    </div>
+
+    <div id="tab-offers" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <h3 style="margin-top:0;color:var(--navy)">Offers Received</h3>
+        ${offersRecv.length === 0 ? `
+          <p style="color:var(--gray);text-align:center;padding:12px 0">No offers received yet.</p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>Item</th><th>Buyer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              ${offersRecv.map(o => {
+                const it = mockData.exchangeItems.find(i => i.id === o.itemId) || { title: 'Unknown Item' };
+                return `<tr><td><strong>${it.title}</strong></td><td>${o.buyerName || o.buyerEmail}</td><td>${fmt(o.counterPrice || o.price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.itemId}">Open Offer</a></td></tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">Offers Sent (Outgoing)</h3>
+        ${offersSent.length === 0 ? `
+          <p style="color:var(--gray);text-align:center;padding:12px 0">No outgoing offers.</p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>Item</th><th>Seller</th><th>Your Bid</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              ${offersSent.map(o => {
+                const it = mockData.exchangeItems.find(i => i.id === o.itemId) || { title: 'Unknown Item' };
+                return `<tr><td><strong>${it.title}</strong></td><td>${o.sellerName || o.sellerEmail}</td><td>${fmt(o.counterPrice || o.price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.itemId}">Open Offer</a></td></tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+    </div>`;
+
+  attachWatchlistHandlers();
+  if (window.lucide) lucide.createIcons();
+}
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === t));
+  ['listings', 'items', 'watch', 'offers'].forEach(n => {
+    document.getElementById('tab-' + n).style.display = (n === t ? '' : 'none');
+  });
+}
+
+// Listing actions
+function editListing(id) {
+  const l = mockData.listings.find(x => x.id === id);
+  if (!l) return;
+  document.getElementById('editLstId').value = l.id;
+  document.getElementById('editLstTitle').value = l.title;
+  document.getElementById('editLstRooms').value = l.totalRooms;
+  document.getElementById('editLstOccupancy').value = l.currentOccupancy;
+  document.getElementById('editLstGender').value = l.genderPref;
+  document.getElementById('editLstBaseRent').value = l.costs.baseRent;
+
+  const zSelect = document.getElementById('editLstZone');
+  zSelect.innerHTML = mockData.zones.map(z => `<option value="${z.id}" ${z.id === l.zoneId ? 'selected' : ''}>${z.name}</option>`).join('');
+
+  document.getElementById('editListingModal').classList.add('open');
+}
+
+function saveEditedListing(e) {
+  e.preventDefault();
+  const id = parseInt(document.getElementById('editLstId').value);
+  const l = mockData.listings.find(x => x.id === id);
+  if (l) {
+    l.title = document.getElementById('editLstTitle').value.trim();
+    l.zoneId = parseInt(document.getElementById('editLstZone').value);
+    const zoneObj = mockData.zones.find(z => z.id === l.zoneId);
+    l.zone = zoneObj ? zoneObj.name : l.zone;
+    l.propertyType = document.getElementById('editLstType').value;
+    l.totalRooms = parseInt(document.getElementById('editLstRooms').value);
+    l.currentOccupancy = parseInt(document.getElementById('editLstOccupancy').value);
+    l.genderPref = document.getElementById('editLstGender').value;
+    
+    const prevBaseRent = l.costs.baseRent;
+    const baseRent = parseInt(document.getElementById('editLstBaseRent').value);
+    l.costs.baseRent = baseRent;
+
+    // Recalculate true monthly total
+    l.costs.totalMonthly = baseRent + (l.costs.electricityAmount || 0) + (l.costs.gasBill || 0) +
+                           (l.costs.waterBill || 0) + (l.costs.internetCost || 0) + (l.costs.maintenanceFee || 0) +
+                           (l.costs.caretakerFee || 0) + (l.costs.otherFees || 0);
+
+    // If base rent changed, append to rent history
+    if (prevBaseRent !== baseRent) {
+      l.rentHistory.push({
+        date: new Date().toLocaleDateString('en-US', {month:'short', year:'2-digit'}),
+        rent: baseRent
+      });
+    }
+
+    saveMockData();
+    document.getElementById('editListingModal').classList.remove('open');
+    showToast('Listing updated successfully!');
+    renderDashboard();
+  }
+}
+
+function deleteListing(id) {
+  if (confirm('Are you sure you want to delete this listing?')) {
+    mockData.listings = mockData.listings.filter(l => l.id !== id);
+    saveMockData();
+    showToast('Listing deleted', 'error');
+    renderDashboard();
+  }
+}
+
+// Exchange Item actions
+function editItem(id) {
+  const it = mockData.exchangeItems.find(x => x.id === id);
+  if (!it) return;
+  document.getElementById('editItemId').value = it.id;
+  document.getElementById('editItemTitle').value = it.title;
+  document.getElementById('editItemPrice').value = it.price;
+  document.getElementById('editItemCondition').value = it.condition;
+
+  document.getElementById('editItemModal').classList.add('open');
+}
+
+function saveEditedItem(e) {
+  e.preventDefault();
+  const id = parseInt(document.getElementById('editItemId').value);
+  const it = mockData.exchangeItems.find(x => x.id === id);
+  if (it) {
+    it.title = document.getElementById('editItemTitle').value.trim();
+    it.price = parseInt(document.getElementById('editItemPrice').value);
+    it.condition = document.getElementById('editItemCondition').value;
+
+    saveMockData();
+    document.getElementById('editItemModal').classList.remove('open');
+    showToast('Exchange item updated successfully!');
+    renderDashboard();
+  }
+}
+
+function deleteItem(id) {
+  if (confirm('Are you sure you want to remove this item?')) {
+    mockData.exchangeItems = mockData.exchangeItems.filter(it => it.id !== id);
+    // Also remove related offers
+    mockData.offers = mockData.offers.filter(o => o.itemId !== id);
+    saveMockData();
+    showToast('Exchange item removed', 'error');
+    renderDashboard();
+  }
+}
+
+renderDashboard();
+</script>
+</body>
+</html>

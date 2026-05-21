@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Register — UIUNest</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="auth-wrap">
+  <div class="auth-card" style="max-width:480px;width:100%">
+    <h1 style="font-size:24px"><span style="color:var(--navy)">UIU</span><span style="color:var(--gold)">Nest</span></h1>
+    <p class="subtitle">Create your account in seconds.</p>
+    <form onsubmit="doRegister(event)">
+      <div class="form-group"><label>Full name</label><input id="regName" required></div>
+      <div class="form-group"><label>Email</label><input type="email" id="regEmail" required placeholder="you@uiu.ac.bd"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Password</label><input type="password" id="regPass" required></div>
+        <div class="form-group"><label>Confirm password</label><input type="password" id="regConfirm" required></div>
+      </div>
+      <div class="form-group"><label>I am a…</label>
+        <div class="radio-row">
+          <label><input type="radio" name="role" value="student" checked> Student / Teacher looking for housing</label>
+          <label><input type="radio" name="role" value="landlord"> Landlord / Mess Owner</label>
+        </div>
+      </div>
+      <div class="form-group"><label>Gender</label>
+        <div class="radio-row">
+          <label><input type="radio" name="gender" value="male" checked> Male</label>
+          <label><input type="radio" name="gender" value="female"> Female</label>
+        </div>
+      </div>
+      <div class="form-group"><label>UIU Student ID (optional)</label><input id="regId"></div>
+      <div class="form-group"><label><input type="checkbox" required> I agree to the Terms of Service</label></div>
+      <button class="btn btn-primary btn-block">Create Account</button>
+      <div style="text-align:center;margin-top:14px;font-size:14px">Already have an account? <a href="login.html">Log in</a></div>
+    </form>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome();
+function doRegister(e) {
+  e.preventDefault();
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('regPass').value;
+  const confirm = document.getElementById('regConfirm').value;
+  const role = document.querySelector('input[name=role]:checked').value;
+  const gender = document.querySelector('input[name=gender]:checked').value;
+  const studentId = document.getElementById('regId').value.trim();
+
+  if (pass !== confirm) {
+    showToast('Passwords do not match', 'error');
+    return;
+  }
+
+  if (window.mockData.users.some(u => u.email.toLowerCase() === email)) {
+    showToast('Email already registered', 'error');
+    return;
+  }
+
+  const newUser = {
+    id: Date.now(),
+    name,
+    email,
+    password: pass,
+    role,
+    gender,
+    universityId: studentId
+  };
+
+  window.mockData.users.push(newUser);
+  setCurrentUser(newUser);
+  location.href = 'profile.html';
+}
+</script>
+</body>
+</html>

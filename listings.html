@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Browse Listings — UIUNest</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="data.js"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="container">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h1 class="page-title" style="margin:0">Browse Listings</h1>
+    <div id="listBtnMount"></div>
+  </div>
+  <div class="listings-layout">
+    <aside class="sidebar">
+      <h4>Zone</h4>
+      <div id="zoneFilters"></div>
+
+      <h4>Property type</h4>
+      <label><input type="checkbox" class="ptype" value="single_room"> Single Room</label>
+      <label><input type="checkbox" class="ptype" value="shared_room"> Shared Room</label>
+      <label><input type="checkbox" class="ptype" value="full_mess"> Full Mess</label>
+      <label><input type="checkbox" class="ptype" value="sublet"> Sub-let</label>
+
+      <h4>Listing type</h4>
+      <label><input type="radio" name="ltype" value="all" checked> All</label>
+      <label><input type="radio" name="ltype" value="Landlord Listed"> Landlord Listed</label>
+      <label><input type="radio" name="ltype" value="Student Listed"> Student Listed</label>
+
+      <h4>Max monthly cost: <span class="range-val" id="budgetVal">৳15,000</span></h4>
+      <input type="range" id="budget" min="1000" max="15000" step="500" value="15000">
+
+      <h4>Gender preference</h4>
+      <label><input type="radio" name="gender" value="any" checked> Any</label>
+      <label><input type="radio" name="gender" value="male"> Male only</label>
+      <label><input type="radio" name="gender" value="female"> Female only</label>
+
+      <h4>Amenities</h4>
+      <label><input type="checkbox" class="amen" value="attachedBathroom"> Attached Bathroom</label>
+      <label><input type="checkbox" class="amen" value="attachedKitchen"> Kitchen</label>
+      <label><input type="checkbox" class="amen" value="isFurnished"> Furnished</label>
+      <label><input type="checkbox" class="amen" value="rooftopAccess"> Rooftop</label>
+      <label><input type="checkbox" class="amen" value="powerBackup"> Power Backup</label>
+      <label><input type="checkbox" class="amen" value="liftAccess"> Lift</label>
+
+      <h4>Verified only</h4>
+      <label class="switch"><input type="checkbox" id="verifiedOnly"><span class="switch-slider"></span></label>
+
+      <h4>Sort by</h4>
+      <select id="sort" class="form-group" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px">
+        <option value="cost_asc">Total Cost ↑</option>
+        <option value="cost_desc">Total Cost ↓</option>
+        <option value="newest">Newest</option>
+        <option value="rating">Rating</option>
+      </select>
+
+      <div style="margin-top:18px;display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="applyFilters()">Apply</button>
+        <button class="btn btn-outline btn-sm" onclick="resetFilters()">Reset</button>
+      </div>
+    </aside>
+
+    <main>
+      <div style="margin-bottom:12px;color:var(--gray);font-size:14px" id="countLabel">Showing 6 listings</div>
+      <div class="grid-2" id="listingsGrid"></div>
+      <div id="map"></div>
+    </main>
+  </div>
+</div>
+
+<!-- Create Listing Modal -->
+<div class="modal-bg" id="createListingModal">
+  <div class="modal" style="max-width: 650px;">
+    <button class="modal-close" onclick="document.getElementById('createListingModal').classList.remove('open')">×</button>
+    <h3>List a Property</h3>
+    <form id="createListingForm" onsubmit="saveNewListing(event)">
+      <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px;">Basic Details</div>
+      <div class="form-group"><label>Title</label><input type="text" id="lstTitle" required placeholder="e.g. Spacious Single Room near UIU Campus"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Zone</label>
+          <select id="lstZone" required></select>
+        </div>
+        <div class="form-group"><label>Property Type</label>
+          <select id="lstType" required>
+            <option value="single_room">Single Room</option>
+            <option value="shared_room">Shared Room</option>
+            <option value="full_mess">Full Mess</option>
+            <option value="sublet">Sub-let</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="form-group"><label>Total Rooms</label><input type="number" id="lstRooms" required min="1" value="3"></div>
+        <div class="form-group"><label>Current Occupancy</label><input type="number" id="lstOccupancy" required min="0" value="1"></div>
+        <div class="form-group"><label>Gender Preference</label>
+          <select id="lstGender" required>
+            <option value="any">Any</option>
+            <option value="male">Male Only</option>
+            <option value="female">Female Only</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Address</label><input type="text" id="lstAddress" required placeholder="e.g. House 45, Road 2, Vatara, Dhaka"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Latitude (Optional)</label><input type="number" step="any" id="lstLat" placeholder="e.g. 23.7900"></div>
+        <div class="form-group"><label>Longitude (Optional)</label><input type="number" step="any" id="lstLng" placeholder="e.g. 90.4100"></div>
+      </div>
+      <div class="form-group"><label>Photo URL (Optional)</label><input type="url" id="lstPhoto" placeholder="https://images.unsplash.com/... (optional)"></div>
+
+      <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 14px;">Monthly Costs</div>
+      <div class="grid-2">
+        <div class="form-group"><label>Base Rent (৳)</label><input type="number" id="lstBaseRent" required min="0"></div>
+        <div class="form-group"><label>Gas Bill (৳)</label><input type="number" id="lstGas" required min="0" value="0"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Electricity Meter Type</label>
+          <select id="lstElecType" required>
+            <option value="individual">Individual Meter</option>
+            <option value="shared">Shared Meter</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Estimated Electricity Cost (৳)</label><input type="number" id="lstElec" required min="0" value="0"></div>
+      </div>
+      <div class="grid-3">
+        <div class="form-group"><label>Water Bill (৳)</label><input type="number" id="lstWater" required min="0" value="0"></div>
+        <div class="form-group"><label>Internet Cost (৳)</label><input type="number" id="lstInternet" required min="0" value="0"></div>
+        <div class="form-group"><label>Maintenance (৳)</label><input type="number" id="lstMaint" required min="0" value="0"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Caretaker Fee (৳)</label><input type="number" id="lstCaretaker" required min="0" value="0"></div>
+        <div class="form-group"><label>Other/Optional Fees (৳)</label><input type="number" id="lstOther" required min="0" value="0"></div>
+      </div>
+
+      <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 14px;">Amenities</div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;">
+        <label><input type="checkbox" id="lstAmenBath"> Attached Bath</label>
+        <label><input type="checkbox" id="lstAmenKitchen"> Kitchen</label>
+        <label><input type="checkbox" id="lstAmenFurnished"> Furnished</label>
+        <label><input type="checkbox" id="lstAmenRooftop"> Rooftop Access</label>
+        <label><input type="checkbox" id="lstAmenPower"> Power Backup</label>
+        <label><input type="checkbox" id="lstAmenLift"> Lift</label>
+        <label><input type="checkbox" id="lstAmenParking"> Parking</label>
+      </div>
+
+      <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 14px;">Resident Preferences (For Matching)</div>
+      <div class="grid-2">
+        <div class="form-group"><label>Sleep Schedule</label>
+          <select id="lstPrefSleep" required>
+            <option value="Flexible">Flexible</option>
+            <option value="Early Bird (before 11pm)">Early Bird (before 11pm)</option>
+            <option value="Night Owl (after 12am)">Night Owl (after 12am)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Diet</label>
+          <select id="lstPrefDiet" required>
+            <option value="Non-Vegetarian">Non-Vegetarian</option>
+            <option value="Vegetarian">Vegetarian</option>
+            <option value="Strictly Halal">Strictly Halal</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="form-group"><label>Guests</label>
+          <select id="lstPrefGuest" required>
+            <option value="Allowed">Allowed</option>
+            <option value="Restricted (weekends only)">Restricted</option>
+            <option value="Not Allowed">Not Allowed</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Cleanliness Standard (1-5)</label>
+          <input type="number" id="lstPrefClean" required min="1" max="5" value="4">
+        </div>
+        <div class="form-group"><label>Noise Level</label>
+          <select id="lstPrefNoise" required>
+            <option value="Quiet">Quiet</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Lively is fine">Lively is fine</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label><input type="checkbox" id="lstPrefSmoking"> Prefers Non-Smoking Environment</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Publish Listing</button>
+    </form>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome('listings');
+
+// Show list property button if eligible
+const user = window.mockData.currentUser;
+if (isLoggedIn() && user && (user.role === 'student' || user.role === 'landlord')) {
+  document.getElementById('listBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openCreateListingModal()">+ List Property</button>`;
+}
+
+document.getElementById('zoneFilters').innerHTML = mockData.zones.map(z =>
+  `<label><input type="checkbox" class="zone" value="${z.id}"> ${z.name}</label>`).join('');
+
+const map = L.map('map').setView([23.7805, 90.4200], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+function getFiltered() {
+  const zones = [...document.querySelectorAll('.zone:checked')].map(c => parseInt(c.value));
+  const ptypes = [...document.querySelectorAll('.ptype:checked')].map(c => c.value);
+  const ltype = document.querySelector('input[name=ltype]:checked').value;
+  const gender = document.querySelector('input[name=gender]:checked').value;
+  const budget = parseInt(document.getElementById('budget').value);
+  const amens = [...document.querySelectorAll('.amen:checked')].map(c => c.value);
+  const verified = document.getElementById('verifiedOnly').checked;
+  const sort = document.getElementById('sort').value;
+
+  let r = mockData.listings.filter(l => {
+    if (zones.length && !zones.includes(l.zoneId)) return false;
+    if (ptypes.length && !ptypes.includes(l.propertyType)) return false;
+    if (ltype !== 'all' && l.listingType !== ltype) return false;
+    if (gender !== 'any' && l.genderPref !== gender) return false;
+    if (l.costs.totalMonthly > budget) return false;
+    if (verified && !l.isVerified) return false;
+    for (const a of amens) if (!l.amenities[a]) return false;
+    return true;
+  });
+  if (sort === 'cost_asc') r.sort((a,b)=>a.costs.totalMonthly-b.costs.totalMonthly);
+  if (sort === 'cost_desc') r.sort((a,b)=>b.costs.totalMonthly-a.costs.totalMonthly);
+  if (sort === 'rating') r.sort((a,b)=>b.compositeScore-a.compositeScore);
+  return r;
+}
+
+function applyFilters() {
+  const r = getFiltered();
+  document.getElementById('countLabel').textContent = `Showing ${r.length} listings`;
+  document.getElementById('listingsGrid').innerHTML = r.map(renderListingCard).join('') || '<p style="color:var(--gray); grid-column: 1/-1; text-align: center; padding: 40px 0;">No listings match your filters.</p>';
+  attachWatchlistHandlers();
+  renderListingsOnMap(map, r);
+  if (window.lucide) lucide.createIcons();
+}
+
+function resetFilters() {
+  document.querySelectorAll('.zone, .ptype, .amen').forEach(c => c.checked = false);
+  document.querySelector('input[name=ltype][value=all]').checked = true;
+  document.querySelector('input[name=gender][value=any]').checked = true;
+  document.getElementById('budget').value = 15000;
+  document.getElementById('budgetVal').textContent = '৳15,000';
+  document.getElementById('verifiedOnly').checked = false;
+  document.getElementById('sort').value = 'cost_asc';
+  applyFilters();
+}
+
+document.getElementById('budget').addEventListener('input', e => {
+  document.getElementById('budgetVal').textContent = fmt(e.target.value);
+});
+document.querySelectorAll('.sidebar input, .sidebar select').forEach(el => el.addEventListener('change', applyFilters));
+
+function openCreateListingModal() {
+  document.getElementById('createListingModal').classList.add('open');
+  document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+}
+
+function saveNewListing(e) {
+  e.preventDefault();
+  const title = document.getElementById('lstTitle').value.trim();
+  const zoneId = parseInt(document.getElementById('lstZone').value);
+  const zoneObj = mockData.zones.find(z => z.id === zoneId);
+  const propertyType = document.getElementById('lstType').value;
+  const totalRooms = parseInt(document.getElementById('lstRooms').value);
+  const currentOccupancy = parseInt(document.getElementById('lstOccupancy').value);
+  const genderPref = document.getElementById('lstGender').value;
+  const address = document.getElementById('lstAddress').value.trim();
+  let photo = document.getElementById('lstPhoto').value.trim();
+  if (!photo) {
+    photo = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600';
+  }
+
+  const baseRent = parseInt(document.getElementById('lstBaseRent').value);
+  const electricityType = document.getElementById('lstElecType').value;
+  const electricityAmount = parseInt(document.getElementById('lstElec').value);
+  const gasBill = parseInt(document.getElementById('lstGas').value);
+  const waterBill = parseInt(document.getElementById('lstWater').value);
+  const internetCost = parseInt(document.getElementById('lstInternet').value);
+  const maintenanceFee = parseInt(document.getElementById('lstMaint').value);
+  const caretakerFee = parseInt(document.getElementById('lstCaretaker').value);
+  const otherFees = parseInt(document.getElementById('lstOther').value);
+
+  const totalMonthly = baseRent + electricityAmount + gasBill + waterBill + internetCost + maintenanceFee + caretakerFee + otherFees;
+
+  const amenities = {
+    attachedBathroom: document.getElementById('lstAmenBath').checked,
+    attachedKitchen: document.getElementById('lstAmenKitchen').checked,
+    isFurnished: document.getElementById('lstAmenFurnished').checked,
+    rooftopAccess: document.getElementById('lstAmenRooftop').checked,
+    powerBackup: document.getElementById('lstAmenPower').checked,
+    liftAccess: document.getElementById('lstAmenLift').checked,
+    parking: document.getElementById('lstAmenParking').checked
+  };
+
+  const residentPreferences = {
+    sleep: document.getElementById('lstPrefSleep').value,
+    diet: document.getElementById('lstPrefDiet').value,
+    guest: document.getElementById('lstPrefGuest').value,
+    smoking: document.getElementById('lstPrefSmoking').checked,
+    cleanliness: parseInt(document.getElementById('lstPrefClean').value),
+    noise: document.getElementById('lstPrefNoise').value
+  };
+
+  const offsetLat = (Math.random() - 0.5) * 0.008;
+  const offsetLng = (Math.random() - 0.5) * 0.008;
+
+  let lat = parseFloat(document.getElementById('lstLat').value);
+  let lng = parseFloat(document.getElementById('lstLng').value);
+  
+  if (isNaN(lat) || isNaN(lng)) {
+    lat = (zoneObj ? zoneObj.lat : 23.7805) + offsetLat;
+    lng = (zoneObj ? zoneObj.lng : 90.4200) + offsetLng;
+  }
+
+  const user = mockData.currentUser;
+  const listingType = user.role === 'student' ? 'Student Listed' : 'Landlord Listed';
+
+  const newListing = {
+    id: Date.now(),
+    title,
+    zoneId,
+    zone: zoneObj ? zoneObj.name : 'Unknown',
+    propertyType,
+    totalRooms,
+    currentOccupancy,
+    genderPref,
+    address,
+    photos: [photo],
+    isVerified: user.role === 'admin' || (mockData.verifs && mockData.verifs.some(v => v.email === user.email && v.approved)),
+    status: 'available',
+    listingType,
+    lat: lat,
+    lng: lng,
+    costs: {
+      baseRent,
+      electricityType,
+      electricityAmount,
+      gasBill, waterBill, internetCost, maintenanceFee, caretakerFee, otherFees,
+      totalMonthly
+    },
+    amenities,
+    residentPreferences,
+    compatibilityScore: 100,
+    compositeScore: 0,
+    reviewCount: 0,
+    ownerEmail: user.email,
+    rentHistory: [
+      { date: new Date().toLocaleDateString('en-US', {month:'short', year:'2-digit'}), rent: baseRent }
+    ]
+  };
+
+  mockData.listings.push(newListing);
+  saveMockData();
+  document.getElementById('createListingModal').classList.remove('open');
+  document.getElementById('createListingForm').reset();
+  showToast('Listing published successfully!');
+  applyFilters();
+}
+
+applyFilters();
+</script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profile — UIUNest</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="container">
+  <h1 class="page-title">Profile & Preferences</h1>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3 style="margin:0 0 14px;color:var(--navy)">Personal Info</h3>
+    <form onsubmit="saveProfile(event)">
+      <div class="grid-2">
+        <div class="form-group"><label>Name</label><input id="pfName" required></div>
+        <div class="form-group"><label>Email</label><input id="pfEmail" readonly style="background:#f3f4f6;cursor:not-allowed"></div>
+        <div class="form-group"><label>Phone</label><input id="pfPhone" placeholder="+880 1XXX-XXXXXX"></div>
+        <div class="form-group"><label>UIU ID</label><input id="pfId" placeholder="011XXXXXXXX"></div>
+      </div>
+      <div class="form-group"><label>Gender (read-only)</label>
+        <div class="radio-row">
+          <label><input type="radio" name="pfgender" id="pfGenM" disabled> Male</label>
+          <label><input type="radio" name="pfgender" id="pfGenF" disabled> Female</label>
+        </div>
+      </div>
+      <button class="btn btn-primary">Save Changes</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3 style="margin:0 0 4px;color:var(--navy)">Housing Preferences</h3>
+    <p style="color:var(--gray);font-size:13px;margin:0 0 14px">Your preference profile is used to calculate compatibility scores when you browse shared messes.</p>
+    <form id="prefForm" onsubmit="savePrefs(event)">
+      <div class="form-group"><label>Sleep schedule</label>
+        <div class="radio-row">
+          <label><input type="radio" name="sleep" value="Early Bird (before 11pm)"> Early Bird (before 11pm)</label>
+          <label><input type="radio" name="sleep" value="Night Owl (after 12am)"> Night Owl (after 12am)</label>
+          <label><input type="radio" name="sleep" value="Flexible" checked> Flexible</label>
+        </div>
+      </div>
+      <div class="form-group"><label>Study hours per day: <span id="hrVal">4</span></label>
+        <input type="range" id="prefStudy" min="0" max="16" value="4" oninput="hrVal.textContent=this.value">
+      </div>
+      <div class="form-group"><label>Diet</label>
+        <div class="radio-row">
+          <label><input type="radio" name="diet" value="Vegetarian"> Vegetarian</label>
+          <label><input type="radio" name="diet" value="Non-Vegetarian" checked> Non-Vegetarian</label>
+          <label><input type="radio" name="diet" value="Strictly Halal"> Strictly Halal</label>
+        </div>
+      </div>
+      <div class="form-group"><label>Guest policy</label>
+        <div class="radio-row">
+          <label><input type="radio" name="guest" value="Allowed"> Allowed</label>
+          <label><input type="radio" name="guest" value="Restricted (weekends only)" checked> Restricted (weekends only)</label>
+          <label><input type="radio" name="guest" value="Not Allowed"> Not Allowed</label>
+        </div>
+      </div>
+      <div class="form-group"><label>Smoking tolerance</label>
+        <label class="switch"><input type="checkbox" id="prefSmoking" checked><span class="switch-slider"></span></label>
+        <span style="font-size:13px;color:var(--gray);margin-left:8px">I prefer no smoking in the house</span>
+      </div>
+      <div class="form-group"><label>Preferred flatmate gender</label>
+        <div class="radio-row">
+          <label><input type="radio" name="fg" value="Male" checked> Male</label>
+          <label><input type="radio" name="fg" value="Female"> Female</label>
+        </div>
+      </div>
+      <div class="form-group"><label>Cleanliness standard</label>
+        <div id="cleanStars" style="font-size:24px;cursor:pointer;color:var(--gold)">★★★★☆</div>
+      </div>
+      <div class="form-group"><label>Noise tolerance</label>
+        <div class="radio-row">
+          <label><input type="radio" name="noise" value="Quiet" checked> Quiet</label>
+          <label><input type="radio" name="noise" value="Moderate"> Moderate</label>
+          <label><input type="radio" name="noise" value="Lively is fine"> Lively is fine</label>
+        </div>
+      </div>
+      <button class="btn btn-primary">Save Preferences</button>
+      <div id="prefBanner" style="display:none" class="alert alert-green">Your compatibility profile has been updated.</div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 4px;color:var(--navy)">Landlord Verification</h3>
+    <p style="color:var(--gray);font-size:13px;margin:0 0 14px">(For landlord/mess-owner accounts)</p>
+    <form onsubmit="submitVerification(event)">
+      <div class="grid-2">
+        <div class="form-group"><label>NID type</label><select id="vType"><option>National ID</option><option>Passport</option><option>Driving License</option></select></div>
+        <div class="form-group"><label>Submit date</label><input type="date" id="vDate" required></div>
+      </div>
+      <div class="form-group"><label>Document description</label><textarea id="vDesc" placeholder="NID + property deed submitted" required></textarea></div>
+      <button class="btn btn-primary">Submit Verification Request</button>
+      <span id="verifBadge" class="badge badge-amber" style="display:none;margin-left:10px"><i data-lucide="clock" class="lucide-sm"></i> Pending Review</span>
+    </form>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome('profile');
+
+const user = window.mockData.currentUser;
+
+// Load personal info
+document.getElementById('pfName').value = user.name || '';
+document.getElementById('pfEmail').value = user.email || '';
+document.getElementById('pfPhone').value = user.phone || '';
+document.getElementById('pfId').value = user.universityId || '';
+if (user.gender === 'female') {
+  document.getElementById('pfGenF').checked = true;
+} else {
+  document.getElementById('pfGenM').checked = true;
+}
+
+// Load verification status
+function checkVerifStatus() {
+  const existingVerif = window.mockData.verifs.find(v => v.email === user.email);
+  if (existingVerif) {
+    const badge = document.getElementById('verifBadge');
+    badge.style.display = 'inline-flex';
+    if (existingVerif.approved) {
+      badge.className = 'badge badge-green';
+      badge.innerHTML = '<i data-lucide="check" class="lucide-sm"></i> Approved';
+    } else {
+      badge.className = 'badge badge-amber';
+      badge.innerHTML = '<i data-lucide="clock" class="lucide-sm"></i> Pending Review';
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+}
+checkVerifStatus();
+
+// Load preferences
+const prefs = user.preferences || {
+  sleep: "Flexible",
+  study: 4,
+  diet: "Non-Vegetarian",
+  guest: "Restricted (weekends only)",
+  smoking: true,
+  fg: "Male",
+  cleanliness: 4,
+  noise: "Quiet"
+};
+
+document.querySelectorAll('input[name=sleep]').forEach(r => {
+  if (r.value === prefs.sleep) r.checked = true;
+});
+document.getElementById('prefStudy').value = prefs.study || 4;
+document.getElementById('hrVal').textContent = prefs.study || 4;
+
+document.querySelectorAll('input[name=diet]').forEach(r => {
+  if (r.value === prefs.diet) r.checked = true;
+});
+
+document.querySelectorAll('input[name=guest]').forEach(r => {
+  if (r.value === prefs.guest) r.checked = true;
+});
+
+document.getElementById('prefSmoking').checked = prefs.smoking !== false;
+
+document.querySelectorAll('input[name=fg]').forEach(r => {
+  if (r.value === prefs.fg) r.checked = true;
+});
+
+let cleanRating = prefs.cleanliness || 4;
+const cs = document.getElementById('cleanStars');
+cs.textContent = '★'.repeat(cleanRating) + '☆'.repeat(5 - cleanRating);
+
+document.querySelectorAll('input[name=noise]').forEach(r => {
+  if (r.value === prefs.noise) r.checked = true;
+});
+
+cs.addEventListener('click', e => {
+  const rect = cs.getBoundingClientRect();
+  cleanRating = Math.min(5, Math.max(1, Math.ceil(((e.clientX - rect.left) / rect.width) * 5)));
+  cs.textContent = '★'.repeat(cleanRating) + '☆'.repeat(5 - cleanRating);
+});
+
+function saveProfile(e) {
+  e.preventDefault();
+  user.name = document.getElementById('pfName').value.trim();
+  user.phone = document.getElementById('pfPhone').value.trim();
+  user.universityId = document.getElementById('pfId').value.trim();
+  
+  // Sync back to users list
+  const idx = window.mockData.users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
+  if (idx >= 0) window.mockData.users[idx] = {...user};
+  
+  saveMockData();
+  showToast('Profile details updated');
+}
+
+function savePrefs(e) {
+  e.preventDefault();
+  user.preferences = {
+    sleep: document.querySelector('input[name=sleep]:checked').value,
+    study: parseInt(document.getElementById('prefStudy').value),
+    diet: document.querySelector('input[name=diet]:checked').value,
+    guest: document.querySelector('input[name=guest]:checked').value,
+    smoking: document.getElementById('prefSmoking').checked,
+    fg: document.querySelector('input[name=fg]:checked').value,
+    cleanliness: cleanRating,
+    noise: document.querySelector('input[name=noise]:checked').value
+  };
+
+  const idx = window.mockData.users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
+  if (idx >= 0) window.mockData.users[idx] = {...user};
+
+  saveMockData();
+  const b = document.getElementById('prefBanner');
+  b.style.display = 'block';
+  setTimeout(() => { b.style.display = 'none'; }, 4000);
+  showToast('Preferences saved');
+}
+
+function submitVerification(e) {
+  e.preventDefault();
+  
+  // Check if already submitted
+  if (window.mockData.verifs.some(v => v.email === user.email)) {
+    showToast('Verification request already pending or approved', 'error');
+    return;
+  }
+
+  const verifRequest = {
+    id: Date.now(),
+    name: user.name,
+    email: user.email,
+    nidType: document.getElementById('vType').value,
+    date: document.getElementById('vDate').value,
+    desc: document.getElementById('vDesc').value,
+    approved: false
+  };
+
+  window.mockData.verifs.push(verifRequest);
+  saveMockData();
+  checkVerifStatus();
+  showToast('Verification request submitted');
+}
+</script>
+</body>
+</html>

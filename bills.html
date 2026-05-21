@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mess Bills — UIUNest</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="container" id="contentMount"></div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome('dashboard');
+
+const root = document.getElementById('contentMount');
+const user = window.mockData.currentUser;
+
+if (!isLoggedIn()) {
+  root.innerHTML = `
+    <div class="auth-wrap">
+      <div class="auth-card" style="max-width:420px;width:100%">
+        <h1>Please log in</h1>
+        <p class="subtitle">You need to be logged in to view Mess Bills.</p>
+        <a class="btn btn-primary btn-block" href="login.html">Log In</a>
+      </div>
+    </div>`;
+} else {
+  // Find listings owned by the user
+  const myProps = mockData.listings.filter(l => l.ownerEmail === user.email);
+
+  if (myProps.length === 0) {
+    root.innerHTML = `
+      <div style="text-align:center;padding:80px 20px;background:white;border-radius:var(--radius-lg);border:1px solid var(--border)">
+        <h2 style="color:var(--navy)">No Managed Properties</h2>
+        <p style="color:var(--gray)">You do not have any property listings to manage bills for. Only owners or managers of a listing can log bills.</p>
+        <a class="btn btn-primary" href="listings.html" style="margin-top:14px">List a Property Now</a>
+      </div>`;
+  } else {
+    // Choose the first property as default or retrieve query param
+    let activeListingId = getQueryId() || myProps[0].id;
+    let activeListing = myProps.find(l => l.id === activeListingId) || myProps[0];
+
+    // Get bills for this listing
+    let activeBills = mockData.monthlyBills.filter(b => b.listingId === activeListing.id);
+
+    // Initial render
+    renderBillManager(myProps, activeListing, activeBills);
+  }
+}
+
+function renderBillManager(myProps, activeListing, activeBills) {
+  // Generate selector for property listings
+  const propOptions = myProps.map(l => `<option value="${l.id}" ${l.id === activeListing.id ? 'selected' : ''}>${l.title}</option>`).join('');
+
+  // Months available to log
+  const months = ["January 2026", "February 2026", "March 2026", "April 2026", "May 2026", "June 2026", "July 2026", "August 2026", "September 2026", "October 2026", "November 2026", "December 2026"];
+  const monthOptions = months.map(m => `<option value="${m}">${m}</option>`).join('');
+
+  root.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+      <h1 class="page-title" style="margin:0">Mess Bill Manager</h1>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <label style="font-weight:600;font-size:13px;">Manage Flat:</label>
+        <select id="propSelect" onchange="switchProperty(this.value)" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;">
+          ${propOptions}
+        </select>
+      </div>
+    </div>
+    <h2 style="font-size:16px;color:var(--gray);font-weight:500;margin:0 0 18px"><i data-lucide="map-pin" class="lucide-sm"></i> ${activeListing.title} (${activeListing.zone})</h2>
+
+    <div class="grid-2">
+      <!-- Create/Edit Bill Card -->
+      <div class="card">
+        <h3 style="margin:0 0 14px;color:var(--navy)">Enter Monthly Bills</h3>
+        <form onsubmit="saveBill(event, ${activeListing.id})">
+          <div class="form-group">
+            <label>Month</label>
+            <select id="b_month" required style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border)">
+              ${monthOptions}
+            </select>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Electricity (৳)</label><input type="number" class="bill-in" id="b_electricity" min="0" value="600" required></div>
+            <div class="form-group"><label>Gas (৳)</label><input type="number" class="bill-in" id="b_gas" min="0" value="200" required></div>
+            <div class="form-group"><label>Water (৳)</label><input type="number" class="bill-in" id="b_water" min="0" value="100" required></div>
+            <div class="form-group"><label>Internet (৳)</label><input type="number" class="bill-in" id="b_internet" min="0" value="500" required></div>
+          </div>
+          <div class="form-group"><label>Other/Optional Fees (৳)</label><input type="number" class="bill-in" id="b_other" min="0" value="0" required></div>
+          
+          <div style="background:var(--light-bg);padding:14px;border-radius:8px;border-left:3px solid var(--navy);margin-top:8px">
+            <div style="font-weight:700;font-size:18px;color:var(--navy)">Total: <span id="liveTotal">৳1,400</span></div>
+            <div style="font-size:14px;color:var(--gray);margin-top:4px">
+              Per Person: <strong id="livePerPerson">৳467</strong> (split among ${activeListing.currentOccupancy || 3} occupants)
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" style="margin-top:12px">Log & Save Month's Bills</button>
+        </form>
+      </div>
+
+      <!-- Payment Tracker Card -->
+      <div class="card">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Payment Tracker</h3>
+        <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <label style="font-size:13px;font-weight:600">Select Month to Track:</label>
+          <select id="trackMonthSel" onchange="loadTrackerMonth(this.value, ${activeListing.id})" style="padding:6px;border-radius:6px;border:1px solid var(--border)">
+            ${activeBills.length ? activeBills.map(b => `<option value="${b.id}">${b.month}</option>`).join('') : '<option value="">No bills logged</option>'}
+          </select>
+        </div>
+        <table class="table">
+          <thead><tr><th>Resident</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="payTbody">
+            <tr><td colspan="4" style="text-align:center;color:var(--gray);">Select or log a bill month first.</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:10px;font-size:14px;color:var(--gray)" id="paySummary"></div>
+      </div>
+    </div>
+
+    <!-- Bill History Log -->
+    <div class="card" style="margin-top:20px">
+      <h3 style="margin:0 0 14px;color:var(--navy)">Bill History Log</h3>
+      ${activeBills.length === 0 ? `
+        <p style="color:var(--gray);text-align:center;padding:24px 0">No bills have been logged for this property yet.</p>
+      ` : `
+        <table class="table">
+          <thead><tr><th>Month</th><th>Electricity</th><th>Gas</th><th>Water</th><th>Internet</th><th>Other</th><th>Total</th><th>Split</th><th>Payments Paid</th></tr></thead>
+          <tbody>
+            ${activeBills.map(b => {
+              const paidCount = b.payments.filter(p => p.status === 'paid').length;
+              return `
+                <tr>
+                  <td><strong>${b.month}</strong></td>
+                  <td>${fmt(b.electricity)}</td>
+                  <td>${fmt(b.gas)}</td>
+                  <td>${fmt(b.water)}</td>
+                  <td>${fmt(b.internet)}</td>
+                  <td>${fmt(b.other)}</td>
+                  <td><strong>${fmt(b.total)}</strong></td>
+                  <td>${fmt(b.perPerson)}</td>
+                  <td>${paidCount} / ${b.payments.length} paid</td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+
+  // Attach recalc handlers
+  document.querySelectorAll('.bill-in').forEach(i => i.addEventListener('input', () => recalcLive(activeListing.currentOccupancy || 3)));
+  recalcLive(activeListing.currentOccupancy || 3);
+
+  // Load payment tracker for default month if exists
+  if (activeBills.length > 0) {
+    loadTrackerMonth(activeBills[0].id, activeListing.id);
+  }
+  if (window.lucide) lucide.createIcons();
+}
+
+function switchProperty(id) {
+  location.href = `bills.html?id=${id}`;
+}
+
+function recalcLive(occupancy) {
+  const ids = ['b_electricity','b_gas','b_water','b_internet','b_other'];
+  const total = ids.reduce((s,i) => s + (parseFloat(document.getElementById(i).value) || 0), 0);
+  document.getElementById('liveTotal').textContent = fmt(total);
+  document.getElementById('livePerPerson').textContent = fmt(Math.round(total / (occupancy || 1)));
+}
+
+function saveBill(e, listingId) {
+  e.preventDefault();
+  const month = document.getElementById('b_month').value;
+  const electricity = parseInt(document.getElementById('b_electricity').value);
+  const gas = parseInt(document.getElementById('b_gas').value);
+  const water = parseInt(document.getElementById('b_water').value);
+  const internet = parseInt(document.getElementById('b_internet').value);
+  const other = parseInt(document.getElementById('b_other').value);
+
+  const total = electricity + gas + water + internet + other;
+  
+  const listing = mockData.listings.find(l => l.id === listingId);
+  const occupancy = listing ? listing.currentOccupancy || 3 : 3;
+  const perPerson = Math.round(total / occupancy);
+
+  // Check if bill for this month already exists
+  let bill = mockData.monthlyBills.find(b => b.listingId === listingId && b.month === month);
+  if (bill) {
+    // Update existing
+    bill.electricity = electricity;
+    bill.gas = gas;
+    bill.water = water;
+    bill.internet = internet;
+    bill.other = other;
+    bill.total = total;
+    bill.perPerson = perPerson;
+  } else {
+    // Generate payments split list
+    const payments = [];
+    for (let index = 1; index <= occupancy; index++) {
+      payments.push({
+        resident: `Resident ${index}`,
+        status: 'unpaid'
+      });
+    }
+
+    bill = {
+      id: Date.now(),
+      listingId,
+      month,
+      electricity,
+      gas,
+      water,
+      internet,
+      other,
+      total,
+      perPerson,
+      payments
+    };
+    mockData.monthlyBills.push(bill);
+  }
+
+  saveMockData();
+  showToast('Month bill logged!');
+  
+  // Reload
+  switchProperty(listingId);
+}
+
+function loadTrackerMonth(billId, listingId) {
+  if (!billId) return;
+  const bill = mockData.monthlyBills.find(b => b.id === parseInt(billId));
+  if (!bill) return;
+
+  const tbody = document.getElementById('payTbody');
+  const summary = document.getElementById('paySummary');
+
+  tbody.innerHTML = bill.payments.map((p, idx) => `
+    <tr>
+      <td>${p.resident}</td>
+      <td>${fmt(bill.perPerson)}</td>
+      <td>${p.status === 'paid' ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Paid</span>' : '<span class="badge badge-amber"><i data-lucide="clock" class="lucide-sm"></i> Unpaid</span>'}</td>
+      <td>${p.status === 'unpaid' ? `<button class="btn btn-success btn-sm" onclick="markPaidLocal(${bill.id}, ${idx}, ${listingId})">Mark Paid</button>` : '—'}</td>
+    </tr>`).join('');
+
+  const paidCount = bill.payments.filter(p => p.status === 'paid').length;
+  summary.textContent = `${paidCount} of ${bill.payments.length} occupants paid (${fmt(paidCount * bill.perPerson)} / ${fmt(bill.payments.length * bill.perPerson)})`;
+  if (window.lucide) lucide.createIcons();
+}
+
+function markPaidLocal(billId, paymentIndex, listingId) {
+  const bill = mockData.monthlyBills.find(b => b.id === billId);
+  if (bill && bill.payments[paymentIndex]) {
+    bill.payments[paymentIndex].status = 'paid';
+    saveMockData();
+    showToast('Payment updated');
+    loadTrackerMonth(billId, listingId);
+    
+    // Reload history log view dynamically
+    const myProps = mockData.listings.filter(l => l.ownerEmail === user.email);
+    const activeListing = myProps.find(l => l.id === listingId);
+    const activeBills = mockData.monthlyBills.filter(b => b.listingId === listingId);
+    renderBillManager(myProps, activeListing, activeBills);
+  }
+}
+</script>
+</body>
+</html>

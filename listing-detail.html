@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Listing Detail — UIUNest</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="data.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="container">
+  <a href="listings.html" style="font-size:13px">← Back to listings</a>
+  <div class="detail-layout" style="margin-top:14px" id="content"></div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-bg" id="reviewModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('reviewModal').classList.remove('open')">×</button>
+    <h3>Write a review</h3>
+    <form id="createReviewForm" onsubmit="submitReview(event)">
+      <div class="form-group">
+        <label>Value for money <span id="rv1">3</span></label>
+        <input type="range" id="revVal" min="1" max="5" value="3" oninput="document.getElementById('rv1').textContent=this.value">
+      </div>
+      <div class="form-group">
+        <label>Listing accuracy <span id="rv2">3</span></label>
+        <input type="range" id="revAcc" min="1" max="5" value="3" oninput="document.getElementById('rv2').textContent=this.value">
+      </div>
+      <div class="form-group">
+        <label>Landlord response <span id="rv3">3</span></label>
+        <input type="range" id="revResp" min="1" max="5" value="3" oninput="document.getElementById('rv3').textContent=this.value">
+      </div>
+      <div class="form-group">
+        <label>Cleanliness <span id="rv4">3</span></label>
+        <input type="range" id="revClean" min="1" max="5" value="3" oninput="document.getElementById('rv4').textContent=this.value">
+      </div>
+      <div class="form-group">
+        <label>Safety <span id="rv5">3</span></label>
+        <input type="range" id="revSafe" min="1" max="5" value="3" oninput="document.getElementById('rv5').textContent=this.value">
+      </div>
+      <div class="form-group">
+        <label>Comment</label>
+        <textarea id="revComment" placeholder="Share your experience..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Submit Review</button>
+    </form>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-bg" id="reportModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('reportModal').classList.remove('open')">×</button>
+    <h3>Report this listing</h3>
+    <form id="reportForm" onsubmit="submitComplaint(event)">
+      <div class="form-group"><label>Category</label>
+        <select id="repCategory" required>
+          <option>Hidden costs</option>
+          <option>False information</option>
+          <option>Harassment</option>
+          <option>Deposit not returned</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Describe the issue</label><textarea id="repDesc" required></textarea></div>
+      <button type="submit" class="btn btn-danger btn-block">Submit complaint</button>
+    </form>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome('listings');
+const id = getQueryId();
+const l = mockData.listings.find(x => x.id === id);
+
+if (!l) {
+  document.getElementById('content').innerHTML = `
+    <div style="grid-column:1/-1;text-align:center;padding:80px 20px;background:white;border-radius:var(--radius-lg);border:1px solid var(--border)">
+      <h2 style="color:var(--navy)">Listing Not Found</h2>
+      <p style="color:var(--gray)">This property does not exist or has been removed.</p>
+      <a class="btn btn-primary" href="listings.html" style="margin-top:14px">Browse Listings</a>
+    </div>`;
+} else {
+  const c = l.costs;
+  const userCompat = calculateCompatibility(l);
+  const compatColor = getCompatibilityColor(userCompat.score);
+  const wl = getWatchlist().includes(l.id);
+  const linkedItems = mockData.exchangeItems.filter(it => it.linkedListingId === l.id);
+
+  const elecLabel = c.electricityType === 'shared'
+    ? '<span class="electricity-shared">shared meter</span>'
+    : '<span class="electricity-individual">individual meter</span>';
+
+  function amenityIcon(k, on) {
+    const labels = {
+      attachedBathroom: '🚿 Attached Bath', attachedKitchen: '🍳 Kitchen',
+      isFurnished: '🛋 Furnished', rooftopAccess: '🌅 Rooftop',
+      parking: '🚗 Parking', powerBackup: '⚡ Power Backup', liftAccess: '🛗 Lift'
+    };
+    return `<div class="amenity ${on ? '' : 'off'}">${labels[k] || k}</div>`;
+  }
+
+  document.getElementById('content').innerHTML = `
+    <div>
+      <img class="detail-photo" src="${l.photos[0]}" alt="${l.title}">
+      <h1 style="margin:18px 0 6px;color:var(--navy)">${l.title}</h1>
+      <div style="color:var(--gray);font-size:14px;margin-bottom:10px"><i data-lucide="map-pin" class="lucide-sm"></i> ${l.address}</div>
+      <div class="badges" style="margin-bottom:18px">
+        <span class="badge badge-navy">${l.zone}</span>
+        ${l.isVerified ? '<span class="badge badge-gold"><i data-lucide="check" class="lucide-sm"></i> Verified</span>' : ''}
+        ${statusBadge(l.status)}
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h3 style="margin:0 0 10px;color:var(--navy)">💰 Cost Breakdown</h3>
+        <table class="cost-table">
+          <tr><td>Base Rent</td><td>${fmt(c.baseRent)}</td></tr>
+          <tr><td>Electricity ${elecLabel}</td><td>${fmt(c.electricityAmount)}</td></tr>
+          <tr><td>Gas Bill</td><td>${fmt(c.gasBill)}</td></tr>
+          <tr><td>Water Bill</td><td>${fmt(c.waterBill)}</td></tr>
+          <tr><td>Internet</td><td>${fmt(c.internetCost)}</td></tr>
+          <tr><td>Building Maintenance</td><td>${fmt(c.maintenanceFee)}</td></tr>
+          <tr><td>Caretaker Fee</td><td>${fmt(c.caretakerFee)}</td></tr>
+          ${c.otherFees ? `<tr><td>Other Fees</td><td>${fmt(c.otherFees)}</td></tr>` : ''}
+          <tr class="total-row"><td>True Monthly Total</td><td>${fmt(
+            (Number(c.baseRent)||0) + (Number(c.electricityAmount)||0) + (Number(c.gasBill)||0) +
+            (Number(c.waterBill)||0) + (Number(c.internetCost)||0) + (Number(c.maintenanceFee)||0) +
+            (Number(c.caretakerFee)||0) + (Number(c.otherFees)||0)
+          )}</td></tr>
+        </table>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Property details</h3>
+        <div class="grid-3" style="font-size:13px">
+          <div><strong>Type:</strong> ${l.propertyType.replace('_',' ')}</div>
+          <div><strong>Rooms:</strong> ${l.totalRooms}</div>
+          <div><strong>Occupancy:</strong> ${l.currentOccupancy}/${l.totalRooms} occupied</div>
+          <div><strong>Gender Pref:</strong> ${l.genderPref}</div>
+          <div><strong>Status:</strong> ${l.status}</div>
+          <div><strong>Listing Type:</strong> ${l.listingType}</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Amenities</h3>
+        <div class="amenity-grid">${Object.keys(l.amenities).map(k => amenityIcon(k, l.amenities[k])).join('')}</div>
+      </div>
+
+      ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `
+      <div class="card" style="margin-bottom:18px">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Compatibility with current residents</h3>
+        <div style="display:flex;align-items:center;gap:18px">
+          <div class="compat-circle" style="background:${compatColor.color}">${userCompat.score}%</div>
+          <div>
+            <div class="badge" style="background:${compatColor.bg};color:${compatColor.color}">${compatColor.label}</div>
+            <div style="margin-top:8px;font-size:13px;color:var(--gray)">
+              ${userCompat.matched.length ? 'Matched: ' + userCompat.matched.join(', ') : ''} 
+              ${userCompat.unmatched.length ? (userCompat.matched.length ? ' · ' : '') + 'Mismatched: ' + userCompat.unmatched.join(', ') : ''}
+              ${!userCompat.matched.length && !userCompat.unmatched.length ? 'No preferences defined.' : ''}
+            </div>
+          </div>
+        </div>
+      </div>` : ''}
+
+      <div class="card" style="margin-bottom:18px">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Rent History</h3>
+        <canvas id="rentChart" height="80"></canvas>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3 style="margin:0;color:var(--navy)">Reviews (${l.reviewCount})</h3>
+          ${isLoggedIn() ? `<button class="btn btn-gold-outline btn-sm" onclick="document.getElementById('reviewModal').classList.add('open')">Write a Review</button>` : ''}
+        </div>
+        <div id="reviewsList"></div>
+      </div>
+    </div>
+
+    <aside>
+      <div id="map-detail"></div>
+      <div class="card" style="margin-top:14px">
+        <h3 style="margin:0 0 8px;color:var(--navy)">Landlord / Contact</h3>
+        <div style="font-weight:600" id="ownerName">Owner</div>
+        <div style="font-size:13px;color:var(--gray);margin:6px 0" id="ownerEmailText">Email: </div>
+        <button class="btn btn-primary btn-block" onclick="showToast('Contact request sent!')">Contact Owner</button>
+        <button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" style="margin-top:10px;width:100%;text-align:center"><i data-lucide="heart" class="lucide-sm"></i> ${wl ? 'Saved' : 'Save to watchlist'}</button>
+      </div>
+
+      ${linkedItems.length ? `
+      <div class="card" style="margin-top:14px">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Items from this tenant</h3>
+        ${linkedItems.slice(0,2).map(it => `
+          <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <img src="${it.photo}" style="width:60px;height:60px;object-fit:cover;border-radius:6px">
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">${it.title}</div>
+              <div style="color:var(--navy);font-weight:700">${fmt(it.price)}</div>
+            </div>
+            <a class="btn btn-outline btn-sm" href="item-detail.html?id=${it.id}">View</a>
+          </div>`).join('')}
+      </div>` : ''}
+
+      <div class="card" style="margin-top:14px">
+        <button class="btn btn-outline btn-block" onclick="document.getElementById('reportModal').classList.add('open')"><i data-lucide="alert-triangle" class="lucide-sm"></i> Report / Complaint</button>
+      </div>
+    </aside>
+  `;
+
+  // Render Owner name and email nicely
+  const ownerUser = mockData.users.find(u => u.email === l.ownerEmail);
+  document.getElementById('ownerName').textContent = ownerUser ? ownerUser.name : 'Mess Manager';
+  document.getElementById('ownerEmailText').textContent = 'Email: ' + (l.ownerEmail || 'info@uiunest.bd');
+
+  attachWatchlistHandlers();
+
+  document.getElementById('reviewsList').innerHTML = mockData.reviews.filter(r => r.listingId === l.id).map(r => `
+    <div style="padding:12px 0;border-top:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between"><strong>${r.reviewer}</strong><span style="color:var(--gray);font-size:12px">${r.date}</span></div>
+      <div class="stars">${stars(r.composite)} <span style="color:var(--dark);font-size:13px">${r.composite}</span></div>
+      <div style="margin-top:6px;font-size:14px">${r.comment}</div>
+    </div>`).join('') || '<p style="color:var(--gray);font-size:13px">No reviews yet.</p>';
+
+  // Map
+  const m = L.map('map-detail').setView([l.lat || 23.7805, l.lng || 90.4200], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(m);
+  L.marker([l.lat || 23.7805, l.lng || 90.4200], { icon: createNavyIcon() }).addTo(m);
+
+  // Rent chart
+  new Chart(document.getElementById('rentChart'), {
+    type: 'line',
+    data: { 
+      labels: l.rentHistory.map(x=>x.date), 
+      datasets: [{ 
+        label: 'Base Rent (৳)', 
+        data: l.rentHistory.map(x=>x.rent), 
+        borderColor: '#003366', 
+        backgroundColor: 'rgba(0,51,102,0.1)', 
+        tension: 0.3, 
+        fill: true 
+      }] 
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+  if (window.lucide) lucide.createIcons();
+}
+
+function submitReview(e) {
+  e.preventDefault();
+  const val = parseInt(document.getElementById('revVal').value);
+  const acc = parseInt(document.getElementById('revAcc').value);
+  const resp = parseInt(document.getElementById('revResp').value);
+  const clean = parseInt(document.getElementById('revClean').value);
+  const safe = parseInt(document.getElementById('revSafe').value);
+  const comment = document.getElementById('revComment').value.trim();
+
+  const composite = parseFloat(((val + acc + resp + clean + safe) / 5).toFixed(1));
+
+  const newReview = {
+    id: Date.now(),
+    listingId: l.id,
+    reviewer: mockData.currentUser ? mockData.currentUser.name : 'Anonymous',
+    date: new Date().toLocaleDateString('en-US'),
+    scores: { money: val, accuracy: acc, response: resp, cleanliness: clean, safety: safe },
+    composite,
+    comment
+  };
+
+  mockData.reviews.push(newReview);
+
+  const allReviewsForListing = mockData.reviews.filter(r => r.listingId === l.id);
+  const totalScore = allReviewsForListing.reduce((acc, curr) => acc + curr.composite, 0);
+  l.compositeScore = parseFloat((totalScore / allReviewsForListing.length).toFixed(1));
+  l.reviewCount = allReviewsForListing.length;
+
+  saveMockData();
+  document.getElementById('reviewModal').classList.remove('open');
+  document.getElementById('createReviewForm').reset();
+  showToast('Review submitted!');
+  location.reload();
+}
+
+function submitComplaint(e) {
+  e.preventDefault();
+  const category = document.getElementById('repCategory').value;
+  const desc = document.getElementById('repDesc').value.trim();
+
+  const newComplaint = {
+    id: Date.now(),
+    listingId: l.id,
+    listingTitle: l.title,
+    category,
+    desc,
+    userEmail: mockData.currentUser ? mockData.currentUser.email : 'anonymous@uiu.ac.bd',
+    status: 'Submitted',
+    date: new Date().toLocaleDateString('en-US')
+  };
+
+  mockData.complaints.push(newComplaint);
+  saveMockData();
+  document.getElementById('reportModal').classList.remove('open');
+  document.getElementById('reportForm').reset();
+  showToast('Complaint filed. Admin will review.');
+}
+</script>
+</body>
+</html>

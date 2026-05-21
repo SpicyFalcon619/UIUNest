@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Item Detail — UIUNest Exchange</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="container">
+  <a href="exchange.html" style="font-size:13px">← Back to Exchange</a>
+  <div class="detail-layout" style="margin-top:14px" id="content"></div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome('exchange');
+const id = getQueryId();
+const it = mockData.exchangeItems.find(x => x.id === id);
+
+function renderPage() {
+  const root = document.getElementById('content');
+  if (!it) {
+    root.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:80px 20px;background:white;border-radius:var(--radius-lg);border:1px solid var(--border)">
+        <h2 style="color:var(--navy)">Item Not Found</h2>
+        <p style="color:var(--gray)">This item does not exist or has been removed.</p>
+        <a class="btn btn-primary" href="exchange.html" style="margin-top:14px">Back to Exchange</a>
+      </div>`;
+    return;
+  }
+
+  const linked = it.linkedListingId ? mockData.listings.find(l => l.id === it.linkedListingId) : null;
+  const itemOffers = mockData.offers.filter(o => o.itemId === it.id);
+  const user = window.mockData.currentUser;
+  const isSeller = user && user.email === it.sellerEmail;
+  const sold = it.status === 'sold';
+
+  // Find if current user already has a pending or countered offer on this item
+  const userExistingOffer = user ? itemOffers.find(o => o.buyerEmail === user.email && (o.status === 'pending' || o.status === 'countered')) : null;
+
+  root.innerHTML = `
+    <div>
+      <img class="detail-photo" src="${it.photo}" alt="${it.title}">
+      <h1 style="margin:18px 0 6px;color:var(--navy)">${it.title}</h1>
+      <div class="badges" style="margin-bottom:14px">
+        <span class="badge badge-navy">${it.category}</span>
+        ${conditionBadge(it.condition)}
+        <span class="badge badge-gray">${it.zone}</span>
+        ${sold ? '<span class="badge badge-red">SOLD</span>' : '<span class="badge badge-green">AVAILABLE</span>'}
+      </div>
+      <div class="price" style="font-size:32px;margin-bottom:14px">${fmt(it.price)}</div>
+      
+      <div class="card" style="margin-bottom:14px">
+        <h3 style="margin:0 0 8px;color:var(--navy)">About this item</h3>
+        <p style="font-size:14px;margin:0">${it.description || 'No description provided.'}</p>
+      </div>
+      
+      <div class="card">
+        <h3 style="margin:0 0 8px;color:var(--navy)">Seller Details</h3>
+        <div style="font-weight:600">${it.seller}</div>
+        <div style="font-size:13px;color:var(--gray);margin-top:4px">Email: ${it.sellerEmail}</div>
+      </div>
+
+      ${linked ? `
+      <div class="card" style="margin-top:14px;border-left:3px solid var(--gold)">
+        <div style="font-size:12px;color:var(--gray)">LINKED HOUSING LISTING</div>
+        <div style="font-weight:600;margin:4px 0">This seller is moving from "${linked.title}"</div>
+        <a class="btn btn-outline btn-sm" href="listing-detail.html?id=${linked.id}">View flat details</a>
+      </div>` : ''}
+    </div>
+
+    <aside>
+      ${isLoggedIn() && !sold && !isSeller && !userExistingOffer ? `
+      <div class="card" style="margin-bottom:14px">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Submit an offer</h3>
+        <form onsubmit="submitOffer(event)">
+          <div class="form-group"><label>Your offer (৳)</label><input type="number" id="offerPrice" required min="10" value="${Math.round(it.price*0.85)}"></div>
+          <div class="form-group"><label>Message</label><textarea id="offerMsg" required placeholder="Hi! Would you accept this offer?"></textarea></div>
+          <button class="btn btn-gold btn-block">Submit Offer</button>
+        </form>
+      </div>` : ''}
+
+      ${isSeller && !sold ? `
+        <div class="card alert alert-amber" style="margin-bottom:14px">
+          <strong>Seller View:</strong> You listed this item. You can review offers from potential buyers below.
+        </div>
+      ` : ''}
+
+      ${sold ? `
+        <div class="card alert alert-green" style="margin-bottom:14px">
+          This item has been successfully sold! Negotiation closed.
+        </div>
+      ` : ''}
+
+      <div class="card">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Offer history</h3>
+        <div id="offersListMount"></div>
+      </div>
+    </aside>`;
+
+  renderOffers(itemOffers, isSeller, user, sold);
+  if (window.lucide) lucide.createIcons();
+}
+
+function renderOffers(offers, isSeller, user, sold) {
+  const mount = document.getElementById('offersListMount');
+  if (!mount) return;
+
+  if (offers.length === 0) {
+    mount.innerHTML = '<p style="color:var(--gray);font-size:13px">No offers yet.</p>';
+    return;
+  }
+
+  mount.innerHTML = offers.map(o => {
+    const isAccepted = o.status === 'accepted';
+    const isPending = o.status === 'pending';
+    const isCountered = o.status === 'countered';
+    
+    // Check roles
+    const userIsBuyer = user && user.email === o.buyerEmail;
+    const showPrice = o.counterPrice ? `${fmt(o.price)} → <strong>${fmt(o.counterPrice)}</strong>` : fmt(o.price);
+
+    let actionButtons = '';
+    
+    if (!sold) {
+      if (isPending && isSeller) {
+        // Seller can accept, reject, counter
+        actionButtons = `
+          <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.id})">Accept</button>
+            <button class="btn btn-outline btn-sm" onclick="showCounterForm(${o.id})">Counter</button>
+            <button class="btn btn-danger btn-sm" onclick="setOffer(${o.id}, 'rejected')">Reject</button>
+          </div>
+          <div id="counter-box-${o.id}" style="margin-top:8px; display:none;">
+            <input type="number" id="counter-input-${o.id}" placeholder="Counter Price (৳)" style="padding:6px; border:1px solid var(--border); border-radius:6px; width:120px;">
+            <button class="btn btn-primary btn-sm" onclick="sendCounter(${o.id})">Send</button>
+          </div>`;
+      } else if (isCountered && userIsBuyer) {
+        // Buyer can accept counter, reject counter, or withdraw
+        actionButtons = `
+          <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.id})">Accept Counter</button>
+            <button class="btn btn-danger btn-sm" onclick="setOffer(${o.id}, 'rejected')">Reject</button>
+            <button class="btn btn-outline btn-sm" onclick="setOffer(${o.id}, 'withdrawn')">Withdraw</button>
+          </div>`;
+      } else if (isPending && userIsBuyer) {
+        // Buyer can withdraw their pending offer
+        actionButtons = `
+          <div style="margin-top:8px;">
+            <button class="btn btn-outline btn-sm" onclick="setOffer(${o.id}, 'withdrawn')">Withdraw Offer</button>
+          </div>`;
+      }
+    }
+
+    const stateLabel = isAccepted ? '<span class="badge badge-green">Deal Closed</span>' : statusBadge(o.status);
+
+    return `
+      <div style="padding:12px 0; border-bottom:1px solid var(--border); ${sold && !isAccepted ? 'opacity:0.4' : ''}">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong>${o.buyerName || o.buyerEmail}</strong>
+          ${stateLabel}
+        </div>
+        <div style="margin:6px 0; font-size:15px;">${showPrice}</div>
+        <div style="font-size:13px; color:var(--gray); font-style:italic;">"${o.message}"</div>
+        ${actionButtons}
+        ${isAccepted ? '<div style="color:var(--success); font-weight:600; font-size:13px; margin-top:6px;"><i data-lucide="check" class="lucide-sm"></i> Deal made! Seller is contacting you.</div>' : ''}
+      </div>`;
+  }).join('');
+}
+
+function submitOffer(e) {
+  e.preventDefault();
+  const price = parseInt(document.getElementById('offerPrice').value);
+  const msg = document.getElementById('offerMsg').value.trim();
+  const user = mockData.currentUser;
+
+  const newOffer = {
+    id: Date.now(),
+    itemId: it.id,
+    buyerName: user.name,
+    buyerEmail: user.email,
+    sellerEmail: it.sellerEmail,
+    sellerName: it.seller,
+    price,
+    counterPrice: null,
+    message: msg,
+    status: 'pending',
+    date: new Date().toLocaleDateString()
+  };
+
+  mockData.offers.push(newOffer);
+  saveMockData();
+  showToast('Offer submitted successfully!');
+  renderPage();
+}
+
+function showCounterForm(offerId) {
+  const box = document.getElementById('counter-box-' + offerId);
+  if (box) {
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+function sendCounter(offerId) {
+  const valInput = document.getElementById('counter-input-' + offerId);
+  const counterVal = parseInt(valInput.value);
+  if (!counterVal || counterVal <= 0) {
+    showToast('Please enter a valid counter price', 'error');
+    return;
+  }
+
+  const o = mockData.offers.find(x => x.id === offerId);
+  if (o) {
+    o.counterPrice = counterVal;
+    o.status = 'countered';
+    o.message = `Seller countered with ${fmt(counterVal)}`;
+    saveMockData();
+    showToast('Counter offer sent');
+    renderPage();
+  }
+}
+
+function setOffer(offerId, status) {
+  const o = mockData.offers.find(x => x.id === offerId);
+  if (o) {
+    o.status = status;
+    saveMockData();
+    showToast(`Offer ${status}`);
+    renderPage();
+  }
+}
+
+function acceptOffer(offerId) {
+  const o = mockData.offers.find(x => x.id === offerId);
+  if (o) {
+    o.status = 'accepted';
+    // Mark item as sold
+    it.status = 'sold';
+    
+    // Reject all other pending/countered offers for this item
+    mockData.offers.forEach(other => {
+      if (other.itemId === it.id && other.id !== offerId && (other.status === 'pending' || other.status === 'countered')) {
+        other.status = 'rejected';
+      }
+    });
+
+    saveMockData();
+    showToast('Deal finalized! Item is marked as sold.');
+    renderPage();
+  }
+}
+
+renderPage();
+</script>
+</body>
+</html>

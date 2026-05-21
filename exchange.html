@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exchange — UIUNest</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="container">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h1 class="page-title" style="margin:0">UIUNest Exchange</h1>
+    <div id="sellBtnMount"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;display:flex;flex-wrap:wrap;gap:12px;align-items:end">
+    <div class="form-group" style="margin:0">
+      <label>Category</label>
+      <select id="fCat">
+        <option value="all">All</option>
+        <option value="furniture">Furniture</option>
+        <option value="appliances">Appliances</option>
+        <option value="electronics">Electronics</option>
+        <option value="kitchen">Kitchen</option>
+        <option value="study">Study</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin:0">
+      <label>Condition</label>
+      <select id="fCond">
+        <option value="all">All</option>
+        <option value="new">New</option>
+        <option value="like_new">Like New</option>
+        <option value="good">Good</option>
+        <option value="fair">Fair</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin:0">
+      <label>Zone</label>
+      <select id="fZone"><option value="all">All</option></select>
+    </div>
+    <div class="form-group" style="margin:0;min-width:200px">
+      <label>Max price: <span id="priceVal">৳20,000</span></label>
+      <input type="range" id="fPrice" min="0" max="20000" step="500" value="20000">
+    </div>
+    <div class="form-group" style="margin:0">
+      <label>Sort</label>
+      <select id="fSort">
+        <option value="newest">Newest</option>
+        <option value="lo">Price ↑</option>
+        <option value="hi">Price ↓</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid-3" id="itemsGrid"></div>
+</div>
+
+<!-- Sell Item Modal -->
+<div class="modal-bg" id="sellItemModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('sellItemModal').classList.remove('open')">×</button>
+    <h3>Sell an Item</h3>
+    <form id="sellItemForm" onsubmit="saveNewItem(event)">
+      <div class="form-group"><label>Title</label><input type="text" id="itmTitle" required placeholder="e.g. Study Table with Drawers"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Category</label>
+          <select id="itmCategory" required>
+            <option value="furniture">Furniture</option>
+            <option value="appliances">Appliances</option>
+            <option value="electronics">Electronics</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="study">Study</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Condition</label>
+          <select id="itmCondition" required>
+            <option value="new">New</option>
+            <option value="like_new">Like New</option>
+            <option value="good">Good</option>
+            <option value="fair">Fair</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Price (৳)</label><input type="number" id="itmPrice" required min="0"></div>
+        <div class="form-group"><label>Zone</label>
+          <select id="itmZone" required></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Linked Flat/Listing (Optional)</label>
+        <select id="itmLinkListing">
+          <option value="">None (Not linked)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="itmDesc" required placeholder="Describe the item condition, size, age, etc."></textarea></div>
+      <div class="form-group"><label>Photo URL (Optional)</label><input type="url" id="itmPhoto" placeholder="https://images.unsplash.com/... (optional)"></div>
+      <button type="submit" class="btn btn-primary btn-block">Post Item for Sale</button>
+    </form>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome('exchange');
+
+const user = window.mockData.currentUser;
+
+if (isLoggedIn() && user) {
+  document.getElementById('sellBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openSellItemModal()">+ Sell Item</button>`;
+}
+
+const zoneSel = document.getElementById('fZone');
+mockData.zones.forEach(z => { 
+  zoneSel.innerHTML += `<option value="${z.name}">${z.name}</option>`; 
+});
+
+function renderItems() {
+  const cat = document.getElementById('fCat').value;
+  const cond = document.getElementById('fCond').value;
+  const zone = document.getElementById('fZone').value;
+  const maxP = parseInt(document.getElementById('fPrice').value);
+  const sort = document.getElementById('fSort').value;
+
+  let r = mockData.exchangeItems.filter(it => {
+    if (it.status === 'sold') return false; // Hide sold items from the grid
+    if (cat !== 'all' && it.category !== cat) return false;
+    if (cond !== 'all' && it.condition !== cond) return false;
+    if (zone !== 'all' && it.zone !== zone) return false;
+    if (it.price > maxP) return false;
+    return true;
+  });
+
+  if (sort === 'lo') r.sort((a,b)=>a.price-b.price);
+  if (sort === 'hi') r.sort((a,b)=>b.price-a.price);
+  if (sort === 'newest') r.sort((a,b)=>b.id-a.id);
+
+  document.getElementById('itemsGrid').innerHTML = r.map(it => `
+    <div class="listing-card">
+      <img class="listing-photo" src="${it.photo}" alt="${it.title}" loading="lazy">
+      <div class="listing-body">
+        <div class="badges">
+          <span class="badge badge-navy">${it.category}</span>
+          ${conditionBadge(it.condition)}
+          <span class="badge badge-gray">${it.zone}</span>
+          ${it.linkedListingId ? '<span class="badge badge-gold"><i data-lucide="link" class="lucide-sm"></i> Linked Flat</span>' : ''}
+        </div>
+        <div class="listing-title">${it.title}</div>
+        <div class="price">${fmt(it.price)}</div>
+        <div style="font-size:12px;color:var(--gray)">Seller: ${it.seller}</div>
+        <div class="listing-footer" style="gap: 8px;">
+          <a class="btn btn-outline btn-sm" href="item-detail.html?id=${it.id}">Make Offer</a>
+          <a class="btn btn-primary btn-sm" href="item-detail.html?id=${it.id}">View</a>
+        </div>
+      </div>
+    </div>`).join('') || '<p style="color:var(--gray); grid-column: 1/-1; text-align: center; padding: 40px 0;">No items listed on the exchange yet.</p>';
+  if (window.lucide) lucide.createIcons();
+}
+
+document.getElementById('fPrice').addEventListener('input', e => {
+  document.getElementById('priceVal').textContent = fmt(e.target.value);
+});
+document.querySelectorAll('#fCat,#fCond,#fZone,#fPrice,#fSort').forEach(el => el.addEventListener('change', renderItems));
+
+function openSellItemModal() {
+  document.getElementById('sellItemModal').classList.add('open');
+  document.getElementById('itmZone').innerHTML = mockData.zones.map(z => `<option value="${z.name}">${z.name}</option>`).join('');
+
+  // Linked properties list
+  const linkSel = document.getElementById('itmLinkListing');
+  linkSel.innerHTML = '<option value="">None (Not linked)</option>';
+  const myProps = mockData.listings.filter(l => l.ownerEmail === user.email);
+  myProps.forEach(l => {
+    linkSel.innerHTML += `<option value="${l.id}">${l.title}</option>`;
+  });
+}
+
+function saveNewItem(e) {
+  e.preventDefault();
+  const title = document.getElementById('itmTitle').value.trim();
+  const category = document.getElementById('itmCategory').value;
+  const condition = document.getElementById('itmCondition').value;
+  const price = parseInt(document.getElementById('itmPrice').value);
+  const zone = document.getElementById('itmZone').value;
+  const linkedListingId = parseInt(document.getElementById('itmLinkListing').value) || null;
+  const description = document.getElementById('itmDesc').value.trim();
+  let photo = document.getElementById('itmPhoto').value.trim();
+  if (!photo) {
+    photo = 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600';
+  }
+
+  const newItem = {
+    id: Date.now(),
+    title,
+    category,
+    condition,
+    price,
+    zone,
+    linkedListingId,
+    description,
+    photo,
+    seller: user.name,
+    sellerEmail: user.email,
+    status: 'available'
+  };
+
+  mockData.exchangeItems.push(newItem);
+  saveMockData();
+
+  document.getElementById('sellItemModal').classList.remove('open');
+  document.getElementById('sellItemForm').reset();
+  showToast('Item posted for sale!');
+  renderItems();
+}
+
+renderItems();
+</script>
+</body>
+</html>

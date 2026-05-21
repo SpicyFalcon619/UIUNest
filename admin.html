@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — UIUNest</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="data.js"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="container">
+  <h1 class="page-title">Admin Dashboard <span class="badge badge-gold" style="font-size:12px;vertical-align:middle">DEMO</span></h1>
+
+  <div class="stats-row" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-label">Total Listings</div><div class="stat-value" id="statListings">0</div></div>
+    <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="statUsers">0</div></div>
+    <div class="stat-card"><div class="stat-label">Open Complaints</div><div class="stat-value" id="statComplaints">0</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Verifications</div><div class="stat-value" id="statVerifications">0</div></div>
+  </div>
+
+  <div class="alert alert-amber" id="demandAlert" style="display:none;"></div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card"><h3 style="margin:0 0 10px;color:var(--navy)">Average Rent by Zone</h3><canvas id="rentChart" height="160"></canvas></div>
+    <div class="card"><h3 style="margin:0 0 10px;color:var(--navy)">Demand vs Supply</h3><canvas id="demandChart" height="160"></canvas></div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3 style="margin:0 0 14px;color:var(--navy)">Complaints</h3>
+    <table class="table">
+      <thead><tr><th>#</th><th>Complainant</th><th>Against</th><th>Category</th><th>Listing</th><th>Status</th><th>Filed</th><th>Action</th></tr></thead>
+      <tbody id="complaintsTbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 14px;color:var(--navy)">Verification Requests</h3>
+    <table class="table">
+      <thead><tr><th>Landlord</th><th>NID Type</th><th>Description</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody id="verifTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="footer-mount"></div>
+<script src="app.js"></script>
+<script>
+mountChrome('admin');
+
+let rentChart = null;
+let demandChart = null;
+
+function renderCharts() {
+  if (rentChart) rentChart.destroy();
+  if (demandChart) demandChart.destroy();
+
+  rentChart = new Chart(document.getElementById('rentChart'), {
+    type: 'bar',
+    data: {
+      labels: mockData.adminStats.avgRentByZone.map(z => z.zone),
+      datasets: [{ label: 'Avg Monthly Rent (৳)', data: mockData.adminStats.avgRentByZone.map(z => z.avg), backgroundColor: '#0055AA', borderRadius: 6 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+
+  demandChart = new Chart(document.getElementById('demandChart'), {
+    type: 'bar',
+    data: {
+      labels: mockData.adminStats.seekingVsListings.map(z => z.zone),
+      datasets: [
+        { label: 'Seeking Posts', data: mockData.adminStats.seekingVsListings.map(z => z.seeking), backgroundColor: '#C8920A', borderRadius: 4 },
+        { label: 'Listings',      data: mockData.adminStats.seekingVsListings.map(z => z.listings), backgroundColor: '#003366', borderRadius: 4 }
+      ]
+    },
+    options: { responsive: true }
+  });
+}
+
+function renderAdminDashboard() {
+  // Enforce stats recalculation
+  recalculateAdminStats();
+
+  // Populate dynamic stats cards
+  document.getElementById('statListings').textContent = mockData.listings.length;
+  document.getElementById('statUsers').textContent = mockData.users.length;
+  const openComplaintsCount = mockData.complaints.filter(c => c.status !== 'Resolved').length;
+  document.getElementById('statComplaints').textContent = openComplaintsCount;
+  const pendingVerifsCount = mockData.verifs.filter(v => !v.approved).length;
+  document.getElementById('statVerifications').textContent = pendingVerifsCount;
+
+  // Render Demand alert
+  const alertEl = document.getElementById('demandAlert');
+  const zonesWithMismatch = [];
+  mockData.adminStats.seekingVsListings.forEach(z => {
+    if (z.seeking > z.listings) {
+      zonesWithMismatch.push(`${z.zone} (+${z.seeking - z.listings})`);
+    }
+  });
+  if (zonesWithMismatch.length > 0) {
+    alertEl.style.display = 'block';
+    alertEl.innerHTML = `<i data-lucide="alert-triangle" class="lucide-sm"></i> These zones have more seekers than listings: ${zonesWithMismatch.join(', ')}. Consider outreach to landlords in these areas.`;
+  } else {
+    alertEl.style.display = 'none';
+  }
+
+  // Render complaints
+  document.getElementById('complaintsTbody').innerHTML = mockData.complaints.map((c, index) => {
+    const listing = mockData.listings.find(x => x.id === c.listingId) || {};
+    const owner = mockData.users.find(u => u.email === listing.ownerEmail) || { name: 'Unknown Landlord' };
+    const complainantUser = mockData.users.find(u => u.email === c.userEmail) || { name: c.userEmail.split('@')[0] };
+
+    return `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${complainantUser.name || c.userEmail}</td>
+        <td>${owner.name}</td>
+        <td>${c.category}</td>
+        <td><a href="listing-detail.html?id=${c.listingId}" style="color:var(--navy);font-weight:600;">${c.listingTitle}</a></td>
+        <td>${statusBadge(c.status)}</td>
+        <td>${c.date}</td>
+        <td>
+          ${c.status === 'Submitted' ? `<button class="btn btn-outline btn-sm" onclick="setComplaintStatus(${c.id}, 'Under Review')">Review</button>` : ''}
+          ${c.status !== 'Resolved' ? `<button class="btn btn-success btn-sm" onclick="setComplaintStatus(${c.id}, 'Resolved')">Resolve</button>` : '—'}
+        </td>
+      </tr>`;
+  }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray);">No complaints filed yet.</td></tr>';
+
+  // Render verification requests
+  document.getElementById('verifTbody').innerHTML = mockData.verifs.map(v => {
+    return `
+      <tr>
+        <td><strong>${v.name}</strong><br><span style="font-size:12px;color:var(--gray);">${v.email}</span></td>
+        <td>${v.nidType}</td>
+        <td>${v.desc}</td>
+        <td>${v.date}</td>
+        <td>
+          ${v.approved
+            ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Approved</span>'
+            : `<div style="display:flex;gap:6px;"><button class="btn btn-success btn-sm" onclick="approveVerif(${v.id})">Approve</button>
+               <button class="btn btn-danger btn-sm" onclick="rejectVerif(${v.id})">Reject</button></div>`
+          }
+        </td>
+      </tr>`;
+  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray);">No verification requests submitted yet.</td></tr>';
+
+  renderCharts();
+  lucide.createIcons();
+}
+
+function setComplaintStatus(id, s) {
+  const c = mockData.complaints.find(x => x.id === id);
+  if (c) {
+    c.status = s;
+    saveMockData();
+    renderAdminDashboard();
+    showToast('Complaint status updated');
+  }
+}
+
+function approveVerif(id) {
+  const v = mockData.verifs.find(x => x.id === id);
+  if (v) {
+    v.approved = true;
+    
+    // Also verify all existing listings of this landlord
+    mockData.listings.forEach(l => {
+      if (l.ownerEmail === v.email) {
+        l.isVerified = true;
+      }
+    });
+
+    saveMockData();
+    renderAdminDashboard();
+    showToast('Landlord and listings verified successfully!');
+  }
+}
+
+function rejectVerif(id) {
+  const i = mockData.verifs.findIndex(x => x.id === id);
+  if (i >= 0) {
+    const v = mockData.verifs[i];
+    
+    // Set existing listings of this landlord to unverified
+    mockData.listings.forEach(l => {
+      if (l.ownerEmail === v.email) {
+        l.isVerified = false;
+      }
+    });
+
+    mockData.verifs.splice(i, 1);
+    saveMockData();
+    renderAdminDashboard();
+    showToast('Verification request rejected', 'error');
+  }
+}
+
+// Initial render
+renderAdminDashboard();
+</script>
+</body>
+</html>

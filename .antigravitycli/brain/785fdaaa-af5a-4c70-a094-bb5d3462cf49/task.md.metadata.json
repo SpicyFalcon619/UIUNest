@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_TASK",
+  "summary": "Task list for executing UIUNest functional cleanup and local persistence. Tasks cover: setting up state management with premade accounts, empty database initialization, user login/registration updates, profile and preferences screen, property listings (creation/deletion/editing), exchange marketplace items & offers, bill management, reviews & complaints, admin panel updates, and verification.",
+  "updatedAt": "2026-05-21T16:28:45.355924Z"
+}
