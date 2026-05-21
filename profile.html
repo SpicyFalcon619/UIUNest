@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Profile — UIUNest</title>
+<title>Profile - UIUNest</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="data.js"></script>
@@ -73,7 +73,7 @@
         </div>
       </div>
       <div class="form-group"><label>Cleanliness standard</label>
-        <div id="cleanStars" style="font-size:24px;cursor:pointer;color:var(--gold)">★★★★☆</div>
+        <div id="cleanStars" style="cursor:pointer;color:var(--gold)"><i data-lucide="star" style="fill: currentColor"></i><i data-lucide="star" style="fill: currentColor"></i><i data-lucide="star" style="fill: currentColor"></i><i data-lucide="star" style="fill: currentColor"></i><i data-lucide="star"></i></div>
       </div>
       <div class="form-group"><label>Noise tolerance</label>
         <div class="radio-row">
@@ -172,7 +172,11 @@ document.querySelectorAll('input[name=fg]').forEach(r => {
 
 let cleanRating = prefs.cleanliness || 4;
 const cs = document.getElementById('cleanStars');
-cs.textContent = '★'.repeat(cleanRating) + '☆'.repeat(5 - cleanRating);
+function renderCleanStars() {
+  cs.innerHTML = '<i data-lucide="star" style="fill: currentColor"></i>'.repeat(cleanRating) + '<i data-lucide="star"></i>'.repeat(5 - cleanRating);
+  if (window.lucide) lucide.createIcons();
+}
+renderCleanStars();
 
 document.querySelectorAll('input[name=noise]').forEach(r => {
   if (r.value === prefs.noise) r.checked = true;
@@ -181,7 +185,7 @@ document.querySelectorAll('input[name=noise]').forEach(r => {
 cs.addEventListener('click', e => {
   const rect = cs.getBoundingClientRect();
   cleanRating = Math.min(5, Math.max(1, Math.ceil(((e.clientX - rect.left) / rect.width) * 5)));
-  cs.textContent = '★'.repeat(cleanRating) + '☆'.repeat(5 - cleanRating);
+  renderCleanStars();
 });
 
 function saveProfile(e) {

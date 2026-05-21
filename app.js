@@ -237,7 +237,7 @@ function renderFooter() {
         <a href="seeking.html">Looking For</a> ·
         ${window.mockData.currentUser && window.mockData.currentUser.role === 'admin' ? '<a href="admin.html">Admin</a>' : ''}
       </div>
-      <div style="margin-top:10px">© 2025 UIUNest — United International University</div>
+      <div style="margin-top:10px">© 2025 UIUNest - United International University</div>
       <div style="margin-top:12px;display:flex;justify-content:center;flex-wrap:wrap;gap:8px">
         <button class="demo-toggle" onclick="toggleDemoLogin()">Toggle Login (${isLoggedIn() ? 'logged in' : 'logged out'})</button>
         <button class="demo-toggle" style="background:#800;border-color:#800" onclick="toggleDataMode(false)">Reset to Clean Data</button>

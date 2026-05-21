@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mess Bills — UIUNest</title>
+<title>Mess Bills - UIUNest</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="data.js"></script>
@@ -247,7 +247,7 @@ function loadTrackerMonth(billId, listingId) {
       <td>${p.resident}</td>
       <td>${fmt(bill.perPerson)}</td>
       <td>${p.status === 'paid' ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Paid</span>' : '<span class="badge badge-amber"><i data-lucide="clock" class="lucide-sm"></i> Unpaid</span>'}</td>
-      <td>${p.status === 'unpaid' ? `<button class="btn btn-success btn-sm" onclick="markPaidLocal(${bill.id}, ${idx}, ${listingId})">Mark Paid</button>` : '—'}</td>
+      <td>${p.status === 'unpaid' ? `<button class="btn btn-success btn-sm" onclick="markPaidLocal(${bill.id}, ${idx}, ${listingId})">Mark Paid</button>` : '-'}</td>
     </tr>`).join('');
 
   const paidCount = bill.payments.filter(p => p.status === 'paid').length;

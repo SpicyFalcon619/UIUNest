@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Listing Detail — UIUNest</title>
+<title>Listing Detail - UIUNest</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -103,9 +103,9 @@ if (!l) {
 
   function amenityIcon(k, on) {
     const labels = {
-      attachedBathroom: '🚿 Attached Bath', attachedKitchen: '🍳 Kitchen',
-      isFurnished: '🛋 Furnished', rooftopAccess: '🌅 Rooftop',
-      parking: '🚗 Parking', powerBackup: '⚡ Power Backup', liftAccess: '🛗 Lift'
+      attachedBathroom: '<i data-lucide="bath" class="lucide-sm"></i> Attached Bath', attachedKitchen: '<i data-lucide="chef-hat" class="lucide-sm"></i> Kitchen',
+      isFurnished: '<i data-lucide="sofa" class="lucide-sm"></i> Furnished', rooftopAccess: '<i data-lucide="sun" class="lucide-sm"></i> Rooftop',
+      parking: '<i data-lucide="car" class="lucide-sm"></i> Parking', powerBackup: '<i data-lucide="zap" class="lucide-sm"></i> Power Backup', liftAccess: '<i data-lucide="arrow-up-down" class="lucide-sm"></i> Lift'
     };
     return `<div class="amenity ${on ? '' : 'off'}">${labels[k] || k}</div>`;
   }
@@ -122,7 +122,7 @@ if (!l) {
       </div>
 
       <div class="card" style="margin-bottom:18px">
-        <h3 style="margin:0 0 10px;color:var(--navy)">💰 Cost Breakdown</h3>
+        <h3 style="margin:0 0 10px;color:var(--navy)"><i data-lucide="coins" class="lucide-sm"></i> Cost Breakdown</h3>
         <table class="cost-table">
           <tr><td>Base Rent</td><td>${fmt(c.baseRent)}</td></tr>
           <tr><td>Electricity ${elecLabel}</td><td>${fmt(c.electricityAmount)}</td></tr>
