@@ -22,6 +22,6 @@ logs/
 *.log
 
 # Project specific ignores
-.antigravitycli\
+.antigravitycli/
 UIUNest report/
 *Context.md
