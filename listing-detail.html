@@ -131,11 +131,11 @@ if (!l) {
           <tr><td>Internet</td><td>${fmt(c.internetCost)}</td></tr>
           <tr><td>Building Maintenance</td><td>${fmt(c.maintenanceFee)}</td></tr>
           <tr><td>Caretaker Fee</td><td>${fmt(c.caretakerFee)}</td></tr>
-          ${c.otherFees ? `<tr><td>Other Fees</td><td>${fmt(c.otherFees)}</td></tr>` : ''}
+          ${c.customFees ? c.customFees.map(f => `<tr><td>${f.name}</td><td>${fmt(f.amount)}</td></tr>`).join('') : (c.otherFees ? `<tr><td>Other Fees</td><td>${fmt(c.otherFees)}</td></tr>` : '')}
           <tr class="total-row"><td>True Monthly Total</td><td>${fmt(
             (Number(c.baseRent)||0) + (Number(c.electricityAmount)||0) + (Number(c.gasBill)||0) +
             (Number(c.waterBill)||0) + (Number(c.internetCost)||0) + (Number(c.maintenanceFee)||0) +
-            (Number(c.caretakerFee)||0) + (Number(c.otherFees)||0)
+            (Number(c.caretakerFee)||0) + (c.customFees ? c.customFees.reduce((sum, f) => sum + (Number(f.amount)||0), 0) : (Number(c.otherFees)||0))
           )}</td></tr>
         </table>
       </div>

@@ -136,8 +136,13 @@
       </div>
       <div class="grid-2">
         <div class="form-group"><label>Caretaker Fee (৳)</label><input type="number" id="lstCaretaker" required min="0" value="0"></div>
-        <div class="form-group"><label>Other/Optional Fees (৳)</label><input type="number" id="lstOther" required min="0" value="0"></div>
       </div>
+      
+      <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <span>Custom / Other Fees (Optional)</span>
+        <button type="button" class="btn btn-outline btn-sm" style="padding:4px 8px;font-size:12px" onclick="addCustomFee()">+ Add Custom Fee</button>
+      </div>
+      <div id="customFeesContainer"></div>
 
       <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 14px;">Amenities</div>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;">
@@ -270,6 +275,21 @@ function openCreateListingModal() {
   }
   document.getElementById('createListingModal').classList.add('open');
   document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+  document.getElementById('customFeesContainer').innerHTML = ''; // Reset custom fees
+}
+
+function addCustomFee() {
+  const container = document.getElementById('customFeesContainer');
+  const div = document.createElement('div');
+  div.className = 'grid-3 custom-fee-row';
+  div.style.alignItems = 'end';
+  div.style.marginBottom = '10px';
+  div.innerHTML = `
+    <div class="form-group" style="margin:0"><label>Fee Name</label><input type="text" class="cf-name" required placeholder="e.g. Cooking Fee"></div>
+    <div class="form-group" style="margin:0"><label>Amount (৳)</label><input type="number" class="cf-amount" required min="0"></div>
+    <div class="form-group" style="margin:0"><button type="button" class="btn btn-danger btn-block" onclick="this.parentElement.parentElement.remove()">Remove</button></div>
+  `;
+  container.appendChild(div);
 }
 
 function saveNewListing(e) {
@@ -295,9 +315,19 @@ function saveNewListing(e) {
   const internetCost = parseInt(document.getElementById('lstInternet').value);
   const maintenanceFee = parseInt(document.getElementById('lstMaint').value);
   const caretakerFee = parseInt(document.getElementById('lstCaretaker').value);
-  const otherFees = parseInt(document.getElementById('lstOther').value);
 
-  const totalMonthly = baseRent + electricityAmount + gasBill + waterBill + internetCost + maintenanceFee + caretakerFee + otherFees;
+  const customFees = [];
+  let customFeesTotal = 0;
+  document.querySelectorAll('.custom-fee-row').forEach(row => {
+    const name = row.querySelector('.cf-name').value.trim();
+    const amount = parseInt(row.querySelector('.cf-amount').value) || 0;
+    if (name && amount > 0) {
+      customFees.push({ name, amount });
+      customFeesTotal += amount;
+    }
+  });
+
+  const totalMonthly = baseRent + electricityAmount + gasBill + waterBill + internetCost + maintenanceFee + caretakerFee + customFeesTotal;
 
   const amenities = {
     attachedBathroom: document.getElementById('lstAmenBath').checked,
@@ -352,7 +382,7 @@ function saveNewListing(e) {
       baseRent,
       electricityType,
       electricityAmount,
-      gasBill, waterBill, internetCost, maintenanceFee, caretakerFee, otherFees,
+      gasBill, waterBill, internetCost, maintenanceFee, caretakerFee, customFees,
       totalMonthly
     },
     amenities,

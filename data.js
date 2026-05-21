@@ -55,8 +55,8 @@ window.getInitialData = function(populated = true) {
         internetCost: 500,
         maintenanceFee: 500,
         caretakerFee: 0,
-        otherFees: 0,
-        totalMonthly: 10000
+        customFees: [{ name: "Cooking Fee", amount: 500 }],
+        totalMonthly: 10500
       },
       depositAmount: 8000,
       depositTerms: "Refundable",
@@ -89,7 +89,7 @@ window.getInitialData = function(populated = true) {
         internetCost: 200,
         maintenanceFee: 200,
         caretakerFee: 100,
-        otherFees: 0,
+        customFees: [],
         totalMonthly: 5400
       },
       depositAmount: 4000,

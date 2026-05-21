@@ -283,7 +283,7 @@ function saveEditedListing(e) {
     // Recalculate true monthly total
     l.costs.totalMonthly = baseRent + (l.costs.electricityAmount || 0) + (l.costs.gasBill || 0) +
                            (l.costs.waterBill || 0) + (l.costs.internetCost || 0) + (l.costs.maintenanceFee || 0) +
-                           (l.costs.caretakerFee || 0) + (l.costs.otherFees || 0);
+                           (l.costs.caretakerFee || 0) + (l.costs.customFees ? l.costs.customFees.reduce((sum, f) => sum + (Number(f.amount)||0), 0) : (Number(l.costs.otherFees)||0));
 
     // If base rent changed, append to rent history
     if (prevBaseRent !== baseRent) {
