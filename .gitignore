@@ -20,3 +20,8 @@ yarn-debug.log*
 yarn-error.log*
 logs/
 *.log
+
+# Project specific ignores
+.antigravitycli\brain\785fdaaa-af5a-4c70-a094-bb5d3462cf49/
+UIUNest report/
+*Context.md
