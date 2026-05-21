@@ -45,6 +45,14 @@
       <tbody id="verifTbody"></tbody>
     </table>
   </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3 style="margin:0 0 14px;color:var(--navy)">Manage All Listings</h3>
+    <table class="table">
+      <thead><tr><th>ID</th><th>Title</th><th>Zone</th><th>Owner</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="allListingsTbody"></tbody>
+    </table>
+  </div>
 </div>
 
 <div id="footer-mount"></div>
@@ -124,8 +132,11 @@ function renderAdminDashboard() {
         <td>${statusBadge(c.status)}</td>
         <td>${c.date}</td>
         <td>
-          ${c.status === 'Submitted' ? `<button class="btn btn-outline btn-sm" onclick="setComplaintStatus(${c.id}, 'Under Review')">Review</button>` : ''}
-          ${c.status !== 'Resolved' ? `<button class="btn btn-success btn-sm" onclick="setComplaintStatus(${c.id}, 'Resolved')">Resolve</button>` : '—'}
+          <div style="display:flex;gap:4px">
+            ${c.status === 'Submitted' ? `<button class="btn btn-outline btn-sm" onclick="setComplaintStatus(${c.id}, 'Under Review')">Review</button>` : ''}
+            ${c.status !== 'Resolved' ? `<button class="btn btn-success btn-sm" onclick="setComplaintStatus(${c.id}, 'Resolved')">Resolve</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deleteListingAdmin(${c.listingId})">Del Listing</button>
+          </div>
         </td>
       </tr>`;
   }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray);">No complaints filed yet.</td></tr>';
@@ -147,6 +158,17 @@ function renderAdminDashboard() {
         </td>
       </tr>`;
   }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray);">No verification requests submitted yet.</td></tr>';
+
+  // Render all listings
+  document.getElementById('allListingsTbody').innerHTML = mockData.listings.map(l => `
+    <tr>
+      <td>${l.id}</td>
+      <td><a href="listing-detail.html?id=${l.id}" style="color:var(--navy);font-weight:600;">${l.title}</a></td>
+      <td>${l.zone}</td>
+      <td>${l.ownerName || l.ownerEmail.split('@')[0]}</td>
+      <td>${statusBadge(l.status)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteListingAdmin(${l.id})">Delete</button></td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);">No listings found.</td></tr>';
 
   renderCharts();
   lucide.createIcons();
@@ -196,6 +218,17 @@ function rejectVerif(id) {
     saveMockData();
     renderAdminDashboard();
     showToast('Verification request rejected', 'error');
+  }
+}
+
+function deleteListingAdmin(id) {
+  if (confirm("Are you sure you want to completely delete this listing? This action cannot be undone.")) {
+    mockData.listings = mockData.listings.filter(l => l.id !== id);
+    mockData.complaints = mockData.complaints.filter(c => c.listingId !== id);
+    mockData.reviews = mockData.reviews.filter(r => r.listingId !== id);
+    saveMockData();
+    renderAdminDashboard();
+    showToast('Listing completely deleted', 'error');
   }
 }
 

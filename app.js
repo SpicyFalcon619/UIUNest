@@ -29,13 +29,30 @@ function recalculateAdminStats() {
   });
 }
 
-// Initialize database in localStorage if not exists, and overwrite window.mockData with localStorage contents
-if (!localStorage.getItem('uiunest_db_v4') && window.mockData) {
+let currentMode = localStorage.getItem('uiunest_data_mode') === 'clean' ? false : true;
+
+// Initialize database in localStorage if not exists
+if (!localStorage.getItem('uiunest_db_v4')) {
+  window.mockData = window.getInitialData(currentMode);
   recalculateAdminStats();
   localStorage.setItem('uiunest_db_v4', JSON.stringify(window.mockData));
-}
-if (localStorage.getItem('uiunest_db_v4')) {
+} else {
   window.mockData = JSON.parse(localStorage.getItem('uiunest_db_v4'));
+}
+
+function toggleDataMode(populated) {
+  const data = window.getInitialData(populated);
+  localStorage.setItem('uiunest_db_v4', JSON.stringify(data));
+  localStorage.setItem('uiunest_data_mode', populated ? 'populated' : 'clean');
+  
+  // also reset current user
+  localStorage.removeItem('uiunest_logged_in_v4');
+  localStorage.removeItem('uiunest_current_user_v4');
+  location.href = 'index.html';
+}
+
+function isUserVerified(email) {
+  return window.mockData.verifs.some(v => v.email === email && v.approved);
 }
 
 // Session currentUser initialization
@@ -221,7 +238,11 @@ function renderFooter() {
         ${window.mockData.currentUser && window.mockData.currentUser.role === 'admin' ? '<a href="admin.html">Admin</a>' : ''}
       </div>
       <div style="margin-top:10px">© 2025 UIUNest — United International University</div>
-      <button class="demo-toggle" onclick="toggleDemoLogin()">Demo: Toggle Login (${isLoggedIn() ? 'logged in' : 'logged out'})</button>
+      <div style="margin-top:12px;display:flex;justify-content:center;flex-wrap:wrap;gap:8px">
+        <button class="demo-toggle" onclick="toggleDemoLogin()">Toggle Login (${isLoggedIn() ? 'logged in' : 'logged out'})</button>
+        <button class="demo-toggle" style="background:#800;border-color:#800" onclick="toggleDataMode(false)">Reset to Clean Data</button>
+        <button class="demo-toggle" style="background:#0055AA;border-color:#0055AA" onclick="toggleDataMode(true)">Reset to Mock Data</button>
+      </div>
     </footer>`;
 }
 

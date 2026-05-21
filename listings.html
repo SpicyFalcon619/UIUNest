@@ -264,6 +264,10 @@ document.getElementById('budget').addEventListener('input', e => {
 document.querySelectorAll('.sidebar input, .sidebar select').forEach(el => el.addEventListener('change', applyFilters));
 
 function openCreateListingModal() {
+  if (user.role !== 'admin' && !isUserVerified(user.email)) {
+    alert("You must submit a verification document in your Profile and wait for Admin approval before listing a property.");
+    return;
+  }
   document.getElementById('createListingModal').classList.add('open');
   document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
 }

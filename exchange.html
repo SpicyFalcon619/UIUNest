@@ -169,6 +169,10 @@ document.getElementById('fPrice').addEventListener('input', e => {
 document.querySelectorAll('#fCat,#fCond,#fZone,#fPrice,#fSort').forEach(el => el.addEventListener('change', renderItems));
 
 function openSellItemModal() {
+  if (user.role !== 'admin' && !isUserVerified(user.email)) {
+    alert("You must submit a verification document in your Profile and wait for Admin approval before selling an item.");
+    return;
+  }
   document.getElementById('sellItemModal').classList.add('open');
   document.getElementById('itmZone').innerHTML = mockData.zones.map(z => `<option value="${z.name}">${z.name}</option>`).join('');
 
