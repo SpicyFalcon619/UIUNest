@@ -219,7 +219,8 @@ function renderNav(active) {
 
   return `
     <nav class="navbar">
-      <div class="nav-inner">
+      <div class="nav-inner" style="position:relative">
+        <button class="mobile-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:8px;margin-right:8px"><i data-lucide="menu" class="lucide-lg"></i></button>
         <a href="index.html" class="nav-logo"><span style="color:var(--navy)">UIU</span><span style="color:var(--gold)">Nest</span></a>
         <div class="nav-links">${linkHTML}</div>
         <div class="nav-right">${rightHTML}</div>
