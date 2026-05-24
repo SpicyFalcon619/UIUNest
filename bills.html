@@ -22,6 +22,10 @@ mountChrome('dashboard');
 const root = document.getElementById('contentMount');
 const user = window.mockData.currentUser;
 
+let userListings = [];
+let activeListing = null;
+let activeBills = [];
+
 if (!isLoggedIn()) {
   root.innerHTML = `
     <div class="auth-wrap">
@@ -32,26 +36,47 @@ if (!isLoggedIn()) {
       </div>
     </div>`;
 } else {
-  // Find listings owned by the user
-  const myProps = mockData.listings.filter(l => l.ownerEmail === user.email);
+  initBillsData();
+}
 
-  if (myProps.length === 0) {
-    root.innerHTML = `
-      <div style="text-align:center;padding:80px 20px;background:white;border-radius:var(--radius-lg);border:1px solid var(--border)">
-        <h2 style="color:var(--navy)">No Managed Properties</h2>
-        <p style="color:var(--gray)">You do not have any property listings to manage bills for. Only owners or managers of a listing can log bills.</p>
-        <a class="btn btn-primary" href="listings.html" style="margin-top:14px">List a Property Now</a>
-      </div>`;
-  } else {
-    // Choose the first property as default or retrieve query param
-    let activeListingId = getQueryId() || myProps[0].id;
-    let activeListing = myProps.find(l => l.id === activeListingId) || myProps[0];
+async function initBillsData() {
+  try {
+    const listRes = await fetch('api/listings.php');
+    const listData = await listRes.json();
+    if (listData.success) {
+      userListings = listData.listings.filter(l => l.ownerEmail === user.email);
+    }
+    
+    if (userListings.length === 0) {
+      root.innerHTML = `
+        <div style="text-align:center;padding:80px 20px;background:white;border-radius:var(--radius-lg);border:1px solid var(--border)">
+          <h2 style="color:var(--navy)">No Managed Properties</h2>
+          <p style="color:var(--gray)">You do not have any property listings to manage bills for. Only owners or managers of a listing can log bills.</p>
+          <a class="btn btn-primary" href="listings.html" style="margin-top:14px">List a Property Now</a>
+        </div>`;
+      return;
+    }
 
-    // Get bills for this listing
-    let activeBills = mockData.monthlyBills.filter(b => b.listingId === activeListing.id);
+    let activeListingId = parseInt(getQueryId()) || userListings[0].id;
+    activeListing = userListings.find(l => l.id === activeListingId) || userListings[0];
 
-    // Initial render
-    renderBillManager(myProps, activeListing, activeBills);
+    await fetchBills(activeListing.id);
+  } catch (err) {
+    console.error(err);
+    root.innerHTML = `<p style="text-align:center;color:red;padding:40px;">Failed to load data.</p>`;
+  }
+}
+
+async function fetchBills(listingId) {
+  try {
+    const res = await fetch('api/bills.php?listing_id=' + listingId);
+    const data = await res.json();
+    if (data.success) {
+      activeBills = data.bills;
+      renderBillManager(userListings, activeListing, activeBills);
+    }
+  } catch(err) {
+    console.error(err);
   }
 }
 
@@ -175,68 +200,46 @@ function recalcLive(occupancy) {
   document.getElementById('livePerPerson').textContent = fmt(Math.round(total / (occupancy || 1)));
 }
 
-function saveBill(e, listingId) {
+async function saveBill(e, listingId) {
   e.preventDefault();
   const month = document.getElementById('b_month').value;
-  const electricity = parseInt(document.getElementById('b_electricity').value);
-  const gas = parseInt(document.getElementById('b_gas').value);
-  const water = parseInt(document.getElementById('b_water').value);
-  const internet = parseInt(document.getElementById('b_internet').value);
-  const other = parseInt(document.getElementById('b_other').value);
+  const electricity = parseInt(document.getElementById('b_electricity').value) || 0;
+  const gas = parseInt(document.getElementById('b_gas').value) || 0;
+  const water = parseInt(document.getElementById('b_water').value) || 0;
+  const internet = parseInt(document.getElementById('b_internet').value) || 0;
+  const other = parseInt(document.getElementById('b_other').value) || 0;
 
   const total = electricity + gas + water + internet + other;
   
-  const listing = mockData.listings.find(l => l.id === listingId);
+  const listing = userListings.find(l => l.id === listingId);
   const occupancy = listing ? listing.currentOccupancy || 3 : 3;
   const perPerson = Math.round(total / occupancy);
 
-  // Check if bill for this month already exists
-  let bill = mockData.monthlyBills.find(b => b.listingId === listingId && b.month === month);
-  if (bill) {
-    // Update existing
-    bill.electricity = electricity;
-    bill.gas = gas;
-    bill.water = water;
-    bill.internet = internet;
-    bill.other = other;
-    bill.total = total;
-    bill.perPerson = perPerson;
-  } else {
-    // Generate payments split list
-    const payments = [];
-    for (let index = 1; index <= occupancy; index++) {
-      payments.push({
-        resident: `Resident ${index}`,
-        status: 'unpaid'
-      });
+  const payload = {
+    listingId, month, electricity, gas, water, internet, other, total, perPerson, occupancy
+  };
+
+  try {
+    const res = await fetch('api/bills.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Month bill logged!');
+      await fetchBills(listingId); // refresh
+    } else {
+      showToast(data.error || 'Failed to log bill', 'error');
     }
-
-    bill = {
-      id: Date.now(),
-      listingId,
-      month,
-      electricity,
-      gas,
-      water,
-      internet,
-      other,
-      total,
-      perPerson,
-      payments
-    };
-    mockData.monthlyBills.push(bill);
+  } catch(err) {
+    showToast('Network error', 'error');
   }
-
-  saveMockData();
-  showToast('Month bill logged!');
-  
-  // Reload
-  switchProperty(listingId);
 }
 
 function loadTrackerMonth(billId, listingId) {
   if (!billId) return;
-  const bill = mockData.monthlyBills.find(b => b.id === parseInt(billId));
+  const bill = activeBills.find(b => b.id === parseInt(billId));
   if (!bill) return;
 
   const tbody = document.getElementById('payTbody');
@@ -247,7 +250,7 @@ function loadTrackerMonth(billId, listingId) {
       <td>${p.resident}</td>
       <td>${fmt(bill.perPerson)}</td>
       <td>${p.status === 'paid' ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Paid</span>' : '<span class="badge badge-amber"><i data-lucide="clock" class="lucide-sm"></i> Unpaid</span>'}</td>
-      <td>${p.status === 'unpaid' ? `<button class="btn btn-success btn-sm" onclick="markPaidLocal(${bill.id}, ${idx}, ${listingId})">Mark Paid</button>` : '-'}</td>
+      <td>${p.status === 'unpaid' ? `<button class="btn btn-success btn-sm" onclick="markPaidLocal(${bill.id}, ${p.id}, ${listingId})">Mark Paid</button>` : '-'}</td>
     </tr>`).join('');
 
   const paidCount = bill.payments.filter(p => p.status === 'paid').length;
@@ -255,19 +258,22 @@ function loadTrackerMonth(billId, listingId) {
   if (window.lucide) lucide.createIcons();
 }
 
-function markPaidLocal(billId, paymentIndex, listingId) {
-  const bill = mockData.monthlyBills.find(b => b.id === billId);
-  if (bill && bill.payments[paymentIndex]) {
-    bill.payments[paymentIndex].status = 'paid';
-    saveMockData();
-    showToast('Payment updated');
-    loadTrackerMonth(billId, listingId);
-    
-    // Reload history log view dynamically
-    const myProps = mockData.listings.filter(l => l.ownerEmail === user.email);
-    const activeListing = myProps.find(l => l.id === listingId);
-    const activeBills = mockData.monthlyBills.filter(b => b.listingId === listingId);
-    renderBillManager(myProps, activeListing, activeBills);
+async function markPaidLocal(billId, paymentId, listingId) {
+  try {
+    const res = await fetch('api/bills.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({paymentId})
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Payment marked as paid');
+      await fetchBills(listingId);
+    } else {
+      showToast(data.error || 'Failed to update payment', 'error');
+    }
+  } catch(err) {
+    showToast('Network error', 'error');
   }
 }
 </script>

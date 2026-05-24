@@ -99,7 +99,7 @@
         </select>
       </div>
       <div class="form-group"><label>Description</label><textarea id="itmDesc" required placeholder="Describe the item condition, size, age, etc."></textarea></div>
-      <div class="form-group"><label>Photo URL (Optional)</label><input type="url" id="itmPhoto" placeholder="https://images.unsplash.com/... (optional)"></div>
+      <div class="form-group"><label>Photo (Optional)</label><input type="file" id="itmPhoto" accept="image/*"></div>
       <button type="submit" class="btn btn-primary btn-block">Post Item for Sale</button>
     </form>
   </div>
@@ -121,6 +121,21 @@ mockData.zones.forEach(z => {
   zoneSel.innerHTML += `<option value="${z.name}">${z.name}</option>`; 
 });
 
+let fetchedItems = [];
+
+async function loadItems() {
+  try {
+    const res = await fetch('api/exchange.php');
+    const data = await res.json();
+    if (data.success) {
+      fetchedItems = data.items;
+      renderItems();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 function renderItems() {
   const cat = document.getElementById('fCat').value;
   const cond = document.getElementById('fCond').value;
@@ -128,8 +143,8 @@ function renderItems() {
   const maxP = parseInt(document.getElementById('fPrice').value);
   const sort = document.getElementById('fSort').value;
 
-  let r = mockData.exchangeItems.filter(it => {
-    if (it.status === 'sold') return false; // Hide sold items from the grid
+  let r = fetchedItems.filter(it => {
+    if (it.status === 'sold') return false; 
     if (cat !== 'all' && it.category !== cat) return false;
     if (cond !== 'all' && it.condition !== cond) return false;
     if (zone !== 'all' && it.zone !== zone) return false;
@@ -174,7 +189,7 @@ function openSellItemModal() {
     return;
   }
   document.getElementById('sellItemModal').classList.add('open');
-  document.getElementById('itmZone').innerHTML = mockData.zones.map(z => `<option value="${z.name}">${z.name}</option>`).join('');
+  document.getElementById('itmZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
 
   // Linked properties list
   const linkSel = document.getElementById('itmLinkListing');
@@ -185,45 +200,43 @@ function openSellItemModal() {
   });
 }
 
-function saveNewItem(e) {
+async function saveNewItem(e) {
   e.preventDefault();
-  const title = document.getElementById('itmTitle').value.trim();
-  const category = document.getElementById('itmCategory').value;
-  const condition = document.getElementById('itmCondition').value;
-  const price = parseInt(document.getElementById('itmPrice').value);
-  const zone = document.getElementById('itmZone').value;
-  const linkedListingId = parseInt(document.getElementById('itmLinkListing').value) || null;
-  const description = document.getElementById('itmDesc').value.trim();
-  let photo = document.getElementById('itmPhoto').value.trim();
-  if (!photo) {
-    photo = 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600';
+  
+  const formData = new FormData();
+  formData.append('title', document.getElementById('itmTitle').value.trim());
+  formData.append('category', document.getElementById('itmCategory').value);
+  formData.append('condition', document.getElementById('itmCondition').value);
+  formData.append('price', parseInt(document.getElementById('itmPrice').value));
+  formData.append('zone_id', parseInt(document.getElementById('itmZone').value));
+  formData.append('linkedListingId', parseInt(document.getElementById('itmLinkListing').value) || '');
+  formData.append('description', document.getElementById('itmDesc').value.trim());
+  
+  const fileInput = document.getElementById('itmPhoto');
+  if (fileInput.files.length > 0) {
+    formData.append('photo', fileInput.files[0]);
   }
 
-  const newItem = {
-    id: Date.now(),
-    title,
-    category,
-    condition,
-    price,
-    zone,
-    linkedListingId,
-    description,
-    photo,
-    seller: user.name,
-    sellerEmail: user.email,
-    status: 'available'
-  };
-
-  mockData.exchangeItems.push(newItem);
-  saveMockData();
-
-  document.getElementById('sellItemModal').classList.remove('open');
-  document.getElementById('sellItemForm').reset();
-  showToast('Item posted for sale!');
-  renderItems();
+  try {
+    const res = await fetch('api/exchange.php', {
+      method: 'POST',
+      body: formData // Browser automatically sets Content-Type to multipart/form-data
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('sellItemModal').classList.remove('open');
+      document.getElementById('sellItemForm').reset();
+      showToast('Item posted for sale!');
+      loadItems(); // Reload live data
+    } else {
+      showToast(data.error || 'Failed to post item', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
 }
 
-renderItems();
+loadItems();
 </script>
 </body>
 </html>

@@ -60,11 +60,25 @@
 <script>
 mountChrome('seeking');
 
-const zoneOpts = mockData.zones.map(z => `<option value="${z.name}">${z.name}</option>`).join('');
-document.getElementById('fZone').innerHTML += zoneOpts;
-document.getElementById('pZone').innerHTML = zoneOpts;
+const fZoneOpts = mockData.zones.map(z => `<option value="${z.name}">${z.name}</option>`).join('');
+const pZoneOpts = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+document.getElementById('fZone').innerHTML += fZoneOpts;
+document.getElementById('pZone').innerHTML = pZoneOpts;
 
-window.posts = [...mockData.seekingPosts];
+window.posts = [];
+
+async function loadPosts() {
+  try {
+    const res = await fetch('api/seeking.php');
+    const data = await res.json();
+    if (data.success) {
+      window.posts = data.posts;
+      renderPosts();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 function renderPosts() {
   const zone = document.getElementById('fZone').value;
@@ -80,26 +94,27 @@ function renderPosts() {
     return true;
   });
 
-  document.getElementById('postsList').innerHTML = r.map(p => `
+  document.getElementById('postsList').innerHTML = r.map(p => {
+    const initials = (p.user || '').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    return `
     <div class="seek-card">
-      <div class="seek-avatar">${p.avatar}</div>
+      <div class="seek-avatar">${initials}</div>
       <div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <strong>${p.poster}</strong>
-          <span style="color:var(--gray);font-size:12px">${p.date}</span>
+          <strong>${p.user}</strong>
+          <span style="color:var(--gray);font-size:12px">${p.moveInDate ? 'Move in: ' + p.moveInDate : ''}</span>
           ${statusBadge(p.status)}
         </div>
         <div style="margin:8px 0" class="badges">
           <span class="budget-badge">${fmt(p.budgetMin)}–${fmt(p.budgetMax)}</span>
           <span class="badge badge-navy">${p.zone}</span>
           <span class="badge badge-blue">${p.roomType}</span>
-          <span class="badge badge-gray">${p.preferredGender}</span>
+          <span class="badge badge-gray">${p.genderPref}</span>
         </div>
-        <div style="font-size:13px;color:var(--gray)">Move-in: ${p.moveIn}</div>
         <div style="font-size:14px;margin-top:6px;font-weight: 500;">${p.requirements}</div>
       </div>
-      ${isLoggedIn() ? `<button class="btn btn-primary btn-sm" onclick="showToast('Response sent to ${p.poster}!')">Respond</button>` : ''}
-    </div>`).join('') || '<p style="color:var(--gray); text-align: center; padding: 40px 0;">No active flatmate requests found. Be the first to post!</p>';
+      ${isLoggedIn() ? `<button class="btn btn-primary btn-sm" onclick="showToast('Response sent to ${p.user}!')">Respond</button>` : ''}
+    </div>`}).join('') || '<p style="color:var(--gray); text-align: center; padding: 40px 0;">No active flatmate requests found. Be the first to post!</p>';
   if (window.lucide) lucide.createIcons();
 }
 
@@ -112,43 +127,43 @@ function openRequestModal() {
   document.getElementById('postModal').classList.add('open');
 }
 
-function addPost(e) {
+async function addPost(e) {
   e.preventDefault();
-  const user = mockData.currentUser;
-  if (!user) return;
-
-  const initials = user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-
-  const newPost = {
-    id: Date.now(),
-    poster: user.name,
-    avatar: initials,
-    zone: document.getElementById('pZone').value,
+  
+  const payload = {
+    zone_id: parseInt(document.getElementById('pZone').value),
     budgetMin: parseInt(document.getElementById('pMin').value),
     budgetMax: parseInt(document.getElementById('pMax').value),
     roomType: document.getElementById('pRoom').value,
-    preferredGender: document.querySelector('input[name=pg]:checked').value,
-    moveIn: document.getElementById('pDate').value,
-    requirements: document.getElementById('pReq').value.trim(),
-    date: new Date().toLocaleDateString('en-US'),
-    status: 'active'
+    genderPref: document.querySelector('input[name=pg]:checked').value,
+    moveInDate: document.getElementById('pDate').value,
+    requirements: document.getElementById('pReq').value.trim()
   };
 
-  mockData.seekingPosts.unshift(newPost);
-  saveMockData();
-
-  window.posts = [...mockData.seekingPosts];
-
-  document.getElementById('postModal').classList.remove('open');
-  document.getElementById('postModal').querySelector('form').reset();
-  renderPosts();
-  showToast('Request posted successfully!');
+  try {
+    const res = await fetch('api/seeking.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('postModal').classList.remove('open');
+      document.getElementById('postModal').querySelector('form').reset();
+      showToast('Request posted successfully!');
+      loadPosts(); // reload live data
+    } else {
+      showToast(data.error || 'Failed to post request', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
 }
 
 document.getElementById('fBudget').addEventListener('input', e => document.getElementById('bVal').textContent = fmt(e.target.value));
 document.querySelectorAll('#fZone,#fRoom,#fBudget,#fGender').forEach(el => el.addEventListener('change', renderPosts));
 
-renderPosts();
+loadPosts();
 </script>
 </body>
 </html>
