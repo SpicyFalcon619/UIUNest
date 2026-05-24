@@ -211,7 +211,7 @@ function renderNav(active) {
            <a href="profile.html">Profile</a>
            <a href="bills.html">Bills</a>
            ${user.role === 'admin' ? '<a href="admin.html">Admin Panel</a>' : ''}
-           <a href="#" onclick="event.preventDefault();localStorage.removeItem('uiunest_logged_in_v4');localStorage.removeItem('uiunest_current_user_v4');location.href='index.html';">Logout</a>
+           <a href="#" onclick="event.preventDefault();doLogout()">Logout</a>
          </div>
        </div>`
     : `<a class="btn btn-outline" href="login.html">Login</a>
@@ -226,6 +226,13 @@ function renderNav(active) {
         <div class="nav-right">${rightHTML}</div>
       </div>
     </nav>`;
+}
+
+async function doLogout() {
+  try { await fetch('api/logout.php'); } catch(e) {}
+  localStorage.removeItem('uiunest_logged_in_v4');
+  localStorage.removeItem('uiunest_current_user_v4');
+  location.href = 'index.html';
 }
 
 function renderFooter() {

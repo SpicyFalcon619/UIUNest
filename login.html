@@ -18,7 +18,7 @@
     <p class="subtitle">Welcome back. Log in to continue.</p>
     <form onsubmit="doLogin(event)">
       <div class="form-group"><label>Email</label><input type="email" id="email" value="student@uiu.ac.bd" required></div>
-      <div class="form-group"><label>Password</label><input type="password" id="password" value="student123" required></div>
+      <div class="form-group"><label>Password</label><input type="password" id="password" value="password" required></div>
       <button class="btn btn-primary btn-block">Log In</button>
       <div style="text-align:center;margin-top:14px;font-size:14px">Don't have an account? <a href="register.html">Register</a></div>
     </form>
@@ -29,16 +29,25 @@
 <script src="app.js"></script>
 <script>
 mountChrome();
-function doLogin(e) {
+async function doLogin(e) {
   e.preventDefault();
   const email = document.getElementById('email').value.trim();
   const pass = document.getElementById('password').value;
-  const user = window.mockData.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
-  if (user) {
-    setCurrentUser(user);
-    location.href = 'dashboard.html';
-  } else {
-    showToast('Invalid email or password', 'error');
+  try {
+    const res = await fetch('api/login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setCurrentUser(data.user);
+      location.href = 'dashboard.html';
+    } else {
+      showToast(data.error || 'Login failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error connecting to database', 'error');
   }
 }
 </script>

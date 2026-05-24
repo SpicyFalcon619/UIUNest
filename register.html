@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="form-group"><label>UIU Student ID (optional)</label><input id="regId"></div>
-      <div class="form-group"><label><input type="checkbox" required> I agree to the Terms of Service</label></div>
+      <div class="form-group"><label class="checkbox-label"><input type="checkbox" required> I agree to the Terms of Service</label></div>
       <button class="btn btn-primary btn-block">Create Account</button>
       <div style="text-align:center;margin-top:14px;font-size:14px">Already have an account? <a href="login.html">Log in</a></div>
     </form>
@@ -47,7 +47,7 @@
 <script src="app.js"></script>
 <script>
 mountChrome();
-function doRegister(e) {
+async function doRegister(e) {
   e.preventDefault();
   const name = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim().toLowerCase();
@@ -62,24 +62,22 @@ function doRegister(e) {
     return;
   }
 
-  if (window.mockData.users.some(u => u.email.toLowerCase() === email)) {
-    showToast('Email already registered', 'error');
-    return;
+  try {
+    const res = await fetch('api/register.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password: pass, role, gender, universityId: studentId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      setCurrentUser(data.user);
+      location.href = 'profile.html';
+    } else {
+      showToast(data.error || 'Registration failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error connecting to database', 'error');
   }
-
-  const newUser = {
-    id: Date.now(),
-    name,
-    email,
-    password: pass,
-    role,
-    gender,
-    universityId: studentId
-  };
-
-  window.mockData.users.push(newUser);
-  setCurrentUser(newUser);
-  location.href = 'profile.html';
 }
 </script>
 </body>
