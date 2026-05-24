@@ -99,16 +99,40 @@ function renderCharts() {
 
 async function loadAdminData() {
   try {
-    const res = await fetch('api/admin_verifications.php');
-    const data = await res.json();
-    if (data.success) {
-      renderVerifications(data.verifications);
+    const resV = await fetch('api/admin_verifications.php');
+    const dataV = await resV.json();
+    if (dataV.success) {
+      renderVerifications(dataV.verifications);
+    }
+
+    const resU = await fetch('api/admin_users.php');
+    const dataU = await resU.json();
+    if (dataU.success) {
+      renderAllUsers(dataU.users);
     } else {
-      showToast(data.error || 'Failed to load verifications', 'error');
+      showToast('Failed to load users', 'error');
     }
   } catch (err) {
     console.error(err);
   }
+}
+
+function renderAllUsers(users) {
+  document.getElementById('statUsers').textContent = users.length;
+  document.getElementById('allUsersTbody').innerHTML = users.map(u => `
+    <tr>
+      <td>${u.id}</td>
+      <td><strong>${u.name}</strong></td>
+      <td>${u.email}</td>
+      <td><span class="badge ${u.role === 'admin' ? 'badge-navy' : (u.role === 'landlord' ? 'badge-amber' : 'badge-light-blue')}">${u.role}</span></td>
+      <td>${u.status === 'suspended' ? '<span class="badge badge-red">Suspended</span>' : '<span class="badge badge-green">Active</span>'}</td>
+      <td>
+        ${u.status === 'suspended' 
+          ? `<button class="btn btn-success btn-sm" onclick="setUserStatus(${u.id}, 'active')">Activate</button>`
+          : `<button class="btn btn-outline btn-sm" onclick="setUserStatus(${u.id}, 'suspended')">Suspend</button>`
+        }
+      </td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
 }
 
 function renderVerifications(verifs) {
@@ -160,7 +184,7 @@ function renderAdminDashboard() {
 
   // Populate dynamic stats cards
   document.getElementById('statListings').textContent = mockData.listings.length;
-  document.getElementById('statUsers').textContent = mockData.users.length;
+  // Render all users is handled by loadAdminData()
   const openComplaintsCount = mockData.complaints.filter(c => c.status !== 'Resolved').length;
   document.getElementById('statComplaints').textContent = openComplaintsCount;
 
@@ -204,21 +228,7 @@ function renderAdminDashboard() {
       </tr>`;
   }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray);">No complaints filed yet.</td></tr>';
 
-  // Render all users
-  document.getElementById('allUsersTbody').innerHTML = mockData.users.map(u => `
-    <tr>
-      <td>${u.id}</td>
-      <td><strong>${u.name}</strong></td>
-      <td>${u.email}</td>
-      <td><span class="badge ${u.role === 'admin' ? 'badge-navy' : (u.role === 'landlord' ? 'badge-amber' : 'badge-light-blue')}">${u.role}</span></td>
-      <td>${u.status === 'suspended' ? '<span class="badge badge-red">Suspended</span>' : '<span class="badge badge-green">Active</span>'}</td>
-      <td>
-        ${u.status === 'suspended' 
-          ? `<button class="btn btn-success btn-sm" onclick="setUserStatus(${u.id}, 'active')">Activate</button>`
-          : `<button class="btn btn-outline btn-sm" onclick="setUserStatus(${u.id}, 'suspended')">Suspend</button>`
-        }
-      </td>
-    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
+  // Render all users is now handled by loadAdminData()
 
   // Render all listings
   document.getElementById('allListingsTbody').innerHTML = mockData.listings.map(l => `
@@ -256,13 +266,22 @@ function deleteListingAdmin(id) {
   }
 }
 
-function setUserStatus(id, s) {
-  const u = mockData.users.find(x => x.id === id);
-  if (u) {
-    u.status = s;
-    saveMockData();
-    renderAdminDashboard();
-    showToast('User status updated');
+async function setUserStatus(id, s) {
+  try {
+    const res = await fetch('api/admin_action_user.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action: s })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('User status updated');
+      loadAdminData(); // Refresh the users table
+    } else {
+      showToast(data.error || 'Failed to update user', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
   }
 }
 
