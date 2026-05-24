@@ -244,7 +244,6 @@ function renderDetail() {
     document.getElementById('reviewsList').innerHTML = mockData.reviews.filter(r => r.listingId === l.id).map(r => `
       <div style="padding:12px 0;border-top:1px solid var(--border)">
         <div style="display:flex;justify-content:space-between"><strong>${r.reviewer}</strong><span style="color:var(--gray);font-size:12px">${r.date}</span></div>
-        <div class="stars">${stars(r.composite)} <span style="color:var(--dark);font-size:13px">${r.composite}</span></div>
         <div style="margin-top:6px;font-size:14px">${r.comment}</div>
       </div>`).join('') || '<p style="color:var(--gray);font-size:13px">No reviews yet.</p>';
 

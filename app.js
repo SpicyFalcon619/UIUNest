@@ -203,9 +203,7 @@ function renderNav(active) {
     : 'US';
 
   const rightHTML = logged
-    ? `<button class="icon-btn" title="Notifications"><i data-lucide="bell" class="lucide-sm"></i></button>
-       <a class="icon-btn" href="dashboard.html" title="Watchlist"><i data-lucide="heart" class="lucide-sm"></i></a>
-       <div class="avatar" id="avatarBtn" onclick="document.getElementById('avatarMenu').classList.toggle('open')">${initials}
+    ? `<div class="avatar" id="avatarBtn" onclick="document.getElementById('avatarMenu').classList.toggle('open')">${initials}
          <div class="avatar-menu" id="avatarMenu">
            <a href="dashboard.html">Dashboard</a>
            <a href="profile.html">Profile</a>
@@ -289,10 +287,7 @@ function renderListingCard(l) {
         </div>
         <div class="listing-title">${l.title}</div>
         <div class="price">${fmt(l.costs.totalMonthly)}<span style="font-size:12px;color:var(--gray);font-weight:500"> /month</span></div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray)">
-          <span class="stars">${stars(l.compositeScore)}</span> ${l.compositeScore || 0} (${l.reviewCount || 0})
-        </div>
-        <div style="font-size:12px;color:var(--gray)">${gender} · ${l.currentOccupancy}/${l.totalRooms} occupied</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:6px;">${gender} · ${l.currentOccupancy}/${l.totalRooms} occupied</div>
         <div class="listing-footer">
           <button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" title="Save"><i data-lucide="heart" style="${wl ? 'fill: currentColor' : ''}"></i></button>
           <a class="btn btn-primary btn-sm" href="listing-detail.html?id=${l.id}">View Details</a>
@@ -332,8 +327,7 @@ function renderListingsOnMap(map, listings) {
       <div style="min-width:180px;font-family:Inter,sans-serif">
         <strong style="font-size:13px">${l.title}</strong><br>
         <span style="color:#003366;font-size:15px;font-weight:600">${fmt(l.costs.totalMonthly)}/mo</span><br>
-        <span style="color:#888;font-size:12px">${stars(l.compositeScore)} · ${l.reviewCount || 0} reviews</span><br>
-        <a href="listing-detail.html?id=${l.id}" style="color:#0055AA;font-size:12px">View details →</a>
+        <a href="listing-detail.html?id=${l.id}" style="color:#0055AA;font-size:12px;margin-top:4px;display:inline-block">View details →</a>
       </div>`);
     window._listingMarkers.push(m);
   });

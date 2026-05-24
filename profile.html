@@ -72,9 +72,7 @@
           <label><input type="radio" name="fg" value="Female"> Female</label>
         </div>
       </div>
-      <div class="form-group"><label>Cleanliness standard</label>
-        <div id="cleanStars" style="cursor:pointer;color:var(--gold)"><i data-lucide="star" style="fill: currentColor"></i><i data-lucide="star" style="fill: currentColor"></i><i data-lucide="star" style="fill: currentColor"></i><i data-lucide="star" style="fill: currentColor"></i><i data-lucide="star"></i></div>
-      </div>
+
       <div class="form-group"><label>Noise tolerance</label>
         <div class="radio-row">
           <label><input type="radio" name="noise" value="Quiet" checked> Quiet</label>
@@ -173,21 +171,7 @@ document.querySelectorAll('input[name=guest]').forEach(r => { if (r.value === pr
 document.getElementById('prefSmoking').checked = prefs.smoking !== false;
 document.querySelectorAll('input[name=fg]').forEach(r => { if (r.value === prefs.fg) r.checked = true; });
 
-let cleanRating = prefs.cleanliness || 4;
-const cs = document.getElementById('cleanStars');
-function renderCleanStars() {
-  cs.innerHTML = '<i data-lucide="star" style="fill: currentColor"></i>'.repeat(cleanRating) + '<i data-lucide="star"></i>'.repeat(5 - cleanRating);
-  if (window.lucide) lucide.createIcons();
-}
-renderCleanStars();
-
 document.querySelectorAll('input[name=noise]').forEach(r => { if (r.value === prefs.noise) r.checked = true; });
-
-cs.addEventListener('click', e => {
-  const rect = cs.getBoundingClientRect();
-  cleanRating = Math.min(5, Math.max(1, Math.ceil(((e.clientX - rect.left) / rect.width) * 5)));
-  renderCleanStars();
-});
 
 function saveProfile(e) {
   e.preventDefault();
