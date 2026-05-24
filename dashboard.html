@@ -105,6 +105,12 @@ async function loadDashboardData() {
     if (dbData.success) {
       dashData = dbData.data;
       renderDashboard();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (tab && typeof switchTab === 'function') {
+        setTimeout(() => switchTab(tab), 100);
+      }
     } else {
       showToast(dbData.error || 'Failed to load dashboard data', 'error');
     }

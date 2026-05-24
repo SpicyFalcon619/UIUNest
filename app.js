@@ -203,7 +203,15 @@ function renderNav(active) {
     : 'US';
 
   const rightHTML = logged
-    ? `<div class="avatar" id="avatarBtn" onclick="document.getElementById('avatarMenu').classList.toggle('open')">${initials}
+    ? `<div style="position:relative;display:inline-block">
+         <button class="icon-btn" title="Notifications" onclick="toggleNotifs()"><i data-lucide="bell" class="lucide-sm"></i><span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center"></span></button>
+         <div class="avatar-menu" id="notifMenu" style="width:280px;right:-10px;padding:12px;z-index:2000">
+           <div style="font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">Notifications</div>
+           <div id="notifList" style="max-height:300px;overflow-y:auto;font-size:13px;color:var(--gray)">Loading...</div>
+         </div>
+       </div>
+       <a class="icon-btn" href="dashboard.html?tab=watch" title="Watchlist"><i data-lucide="heart" class="lucide-sm"></i></a>
+       <div class="avatar" id="avatarBtn" onclick="document.getElementById('avatarMenu').classList.toggle('open')">${initials}
          <div class="avatar-menu" id="avatarMenu">
            <a href="dashboard.html">Dashboard</a>
            <a href="profile.html">Profile</a>
@@ -381,6 +389,58 @@ async function loadListingsFromDB() {
     console.error('Failed to load listings from DB', e);
   }
 }
+
+async function fetchNotifications() {
+  if (!isLoggedIn()) return;
+  try {
+    const res = await fetch('api/notifications.php');
+    const data = await res.json();
+    if (data.success) {
+      const badge = document.getElementById('notifBadge');
+      const list = document.getElementById('notifList');
+      if (badge && list) {
+        if (data.unreadCount > 0) {
+          badge.style.display = 'flex';
+          badge.textContent = data.unreadCount > 9 ? '9+' : data.unreadCount;
+        } else {
+          badge.style.display = 'none';
+        }
+        
+        if (data.notifications.length === 0) {
+          list.innerHTML = '<div style="padding:10px 0;text-align:center">No notifications yet.</div>';
+        } else {
+          list.innerHTML = data.notifications.map(n => `
+            <div style="padding:10px;border-bottom:1px solid var(--border);background:${n.is_read ? 'transparent' : 'var(--light-bg)'}">
+              <div style="font-weight:${n.is_read ? 'normal' : '600'}">${n.message}</div>
+              <div style="font-size:11px;color:var(--gray);margin-top:4px">${new Date(n.created_at).toLocaleString()}</div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+  } catch(e) {}
+}
+
+async function toggleNotifs() {
+  const menu = document.getElementById('notifMenu');
+  if (!menu) return;
+  menu.classList.toggle('open');
+  if (menu.classList.contains('open')) {
+    const badge = document.getElementById('notifBadge');
+    if (badge && badge.style.display !== 'none') {
+      badge.style.display = 'none';
+      fetch('api/notifications.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'mark_read' })
+      }).then(() => fetchNotifications());
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => fetchNotifications(), 500);
+});
 
 // Call on load
 loadListingsFromDB();
