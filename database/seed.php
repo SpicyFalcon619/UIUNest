@@ -1,5 +1,5 @@
 <?php
-require 'api/db.php';
+require '../api/db.php';
 
 $users = [
     ['name' => 'Super Admin', 'email' => 'admin@uiunest.bd', 'password' => 'admin123', 'role' => 'admin'],
