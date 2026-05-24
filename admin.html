@@ -47,6 +47,14 @@
   </div>
 
   <div class="card" style="margin-top:20px">
+    <h3 style="margin:0 0 14px;color:var(--navy)">Manage All Users</h3>
+    <table class="table">
+      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="allUsersTbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:20px">
     <h3 style="margin:0 0 14px;color:var(--navy)">Manage All Listings</h3>
     <table class="table">
       <thead><tr><th>ID</th><th>Title</th><th>Zone</th><th>Owner</th><th>Status</th><th>Action</th></tr></thead>
@@ -159,6 +167,22 @@ function renderAdminDashboard() {
       </tr>`;
   }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray);">No verification requests submitted yet.</td></tr>';
 
+  // Render all users
+  document.getElementById('allUsersTbody').innerHTML = mockData.users.map(u => `
+    <tr>
+      <td>${u.id}</td>
+      <td><strong>${u.name}</strong></td>
+      <td>${u.email}</td>
+      <td><span class="badge ${u.role === 'admin' ? 'badge-navy' : (u.role === 'landlord' ? 'badge-amber' : 'badge-light-blue')}">${u.role}</span></td>
+      <td>${u.status === 'suspended' ? '<span class="badge badge-red">Suspended</span>' : '<span class="badge badge-green">Active</span>'}</td>
+      <td>
+        ${u.status === 'suspended' 
+          ? `<button class="btn btn-success btn-sm" onclick="setUserStatus(${u.id}, 'active')">Activate</button>`
+          : `<button class="btn btn-outline btn-sm" onclick="setUserStatus(${u.id}, 'suspended')">Suspend</button>`
+        }
+      </td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
+
   // Render all listings
   document.getElementById('allListingsTbody').innerHTML = mockData.listings.map(l => `
     <tr>
@@ -229,6 +253,16 @@ function deleteListingAdmin(id) {
     saveMockData();
     renderAdminDashboard();
     showToast('Listing completely deleted', 'error');
+  }
+}
+
+function setUserStatus(id, s) {
+  const u = mockData.users.find(x => x.id === id);
+  if (u) {
+    u.status = s;
+    saveMockData();
+    renderAdminDashboard();
+    showToast('User status updated');
   }
 }
 
