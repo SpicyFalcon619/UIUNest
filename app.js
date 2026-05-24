@@ -209,6 +209,7 @@ document.body.addEventListener('click', e => {
       const icon = h.querySelector('i, svg');
       if (active) { h.classList.add('active'); if (icon) icon.style.fill = 'currentColor'; }
       else { h.classList.remove('active'); if (icon) icon.style.fill = 'none'; }
+      showToast(active ? 'Saved to watchlist' : 'Removed from watchlist');
     });
   }
 });
@@ -358,16 +359,7 @@ function renderListingCard(l) {
 }
 
 function attachWatchlistHandlers(root) {
-  (root || document).querySelectorAll('[data-wl]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const id = parseInt(btn.getAttribute('data-wl'));
-      const active = toggleWatchlist(id);
-      btn.classList.toggle('active', active);
-      const icon = btn.querySelector('i');
-      if (icon) icon.style.fill = active ? 'currentColor' : 'none';
-      showToast(active ? 'Saved to watchlist' : 'Removed from watchlist');
-    });
-  });
+  // Deprecated: Clicks are now handled by global event delegation on document.body
 }
 
 // ============ Map helper ============
