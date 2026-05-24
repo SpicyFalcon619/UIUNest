@@ -245,3 +245,14 @@ CREATE TABLE verifications (
     submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+-- 17. watchlists
+CREATE TABLE watchlists (
+    watchlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    listing_id INT,
+    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, listing_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
+);

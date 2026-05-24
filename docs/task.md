@@ -16,7 +16,7 @@
   - [x] Modify `profile.html` to support file upload for verifications.
   - [x] Modify `admin.html` to fetch and view verification documents.
   - [x] Modify `listings.html` to support image upload for properties.
-- [ ] **Build PHP APIs**
-  - [ ] `api/dashboard.php` (Aggregate queries for stats and tables)
-- [ ] **Walkthrough & Documentation**
-  - [ ] Document all DB schema changes for user's ERD.
+- [x] **Build PHP APIs**
+  - [x] `api/dashboard.php` (Aggregate queries for stats and tables)
+- [x] **Walkthrough & Documentation**
+  - [x] Document all DB schema changes for user's ERD.

@@ -78,43 +78,54 @@
 mountChrome('dashboard');
 const root = document.getElementById('content');
 
-function renderDashboard() {
-  if (!isLoggedIn()) {
-    root.innerHTML = `
-      <div class="auth-wrap">
-        <div class="auth-card" style="max-width:420px;width:100%">
-          <h1>Please log in</h1>
-          <p class="subtitle">You need to be logged in to view your dashboard.</p>
-          <a class="btn btn-primary btn-block" href="login.html">Log In</a>
-          <div style="text-align:center;margin-top:10px"><a href="register.html">Register</a></div>
-        </div>
-      </div>`;
-    return;
+let dashData = null;
+let currentUser = null;
+
+async function loadDashboardData() {
+  try {
+    const meRes = await fetch('api/me.php');
+    const meData = await meRes.json();
+    if (!meData.loggedIn) {
+      root.innerHTML = `
+        <div class="auth-wrap">
+          <div class="auth-card" style="max-width:420px;width:100%">
+            <h1>Please log in</h1>
+            <p class="subtitle">You need to be logged in to view your dashboard.</p>
+            <a class="btn btn-primary btn-block" href="login.html">Log In</a>
+            <div style="text-align:center;margin-top:10px"><a href="register.html">Register</a></div>
+          </div>
+        </div>`;
+      return;
+    }
+    currentUser = meData.user;
+
+    const dashRes = await fetch('api/dashboard.php');
+    const dbData = await dashRes.json();
+    
+    if (dbData.success) {
+      dashData = dbData.data;
+      renderDashboard();
+    } else {
+      showToast(dbData.error || 'Failed to load dashboard data', 'error');
+    }
+  } catch(e) {
+    showToast('Network error loading dashboard', 'error');
   }
+}
 
-  const user = window.mockData.currentUser;
-  const wl = getWatchlist();
-  const watched = mockData.listings.filter(l => wl.includes(l.id));
+function renderDashboard() {
+  if (!dashData || !currentUser) return;
 
-  // User's owned listings
-  const myListings = mockData.listings.filter(l => l.ownerEmail === user.email);
-  // User's owned exchange items
-  const myItems = mockData.exchangeItems.filter(it => it.sellerEmail === user.email);
+  const { myListings, myItems, watched, offersSent, offersRecv, appsSent, appsRecv, hasPreferences } = dashData;
 
-  // User's offers (sent or received)
-  const offersSent = mockData.offers.filter(o => o.buyerEmail === user.email);
-  const offersRecv = mockData.offers.filter(o => o.sellerEmail === user.email);
   const activeOffersCount = offersSent.filter(o => o.status === 'pending' || o.status === 'countered').length +
                             offersRecv.filter(o => o.status === 'pending' || o.status === 'countered').length;
 
-  const appsSent = (mockData.applications || []).filter(a => a.applicantEmail === user.email);
-  const appsRecv = (mockData.applications || []).filter(a => a.ownerEmail === user.email);
-
-  const compatStatus = (user.role === 'student' && user.preferences) ? 'Complete <i data-lucide="check" class="lucide-sm"></i>' : 'Setup Required';
-  const compatColor = (user.role === 'student' && user.preferences) ? 'var(--success)' : 'var(--warning)';
+  const compatStatus = (currentUser.role === 'student' && hasPreferences) ? 'Complete <i data-lucide="check" class="lucide-sm"></i>' : 'Setup Required';
+  const compatColor = (currentUser.role === 'student' && hasPreferences) ? 'var(--success)' : 'var(--warning)';
 
   root.innerHTML = `
-    <h1 class="page-title">Welcome back, ${user.name}</h1>
+    <h1 class="page-title">Welcome back, ${currentUser.name}</h1>
     <div class="stats-row" style="margin-bottom:20px">
       <div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-value">${myListings.length}</div></div>
       <div class="stat-card"><div class="stat-label">Watchlisted</div><div class="stat-value">${watched.length}</div></div>
@@ -147,13 +158,13 @@ function renderDashboard() {
               ${myListings.map(l => `
                 <tr>
                   <td><strong>${l.title}</strong></td>
-                  <td>${l.zone}</td>
+                  <td>${l.zone_name}</td>
                   <td>${statusBadge(l.status)}</td>
-                  <td>${fmt(l.costs.totalMonthly)}</td>
+                  <td>${fmt(l.total_monthly || 0)}</td>
                   <td>
-                    <button class="btn btn-outline btn-sm" onclick="editListing(${l.id})">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteListing(${l.id})">Delete</button>
-                    <a class="btn btn-primary btn-sm" href="listing-detail.html?id=${l.id}">View</a>
+                    <button class="btn btn-outline btn-sm" onclick="editListing(${l.listing_id})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteListing(${l.listing_id})">Delete</button>
+                    <a class="btn btn-primary btn-sm" href="listing-detail.html?id=${l.listing_id}">View</a>
                   </td>
                 </tr>
               `).join('')}
@@ -175,13 +186,13 @@ function renderDashboard() {
               ${myItems.map(it => `
                 <tr>
                   <td><strong>${it.title}</strong></td>
-                  <td>${fmt(it.price)}</td>
-                  <td>${conditionBadge(it.condition)}</td>
+                  <td>${fmt(it.asking_price)}</td>
+                  <td>${conditionBadge(it.item_condition)}</td>
                   <td>${statusBadge(it.status || 'available')}</td>
                   <td>
-                    <button class="btn btn-outline btn-sm" onclick="editItem(${it.id})">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteItem(${it.id})">Delete</button>
-                    <a class="btn btn-primary btn-sm" href="item-detail.html?id=${it.id}">View</a>
+                    <button class="btn btn-outline btn-sm" onclick="editItem(${it.item_id})">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteItem(${it.item_id})">Delete</button>
+                    <a class="btn btn-primary btn-sm" href="item-detail.html?id=${it.item_id}">View</a>
                   </td>
                 </tr>
               `).join('')}
@@ -197,7 +208,24 @@ function renderDashboard() {
         ${watched.length === 0 ? `
           <p style="color:var(--gray);text-align:center;padding:24px 0">Your watchlist is empty. <a href="listings.html">Browse properties</a></p>
         ` : `
-          <div class="grid-3">${watched.map(renderListingCard).join('')}</div>
+          <div class="grid-3">${watched.map(l => {
+            // Transform format for renderListingCard compatibility
+            return renderListingCard({
+              id: l.listing_id,
+              title: l.title,
+              zone: l.zone_name,
+              propertyType: l.property_type,
+              totalRooms: l.total_rooms,
+              currentOccupancy: l.current_occupancy,
+              genderPref: l.gender_pref,
+              costs: { totalMonthly: l.total_monthly || 0 },
+              photos: [l.photo_path || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600'],
+              compositeScore: 4.5, // placeholder
+              reviewCount: 0,
+              isVerified: l.is_verified,
+              status: l.status
+            });
+          }).join('')}</div>
         `}
       </div>
     </div>
@@ -212,8 +240,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Buyer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersRecv.map(o => {
-                const it = mockData.exchangeItems.find(i => i.id === o.itemId) || { title: 'Unknown Item' };
-                return `<tr><td><strong>${it.title}</strong></td><td>${o.buyerName || o.buyerEmail}</td><td>${fmt(o.counterPrice || o.price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.itemId}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -229,8 +256,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Seller</th><th>Your Bid</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersSent.map(o => {
-                const it = mockData.exchangeItems.find(i => i.id === o.itemId) || { title: 'Unknown Item' };
-                return `<tr><td><strong>${it.title}</strong></td><td>${o.sellerName || o.sellerEmail}</td><td>${fmt(o.counterPrice || o.price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.itemId}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -249,14 +275,14 @@ function renderDashboard() {
             <tbody>
               ${appsRecv.map(a => `
                 <tr>
-                  <td><strong>${a.listingTitle}</strong></td>
-                  <td>${a.applicantName}</td>
+                  <td><strong>${a.listing_title}</strong></td>
+                  <td>${a.applicant_name}</td>
                   <td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.message}">${a.message}</div></td>
                   <td>${statusBadge(a.status)}</td>
                   <td>
                     ${a.status === 'pending' ? `
-                      <button class="btn btn-success btn-sm" onclick="setAppStatus(${a.id}, 'accepted')">Accept</button>
-                      <button class="btn btn-danger btn-sm" onclick="setAppStatus(${a.id}, 'rejected')">Reject</button>
+                      <button class="btn btn-success btn-sm" onclick="setAppStatus(${a.application_id}, 'accepted')">Accept</button>
+                      <button class="btn btn-danger btn-sm" onclick="setAppStatus(${a.application_id}, 'rejected')">Reject</button>
                     ` : `
                       <button class="btn btn-outline btn-sm" disabled>Processed</button>
                     `}
@@ -278,10 +304,10 @@ function renderDashboard() {
             <tbody>
               ${appsSent.map(a => `
                 <tr>
-                  <td><strong>${a.listingTitle}</strong></td>
-                  <td>${a.ownerEmail}</td>
+                  <td><strong>${a.listing_title}</strong></td>
+                  <td>${a.owner_email}</td>
                   <td>${statusBadge(a.status)}</td>
-                  <td>${a.date}</td>
+                  <td>${a.created_at}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -290,7 +316,6 @@ function renderDashboard() {
       </div>
     </div>`;
 
-  attachWatchlistHandlers();
   if (window.lucide) lucide.createIcons();
 }
 
@@ -410,11 +435,11 @@ function setAppStatus(id, status) {
     app.status = status;
     saveMockData();
     showToast('Application ' + status);
-    renderDashboard();
+    loadDashboardData();
   }
 }
 
-renderDashboard();
+loadDashboardData();
 </script>
 </body>
 </html>

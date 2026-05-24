@@ -19,7 +19,21 @@ To keep your ERD and project report accurate, please make the following updates:
       FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
   );
   ```
-- **Relationship Note for ERD**: `users` has a 1-to-many relationship with `verifications` (One user can submit multiple requests if rejected, though only one pending at a time).
+
+- **New Table (17th Table): `watchlists`**
+  This was added to replace the localStorage "saved properties" feature.
+  ```sql
+  CREATE TABLE watchlists (
+      watchlist_id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      listing_id INT,
+      added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(user_id, listing_id),
+      FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+      FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
+  );
+  ```
+- **Relationship Note for ERD**: `users` has a 1-to-many relationship with `verifications`. `users` and `listings` both have a 1-to-many relationship with `watchlists`.
 
 ## 2. File Upload Architecture
 - I created a new directory structure in your project folder: `uploads/verifications`, `uploads/listings`, and `uploads/items`.
