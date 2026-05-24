@@ -109,7 +109,18 @@ window.getInitialData = function(populated = true) {
     });
 
     seekingPosts.push({
-      id: 301, author: "Student User", authorEmail: "student@uiu.ac.bd", zone: "Sayed Nagar", title: "Looking for a single room", budget: 6000, gender: "male", moveIn: "Next Month", desc: "I am a CSE student looking for a quiet place.", role: "student"
+      id: 301,
+      poster: "Student User",
+      avatar: "SU",
+      zone: "Sayed Nagar",
+      budgetMin: 4000,
+      budgetMax: 6000,
+      roomType: "single",
+      preferredGender: "male",
+      moveIn: "Next Month",
+      requirements: "I am a CSE student looking for a quiet place with a fast internet connection.",
+      date: new Date().toLocaleDateString('en-US'),
+      status: "active"
     });
     
     reviews.push({ id: 1, listingId: 101, reviewer: "Student User", rating: 5, comment: "Great place, very close to campus." });
