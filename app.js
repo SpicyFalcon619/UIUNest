@@ -97,6 +97,7 @@ function toggleDemoLogin() {
   location.reload();
 }
 function showToast(msg, type = 'success') {
+  document.querySelectorAll('.toast').forEach(el => el.remove());
   const t = document.createElement('div');
   t.className = `toast toast-${type}`;
   t.textContent = msg;
