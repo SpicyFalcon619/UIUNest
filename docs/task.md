@@ -1,0 +1,22 @@
+# Backend Transition Task List
+
+- [x] **Create Database SQL Scripts**
+  - [x] Generate `database/schema.sql` (15 tables with all constraints)
+  - [x] Generate `database/seed.sql` (Initial data to populate the DB)
+- [x] **Setup PHP Connection**
+  - [x] Create `api/db.php` configured for XAMPP defaults (`root`, no password)
+- [x] **Build PHP APIs**
+  - [x] `api/login.php`, `api/register.php`, `api/logout.php` (Session management)
+  - [x] `api/listings.php` (Fetch and create listings)
+- [x] **File Upload & Verifications**
+  - [x] Add `verifications` table to `schema.sql`.
+  - [x] Create `uploads/verifications`, `uploads/listings`, `uploads/items` directories.
+  - [x] Implement `api/upload.php`.
+  - [x] Implement `api/verify.php` and `api/admin_action_verif.php`.
+  - [x] Modify `profile.html` to support file upload for verifications.
+  - [x] Modify `admin.html` to fetch and view verification documents.
+  - [x] Modify `listings.html` to support image upload for properties.
+- [ ] **Build PHP APIs**
+  - [ ] `api/dashboard.php` (Aggregate queries for stats and tables)
+- [ ] **Walkthrough & Documentation**
+  - [ ] Document all DB schema changes for user's ERD.
