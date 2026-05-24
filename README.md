@@ -11,15 +11,43 @@ UIUNest is a comprehensive platform designed for UIU (United International Unive
 
 ## Tech Stack
 - **Frontend:** HTML, CSS, JavaScript (Vanilla)
+- **Backend:** PHP
+- **Database:** MySQL
 - **Icons:** [Lucide Icons](https://lucide.dev)
 - **Maps:** [Leaflet.js](https://leafletjs.com)
 - **Charts:** [Chart.js](https://www.chartjs.org/)
 
-## Local Development
-1. Clone the repository: `git clone https://github.com/SpicyFalcon619/UIUNest.git`
-2. Open `index.html` in your web browser.
-3. No backend or database server is required for the demo. Data persistence and state management are simulated locally using `localStorage`.
+## Local Development & Setup
+Because this project uses PHP and MySQL, **you must use a local server environment like XAMPP** to run the application.
 
-## Deployment
-This project is completely static (HTML/CSS/JS) and is optimized for direct deployment on [Vercel](https://vercel.com).
-Simply import this repository into Vercel, and it will automatically deploy as a static site without any build configuration needed.
+### 1. Database Setup
+1. Start **Apache** and **MySQL** from the XAMPP Control Panel.
+2. Open a browser and navigate to `http://localhost/phpmyadmin`.
+3. Create a new database named **`uiunest`**.
+4. Click on the `uiunest` database, go to the **Import** tab.
+5. Upload the `database/schema.sql` file located in this repository and click Import. This will generate all the necessary tables (users, listings, verifications, etc.).
+
+### 2. Codebase Setup
+You have two options to serve the codebase via XAMPP:
+
+#### Option A: Direct Folder (Recommended)
+Simply clone or move this entire repository directly into your XAMPP `htdocs` directory.
+- Windows: `C:\xampp\htdocs\UIU-Nest`
+- Mac: `/Applications/XAMPP/htdocs/UIU-Nest`
+
+#### Option B: The "Shortcut" Method (Symlink)
+If you prefer to keep the repository in your Documents or Downloads folder, you can create a symbolic link (shortcut) inside `htdocs` that points to your folder.
+
+**On Windows:**
+1. Open Command Prompt as **Administrator**.
+2. Run the following command (replace the paths with your actual paths):
+   ```cmd
+   mklink /D "C:\xampp\htdocs\UIU-Nest" "C:\Users\YourName\Downloads\UIU-Nest"
+   ```
+
+### 3. Run the App
+Once the database is imported and the folder is in `htdocs` (or symlinked), open your browser and go to:
+`http://localhost/UIU-Nest`
+
+### Note for AI Assistants
+If you are using an AI assistant to help build this project, instruct it to read `docs/walkthrough.md` and `docs/task.md` to instantly catch up on the backend architecture and what has already been built.
