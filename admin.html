@@ -63,6 +63,17 @@
   </div>
 </div>
 
+<!-- Document Modal -->
+<div id="docModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:800px;height:90vh;display:flex;flex-direction:column;position:relative;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="margin:0;color:var(--navy)">Verification Document</h3>
+      <button onclick="document.getElementById('docModal').style.display='none'" style="background:var(--light-gray);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i data-lucide="x" class="lucide-sm"></i></button>
+    </div>
+    <iframe id="docFrame" style="flex-grow:1;width:100%;border:1px solid var(--border);border-radius:8px;background:#f3f4f6;"></iframe>
+  </div>
+</div>
+
 <div id="footer-mount"></div>
 <script src="app.js"></script>
 <script>
@@ -143,7 +154,7 @@ function renderVerifications(verifs) {
       <tr>
         <td><strong>${v.name}</strong><br><span style="font-size:12px;color:var(--gray);">${v.email}</span></td>
         <td>${v.nid_type}</td>
-        <td>${v.description}<br><a href="${v.document_path}" target="_blank" style="color:var(--navy);font-weight:600;font-size:12px;"><i data-lucide="external-link" class="lucide-sm"></i> View Document</a></td>
+        <td>${v.description}<br><a href="#" onclick="event.preventDefault();openDocModal('${v.document_path}')" style="color:var(--navy);font-weight:600;font-size:12px;"><i data-lucide="external-link" class="lucide-sm"></i> View Document</a></td>
         <td>${v.submitted_at}</td>
         <td>
           ${v.status === 'approved'
@@ -157,6 +168,11 @@ function renderVerifications(verifs) {
   }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray);">No verification requests submitted yet.</td></tr>';
   
   if (window.lucide) lucide.createIcons();
+}
+
+function openDocModal(url) {
+  document.getElementById('docFrame').src = url;
+  document.getElementById('docModal').style.display = 'flex';
 }
 
 async function actionVerif(id, action) {

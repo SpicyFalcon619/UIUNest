@@ -181,15 +181,14 @@ async function loadCloudWatchlist() {
     const data = await res.json();
     if (data.success) {
       window.userWatchlist = data.watchlist;
+      // Sync initial state of existing hearts (if any render synchronously)
       document.querySelectorAll('.heart').forEach(h => {
-        h.addEventListener('click', e => {
-          e.preventDefault();
-          const id = parseInt(h.getAttribute('data-wl'));
-          toggleWatchlist(id).then(active => {
-            if (active) { h.classList.add('active'); h.querySelector('i').style.fill = 'currentColor'; }
-            else { h.classList.remove('active'); h.querySelector('i').style.fill = 'none'; }
-          });
-        });
+        const id = parseInt(h.getAttribute('data-wl'));
+        if (window.userWatchlist.includes(id)) {
+          h.classList.add('active'); h.querySelector('i').style.fill = 'currentColor';
+        } else {
+          h.classList.remove('active'); h.querySelector('i').style.fill = 'none';
+        }
       });
     }
   } catch (err) { console.error(err); }
@@ -198,6 +197,19 @@ async function loadCloudWatchlist() {
 function getWatchlist() {
   return window.userWatchlist || [];
 }
+
+// Global Event Delegation for Wishlist Hearts
+document.body.addEventListener('click', e => {
+  const h = e.target.closest('.heart');
+  if (h) {
+    e.preventDefault();
+    const id = parseInt(h.getAttribute('data-wl'));
+    toggleWatchlist(id).then(active => {
+      if (active) { h.classList.add('active'); h.querySelector('i').style.fill = 'currentColor'; }
+      else { h.classList.remove('active'); h.querySelector('i').style.fill = 'none'; }
+    });
+  }
+});
 
 async function toggleWatchlist(id) {
   if (!isLoggedIn()) {
