@@ -43,12 +43,13 @@ a { color: var(--navy); text-decoration: none; transition: color 0.2s ease; }
 a:hover { color: var(--gold); }
 
 /* Editorial Navbar */
+#nav-mount {
+  position: sticky; top: 0; z-index: 2000;
+}
 .navbar { 
-  position: sticky; top: 0; 
   background: rgba(253, 251, 247, 0.95); 
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border); 
-  z-index: 1000; 
 }
 .nav-inner { max-width: 1280px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; gap: 32px; }
 .nav-logo { font-size: 22px; font-weight: 700; letter-spacing: -0.03em; color: var(--navy); }
