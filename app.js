@@ -184,10 +184,11 @@ async function loadCloudWatchlist() {
       // Sync initial state of existing hearts (if any render synchronously)
       document.querySelectorAll('.heart').forEach(h => {
         const id = parseInt(h.getAttribute('data-wl'));
+        const icon = h.querySelector('i, svg');
         if (window.userWatchlist.includes(id)) {
-          h.classList.add('active'); h.querySelector('i').style.fill = 'currentColor';
+          h.classList.add('active'); if (icon) icon.style.fill = 'currentColor';
         } else {
-          h.classList.remove('active'); h.querySelector('i').style.fill = 'none';
+          h.classList.remove('active'); if (icon) icon.style.fill = 'none';
         }
       });
     }
@@ -205,8 +206,9 @@ document.body.addEventListener('click', e => {
     e.preventDefault();
     const id = parseInt(h.getAttribute('data-wl'));
     toggleWatchlist(id).then(active => {
-      if (active) { h.classList.add('active'); h.querySelector('i').style.fill = 'currentColor'; }
-      else { h.classList.remove('active'); h.querySelector('i').style.fill = 'none'; }
+      const icon = h.querySelector('i, svg');
+      if (active) { h.classList.add('active'); if (icon) icon.style.fill = 'currentColor'; }
+      else { h.classList.remove('active'); if (icon) icon.style.fill = 'none'; }
     });
   }
 });
