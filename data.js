@@ -27,6 +27,8 @@ window.getInitialData = function(populated = true) {
   let reviews = [];
   let verifs = [];
 
+    let applications = [];
+
   if (populated) {
     // Seed some mock verification
     verifs.push({ id: 1, name: "Landlord User", email: "landlord@uiu.ac.bd", nidType: "NID", desc: "My actual NID", date: new Date().toLocaleDateString(), approved: true });
@@ -110,6 +112,11 @@ window.getInitialData = function(populated = true) {
     });
     
     reviews.push({ id: 1, listingId: 101, reviewer: "Student User", rating: 5, comment: "Great place, very close to campus." });
+
+    applications.push({
+      id: 1, listingId: 101, listingTitle: "Spacious Room near UIU gate", applicantName: "Student User", applicantEmail: "student@uiu.ac.bd",
+      ownerEmail: "landlord@uiu.ac.bd", message: "Hi, I am interested in renting this room.", status: "pending", date: new Date().toLocaleDateString()
+    });
   }
 
   return {
@@ -124,6 +131,7 @@ window.getInitialData = function(populated = true) {
     monthlyBills: [],
     complaints: [],
     verifs,
+    applications,
     adminStats: emptyStats
   };
 };

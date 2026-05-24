@@ -107,6 +107,9 @@ function renderDashboard() {
   const activeOffersCount = offersSent.filter(o => o.status === 'pending' || o.status === 'countered').length +
                             offersRecv.filter(o => o.status === 'pending' || o.status === 'countered').length;
 
+  const appsSent = (mockData.applications || []).filter(a => a.applicantEmail === user.email);
+  const appsRecv = (mockData.applications || []).filter(a => a.ownerEmail === user.email);
+
   const compatStatus = (user.role === 'student' && user.preferences) ? 'Complete <i data-lucide="check" class="lucide-sm"></i>' : 'Setup Required';
   const compatColor = (user.role === 'student' && user.preferences) ? 'var(--success)' : 'var(--warning)';
 
@@ -129,6 +132,7 @@ function renderDashboard() {
       <div class="tab" data-tab="items" onclick="switchTab('items')">My Exchange Items</div>
       <div class="tab" data-tab="watch" onclick="switchTab('watch')">Watchlist</div>
       <div class="tab" data-tab="offers" onclick="switchTab('offers')">Offers</div>
+      <div class="tab" data-tab="applications" onclick="switchTab('applications')">Housing Applications</div>
     </div>
 
     <div id="tab-listings">
@@ -232,6 +236,58 @@ function renderDashboard() {
           </table>
         `}
       </div>
+    </div>
+    
+    <div id="tab-applications" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <h3 style="margin-top:0;color:var(--navy)">Applications Received</h3>
+        ${appsRecv.length === 0 ? `
+          <p style="color:var(--gray);text-align:center;padding:12px 0">No applications received yet.</p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>Property</th><th>Applicant</th><th>Message</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              ${appsRecv.map(a => `
+                <tr>
+                  <td><strong>${a.listingTitle}</strong></td>
+                  <td>${a.applicantName}</td>
+                  <td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.message}">${a.message}</div></td>
+                  <td>${statusBadge(a.status)}</td>
+                  <td>
+                    ${a.status === 'pending' ? `
+                      <button class="btn btn-success btn-sm" onclick="setAppStatus(${a.id}, 'accepted')">Accept</button>
+                      <button class="btn btn-danger btn-sm" onclick="setAppStatus(${a.id}, 'rejected')">Reject</button>
+                    ` : `
+                      <button class="btn btn-outline btn-sm" disabled>Processed</button>
+                    `}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">Applications Sent</h3>
+        ${appsSent.length === 0 ? `
+          <p style="color:var(--gray);text-align:center;padding:12px 0">You haven't applied to any properties.</p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>Property</th><th>Landlord Email</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              ${appsSent.map(a => `
+                <tr>
+                  <td><strong>${a.listingTitle}</strong></td>
+                  <td>${a.ownerEmail}</td>
+                  <td>${statusBadge(a.status)}</td>
+                  <td>${a.date}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
     </div>`;
 
   attachWatchlistHandlers();
@@ -240,7 +296,7 @@ function renderDashboard() {
 
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === t));
-  ['listings', 'items', 'watch', 'offers'].forEach(n => {
+  ['listings', 'items', 'watch', 'offers', 'applications'].forEach(n => {
     document.getElementById('tab-' + n).style.display = (n === t ? '' : 'none');
   });
 }
@@ -344,6 +400,16 @@ function deleteItem(id) {
     mockData.offers = mockData.offers.filter(o => o.itemId !== id);
     saveMockData();
     showToast('Exchange item removed', 'error');
+    renderDashboard();
+  }
+}
+
+function setAppStatus(id, status) {
+  const app = mockData.applications.find(x => x.id === id);
+  if (app) {
+    app.status = status;
+    saveMockData();
+    showToast('Application ' + status);
     renderDashboard();
   }
 }

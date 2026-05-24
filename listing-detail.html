@@ -76,6 +76,21 @@
   </div>
 </div>
 
+<!-- Apply Modal -->
+<div class="modal-bg" id="applyModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('applyModal').classList.remove('open')">×</button>
+    <h3>Apply for this home</h3>
+    <form id="applyForm" onsubmit="submitApplication(event)">
+      <div class="form-group">
+        <label>Message to landlord</label>
+        <textarea id="appMessage" required placeholder="Hi, I am interested in your listing and would like to arrange a visit..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Submit Application</button>
+    </form>
+  </div>
+</div>
+
 <div id="footer-mount"></div>
 <script src="app.js"></script>
 <script>
@@ -193,7 +208,7 @@ if (!l) {
         <h3 style="margin:0 0 8px;color:var(--navy)">Landlord / Contact</h3>
         <div style="font-weight:600" id="ownerName">Owner</div>
         <div style="font-size:13px;color:var(--gray);margin:6px 0" id="ownerEmailText">Email: </div>
-        <button class="btn btn-primary btn-block" onclick="showToast('Contact request sent!')">Contact Owner</button>
+        ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `<button class="btn btn-primary btn-block" onclick="document.getElementById('applyModal').classList.add('open')">Apply for Home</button>` : ''}
         <button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" style="margin-top:10px;width:100%;text-align:center"><i data-lucide="heart" class="lucide-sm"></i> ${wl ? 'Saved' : 'Save to watchlist'}</button>
       </div>
 
@@ -311,6 +326,39 @@ function submitComplaint(e) {
   document.getElementById('reportModal').classList.remove('open');
   document.getElementById('reportForm').reset();
   showToast('Complaint filed. Admin will review.');
+}
+
+function submitApplication(e) {
+  e.preventDefault();
+  const msg = document.getElementById('appMessage').value.trim();
+  
+  // Initialize if missing
+  if (!mockData.applications) mockData.applications = [];
+
+  const existingApp = mockData.applications.find(a => a.listingId === l.id && a.applicantEmail === mockData.currentUser.email);
+  if (existingApp) {
+    showToast('You have already applied for this property.', 'error');
+    document.getElementById('applyModal').classList.remove('open');
+    return;
+  }
+
+  const newApp = {
+    id: Date.now(),
+    listingId: l.id,
+    listingTitle: l.title,
+    applicantName: mockData.currentUser.name,
+    applicantEmail: mockData.currentUser.email,
+    ownerEmail: l.ownerEmail,
+    message: msg,
+    status: 'pending',
+    date: new Date().toLocaleDateString('en-US')
+  };
+
+  mockData.applications.push(newApp);
+  saveMockData();
+  document.getElementById('applyModal').classList.remove('open');
+  document.getElementById('applyForm').reset();
+  showToast('Application sent successfully!');
 }
 </script>
 </body>
