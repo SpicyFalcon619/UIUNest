@@ -17,6 +17,7 @@ window.getInitialData = function(populated = true) {
 
   const users = [
     { id: 1, name: "Student User", email: "student@uiu.ac.bd", password: "student123", role: "student", gender: "male", universityId: "011202001" },
+    { id: 4, name: "Student Two", email: "student2@uiu.ac.bd", password: "student123", role: "student", gender: "female", universityId: "011202002" },
     { id: 2, name: "Landlord User", email: "landlord@uiu.ac.bd", password: "landlord123", role: "landlord", gender: "male" },
     { id: 3, name: "Master Admin", email: "admin@uiu.ac.bd", password: "admin123", role: "admin", gender: "male" }
   ];
