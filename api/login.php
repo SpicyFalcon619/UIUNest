@@ -22,6 +22,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Format to match JS prototype keys where needed, e.g. user_id -> id
         $user['id'] = $user['user_id'];
         
+        // Fetch preferences
+        $prefStmt = $pdo->prepare('SELECT * FROM user_preferences WHERE user_id = ?');
+        $prefStmt->execute([$user['user_id']]);
+        $prefs = $prefStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($prefs) {
+            $user['sleep'] = $prefs['sleep_schedule'];
+            $user['diet'] = $prefs['diet'];
+            $user['guest'] = $prefs['guest_policy'];
+            $user['smoking'] = (int)$prefs['smoking_tolerance'];
+            $user['noise'] = $prefs['noise_tolerance'];
+            $user['cleanliness'] = (int)$prefs['cleanliness_score'];
+        } else {
+            // Defaults if not set
+            $user['sleep'] = 'flexible';
+            $user['diet'] = 'non_veg';
+            $user['guest'] = 'restricted';
+            $user['smoking'] = 0;
+            $user['noise'] = 'moderate';
+            $user['cleanliness'] = 3;
+        }
+        
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['user'] = $user;
         echo json_encode(['success' => true, 'user' => $user]);

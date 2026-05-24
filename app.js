@@ -172,18 +172,57 @@ function getQueryId() {
   return parseInt(p.get('id'));
 }
 
-// Watchlist (localStorage)
+window.userWatchlist = [];
+
+async function loadCloudWatchlist() {
+  if (!isLoggedIn()) return;
+  try {
+    const res = await fetch('api/watchlist.php');
+    const data = await res.json();
+    if (data.success) {
+      window.userWatchlist = data.watchlist;
+      document.querySelectorAll('.heart').forEach(h => {
+        h.addEventListener('click', e => {
+          e.preventDefault();
+          const id = parseInt(h.getAttribute('data-wl'));
+          toggleWatchlist(id).then(active => {
+            if (active) { h.classList.add('active'); h.querySelector('i').style.fill = 'currentColor'; }
+            else { h.classList.remove('active'); h.querySelector('i').style.fill = 'none'; }
+          });
+        });
+      });
+    }
+  } catch (err) { console.error(err); }
+}
+
 function getWatchlist() {
-  try { return JSON.parse(localStorage.getItem('uiunest_watchlist_v4') || '[]'); }
-  catch { return []; }
+  return window.userWatchlist || [];
 }
-function toggleWatchlist(id) {
-  const w = getWatchlist();
+
+async function toggleWatchlist(id) {
+  if (!isLoggedIn()) {
+    showToast("Please log in to save properties.", "error");
+    return false;
+  }
+  
+  const w = window.userWatchlist;
   const i = w.indexOf(id);
-  if (i >= 0) w.splice(i, 1); else w.push(id);
-  localStorage.setItem('uiunest_watchlist_v4', JSON.stringify(w));
-  return w.includes(id);
+  const willBeActive = (i < 0);
+  if (willBeActive) w.push(id); else w.splice(i, 1);
+  
+  try {
+    fetch('api/watchlist.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({listingId: id})
+    });
+  } catch(e) { console.error(e); }
+  
+  return willBeActive;
 }
+
+// Automatically load watchlist when file is imported
+loadCloudWatchlist();
 
 // ============ Nav ============
 function renderNav(active) {

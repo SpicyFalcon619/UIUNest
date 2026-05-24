@@ -20,7 +20,7 @@
     <form onsubmit="saveProfile(event)">
       <div class="grid-2">
         <div class="form-group"><label>Name</label><input id="pfName" required></div>
-        <div class="form-group"><label>Email</label><input id="pfEmail" readonly style="background:#f3f4f6;cursor:not-allowed"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="pfEmail" required></div>
         <div class="form-group"><label>Phone</label><input id="pfPhone" placeholder="+880 1XXX-XXXXXX"></div>
         <div class="form-group"><label>UIU ID</label><input id="pfId" placeholder="011XXXXXXXX"></div>
       </div>
@@ -40,9 +40,9 @@
     <form id="prefForm" onsubmit="savePrefs(event)">
       <div class="form-group"><label>Sleep schedule</label>
         <div class="radio-row">
-          <label><input type="radio" name="sleep" value="Early Bird (before 11pm)"> Early Bird (before 11pm)</label>
-          <label><input type="radio" name="sleep" value="Night Owl (after 12am)"> Night Owl (after 12am)</label>
-          <label><input type="radio" name="sleep" value="Flexible" checked> Flexible</label>
+          <label><input type="radio" name="sleep" value="early"> Early Bird (before 11pm)</label>
+          <label><input type="radio" name="sleep" value="late"> Night Owl (after 12am)</label>
+          <label><input type="radio" name="sleep" value="flexible" checked> Flexible</label>
         </div>
       </div>
       <div class="form-group"><label>Study hours per day: <span id="hrVal">4</span></label>
@@ -50,16 +50,16 @@
       </div>
       <div class="form-group"><label>Diet</label>
         <div class="radio-row">
-          <label><input type="radio" name="diet" value="Vegetarian"> Vegetarian</label>
-          <label><input type="radio" name="diet" value="Non-Vegetarian" checked> Non-Vegetarian</label>
-          <label><input type="radio" name="diet" value="Strictly Halal"> Strictly Halal</label>
+          <label><input type="radio" name="diet" value="vegetarian"> Vegetarian</label>
+          <label><input type="radio" name="diet" value="non_veg" checked> Non-Vegetarian</label>
+          <label><input type="radio" name="diet" value="halal_strict"> Strictly Halal</label>
         </div>
       </div>
       <div class="form-group"><label>Guest policy</label>
         <div class="radio-row">
-          <label><input type="radio" name="guest" value="Allowed"> Allowed</label>
-          <label><input type="radio" name="guest" value="Restricted (weekends only)" checked> Restricted (weekends only)</label>
-          <label><input type="radio" name="guest" value="Not Allowed"> Not Allowed</label>
+          <label><input type="radio" name="guest" value="allowed"> Allowed</label>
+          <label><input type="radio" name="guest" value="restricted" checked> Restricted (weekends only)</label>
+          <label><input type="radio" name="guest" value="not_allowed"> Not Allowed</label>
         </div>
       </div>
       <div class="form-group"><label>Smoking tolerance</label>
@@ -68,16 +68,21 @@
       </div>
       <div class="form-group"><label>Preferred flatmate gender</label>
         <div class="radio-row">
-          <label><input type="radio" name="fg" value="Male" checked> Male</label>
-          <label><input type="radio" name="fg" value="Female"> Female</label>
+          <label><input type="radio" name="fg" value="male" checked> Male</label>
+          <label><input type="radio" name="fg" value="female"> Female</label>
+          <label><input type="radio" name="fg" value="any"> Any</label>
         </div>
+      </div>
+      <div class="form-group"><label>Cleanliness Score (1-5): <span id="cleanVal">3</span></label>
+        <input type="range" id="prefClean" min="1" max="5" value="3" oninput="cleanVal.textContent=this.value">
+        <span style="font-size:13px;color:var(--gray);display:block;margin-top:4px">1 = Messy, 5 = OCD Clean</span>
       </div>
 
       <div class="form-group"><label>Noise tolerance</label>
         <div class="radio-row">
-          <label><input type="radio" name="noise" value="Quiet" checked> Quiet</label>
-          <label><input type="radio" name="noise" value="Moderate"> Moderate</label>
-          <label><input type="radio" name="noise" value="Lively is fine"> Lively is fine</label>
+          <label><input type="radio" name="noise" value="quiet" checked> Quiet</label>
+          <label><input type="radio" name="noise" value="moderate"> Moderate</label>
+          <label><input type="radio" name="noise" value="noisy"> Lively is fine</label>
         </div>
       </div>
       <button class="btn btn-primary">Save Preferences</button>
@@ -110,19 +115,32 @@ let user = null;
 
 async function loadProfileData() {
   try {
-    const res = await fetch('api/me.php');
+    const res = await fetch('api/profile.php');
     const data = await res.json();
-    if (data.loggedIn) {
-      user = data.user;
-      document.getElementById('pfName').value = user.name || '';
-      document.getElementById('pfEmail').value = user.email || '';
-      document.getElementById('pfPhone').value = user.phone || '';
-      document.getElementById('pfId').value = user.universityId || '';
-      if (user.gender === 'female') {
+    if (data.success) {
+      const u = data.user;
+      document.getElementById('pfName').value = u.name || '';
+      document.getElementById('pfEmail').value = u.email || '';
+      document.getElementById('pfPhone').value = u.phone || '';
+      document.getElementById('pfId').value = u.university_id || '';
+      if (u.gender === 'female') {
         document.getElementById('pfGenF').checked = true;
       } else {
         document.getElementById('pfGenM').checked = true;
       }
+      
+      const p = data.preferences || {};
+      document.querySelectorAll('input[name=sleep]').forEach(r => { if (r.value === (p.sleep_schedule || 'flexible')) r.checked = true; });
+      document.getElementById('prefStudy').value = p.study_hours || 4;
+      document.getElementById('hrVal').textContent = p.study_hours || 4;
+      document.querySelectorAll('input[name=diet]').forEach(r => { if (r.value === (p.diet || 'non_veg')) r.checked = true; });
+      document.querySelectorAll('input[name=guest]').forEach(r => { if (r.value === (p.guest_policy || 'restricted')) r.checked = true; });
+      document.getElementById('prefSmoking').checked = p.smoking_tolerance == 1;
+      document.querySelectorAll('input[name=fg]').forEach(r => { if (r.value === (p.preferred_gender || 'any')) r.checked = true; });
+      document.getElementById('prefClean').value = p.cleanliness_score || 3;
+      document.getElementById('cleanVal').textContent = p.cleanliness_score || 3;
+      document.querySelectorAll('input[name=noise]').forEach(r => { if (r.value === (p.noise_tolerance || 'moderate')) r.checked = true; });
+
       checkVerifStatus();
     } else {
       location.href = 'login.html';
@@ -158,29 +176,63 @@ async function checkVerifStatus() {
   }
 }
 
-// Load default preferences (since we haven't built the prefs API yet)
-const prefs = {
-  sleep: "Flexible", study: 4, diet: "Non-Vegetarian", guest: "Restricted (weekends only)", smoking: true, fg: "Male", cleanliness: 4, noise: "Quiet"
-};
-
-document.querySelectorAll('input[name=sleep]').forEach(r => { if (r.value === prefs.sleep) r.checked = true; });
-document.getElementById('prefStudy').value = prefs.study || 4;
-document.getElementById('hrVal').textContent = prefs.study || 4;
-document.querySelectorAll('input[name=diet]').forEach(r => { if (r.value === prefs.diet) r.checked = true; });
-document.querySelectorAll('input[name=guest]').forEach(r => { if (r.value === prefs.guest) r.checked = true; });
-document.getElementById('prefSmoking').checked = prefs.smoking !== false;
-document.querySelectorAll('input[name=fg]').forEach(r => { if (r.value === prefs.fg) r.checked = true; });
-
-document.querySelectorAll('input[name=noise]').forEach(r => { if (r.value === prefs.noise) r.checked = true; });
-
-function saveProfile(e) {
+async function saveProfile(e) {
   e.preventDefault();
-  showToast('Profile save not implemented in API yet.', 'error');
+  const payload = {
+    type: 'basic',
+    name: document.getElementById('pfName').value,
+    email: document.getElementById('pfEmail').value,
+    phone: document.getElementById('pfPhone').value,
+    university_id: document.getElementById('pfId').value
+  };
+  try {
+    const res = await fetch('api/profile.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Profile updated successfully!');
+    } else {
+      showToast(data.error || 'Failed to update profile', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
 }
 
-function savePrefs(e) {
+async function savePrefs(e) {
   e.preventDefault();
-  showToast('Preferences save not implemented in API yet.', 'error');
+  const payload = {
+    type: 'prefs',
+    sleep_schedule: document.querySelector('input[name=sleep]:checked').value,
+    study_hours: document.getElementById('prefStudy').value,
+    diet: document.querySelector('input[name=diet]:checked').value,
+    guest_policy: document.querySelector('input[name=guest]:checked').value,
+    smoking_tolerance: document.getElementById('prefSmoking').checked ? 1 : 0,
+    preferred_gender: document.querySelector('input[name=fg]:checked').value,
+    cleanliness_score: document.getElementById('prefClean').value,
+    noise_tolerance: document.querySelector('input[name=noise]:checked').value
+  };
+  try {
+    const res = await fetch('api/profile.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      const banner = document.getElementById('prefBanner');
+      banner.style.display = 'block';
+      setTimeout(() => { banner.style.display = 'none'; }, 3000);
+      showToast('Preferences updated!');
+    } else {
+      showToast(data.error || 'Failed to update preferences', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
 }
 
 async function submitVerification(e) {
