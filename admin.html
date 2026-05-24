@@ -89,8 +89,8 @@ function renderCharts() {
   rentChart = new Chart(document.getElementById('rentChart'), {
     type: 'bar',
     data: {
-      labels: mockData.adminStats.avgRentByZone.map(z => z.zone),
-      datasets: [{ label: 'Avg Monthly Rent (৳)', data: mockData.adminStats.avgRentByZone.map(z => z.avg), backgroundColor: '#0055AA', borderRadius: 6 }]
+      labels: adminStats.avgRentByZone.map(z => z.zone),
+      datasets: [{ label: 'Avg Monthly Rent (৳)', data: adminStats.avgRentByZone.map(z => z.avg), backgroundColor: '#0055AA', borderRadius: 6 }]
     },
     options: { responsive: true, plugins: { legend: { display: false } } }
   });
@@ -98,15 +98,19 @@ function renderCharts() {
   demandChart = new Chart(document.getElementById('demandChart'), {
     type: 'bar',
     data: {
-      labels: mockData.adminStats.seekingVsListings.map(z => z.zone),
+      labels: adminStats.seekingVsListings.map(z => z.zone),
       datasets: [
-        { label: 'Seeking Posts', data: mockData.adminStats.seekingVsListings.map(z => z.seeking), backgroundColor: '#C8920A', borderRadius: 4 },
-        { label: 'Listings',      data: mockData.adminStats.seekingVsListings.map(z => z.listings), backgroundColor: '#003366', borderRadius: 4 }
+        { label: 'Seeking Posts', data: adminStats.seekingVsListings.map(z => z.seeking), backgroundColor: '#C8920A', borderRadius: 4 },
+        { label: 'Listings',      data: adminStats.seekingVsListings.map(z => z.listings), backgroundColor: '#003366', borderRadius: 4 }
       ]
     },
     options: { responsive: true }
   });
 }
+
+let adminStats = null;
+let allListings = [];
+let allComplaints = [];
 
 async function loadAdminData() {
   try {
@@ -123,6 +127,26 @@ async function loadAdminData() {
     } else {
       showToast('Failed to load users', 'error');
     }
+
+    const resS = await fetch('api/admin_stats.php');
+    const dataS = await resS.json();
+    if (dataS.success) {
+      adminStats = dataS.stats;
+    }
+
+    const resC = await fetch('api/admin_complaints.php');
+    const dataC = await resC.json();
+    if (dataC.success) {
+      allComplaints = dataC.complaints;
+    }
+    
+    const resL = await fetch('api/listings.php');
+    const dataL = await resL.json();
+    if (dataL.success) {
+      allListings = dataL.listings;
+    }
+    
+    renderAdminDashboard();
   } catch (err) {
     console.error(err);
   }
@@ -202,19 +226,16 @@ async function actionVerif(id, action) {
 }
 
 function renderAdminDashboard() {
-  // Enforce stats recalculation (assuming mockData for now, except verifications)
-  recalculateAdminStats();
+  if (!adminStats) return;
 
   // Populate dynamic stats cards
-  document.getElementById('statListings').textContent = mockData.listings.length;
-  // Render all users is handled by loadAdminData()
-  const openComplaintsCount = mockData.complaints.filter(c => c.status !== 'Resolved').length;
-  document.getElementById('statComplaints').textContent = openComplaintsCount;
+  document.getElementById('statListings').textContent = adminStats.totalListings;
+  document.getElementById('statComplaints').textContent = adminStats.openComplaints;
 
   // Render Demand alert
   const alertEl = document.getElementById('demandAlert');
   const zonesWithMismatch = [];
-  mockData.adminStats.seekingVsListings.forEach(z => {
+  adminStats.seekingVsListings.forEach(z => {
     if (z.seeking > z.listings) {
       zonesWithMismatch.push(`${z.zone} (+${z.seeking - z.listings})`);
     }
@@ -227,18 +248,14 @@ function renderAdminDashboard() {
   }
 
   // Render complaints
-  document.getElementById('complaintsTbody').innerHTML = mockData.complaints.map((c, index) => {
-    const listing = mockData.listings.find(x => x.id === c.listingId) || {};
-    const owner = mockData.users.find(u => u.email === listing.ownerEmail) || { name: 'Unknown Landlord' };
-    const complainantUser = mockData.users.find(u => u.email === c.userEmail) || { name: c.userEmail.split('@')[0] };
-
+  document.getElementById('complaintsTbody').innerHTML = allComplaints.map((c, index) => {
     return `
       <tr>
         <td>${index + 1}</td>
-        <td>${complainantUser.name || c.userEmail}</td>
-        <td>${owner.name}</td>
+        <td>${c.userEmail}</td>
+        <td>Owner #${c.ownerId}</td>
         <td>${c.category}</td>
-        <td><a href="listing-detail.html?id=${c.listingId}" style="color:var(--navy);font-weight:600;">${c.listingTitle}</a></td>
+        <td><a href="listing-detail.html?id=${c.listingId}" style="color:var(--navy);font-weight:600;">${c.listingTitle || 'Listing #' + c.listingId}</a></td>
         <td>${statusBadge(c.status)}</td>
         <td>${c.date}</td>
         <td>
@@ -251,10 +268,8 @@ function renderAdminDashboard() {
       </tr>`;
   }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray);">No complaints filed yet.</td></tr>';
 
-  // Render all users is now handled by loadAdminData()
-
   // Render all listings
-  document.getElementById('allListingsTbody').innerHTML = mockData.listings.map(l => `
+  document.getElementById('allListingsTbody').innerHTML = allListings.map(l => `
     <tr>
       <td>${l.id}</td>
       <td><a href="listing-detail.html?id=${l.id}" style="color:var(--navy);font-weight:600;">${l.title}</a></td>
@@ -268,24 +283,43 @@ function renderAdminDashboard() {
   if (window.lucide) lucide.createIcons();
 }
 
-function setComplaintStatus(id, s) {
-  const c = mockData.complaints.find(x => x.id === id);
-  if (c) {
-    c.status = s;
-    saveMockData();
-    renderAdminDashboard();
-    showToast('Complaint status updated');
+async function setComplaintStatus(id, s) {
+  try {
+    const res = await fetch('api/admin_action_complaint.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action: s })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Complaint status updated');
+      loadAdminData(); // Refresh UI
+    } else {
+      showToast(data.error || 'Failed to update status', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
   }
 }
 
-function deleteListingAdmin(id) {
+async function deleteListingAdmin(id) {
   if (confirm("Are you sure you want to completely delete this listing? This action cannot be undone.")) {
-    mockData.listings = mockData.listings.filter(l => l.id !== id);
-    mockData.complaints = mockData.complaints.filter(c => c.listingId !== id);
-    mockData.reviews = mockData.reviews.filter(r => r.listingId !== id);
-    saveMockData();
-    renderAdminDashboard();
-    showToast('Listing completely deleted', 'error');
+    try {
+      const res = await fetch('api/admin_action_listing.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action: 'delete' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Listing completely deleted');
+        loadAdminData(); // Refresh UI
+      } else {
+        showToast(data.error || 'Failed to delete listing', 'error');
+      }
+    } catch (err) {
+      showToast('Network error', 'error');
+    }
   }
 }
 
