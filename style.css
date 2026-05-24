@@ -286,3 +286,19 @@ footer a:hover { color: var(--gold); }
 .lucide { width: 20px; height: 20px; vertical-align: middle; stroke-width: 2px; display: inline-block; flex-shrink: 0; }
 .lucide-sm { width: 16px; height: 16px; vertical-align: middle; stroke-width: 2px; display: inline-block; flex-shrink: 0; }
 .lucide-lg { width: 24px; height: 24px; vertical-align: middle; stroke-width: 2px; display: inline-block; flex-shrink: 0; }
+
+/* Match Percentage bubble */
+.compat-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border: 3px solid rgba(255,255,255,0.8);
+}
