@@ -65,7 +65,7 @@ window.getInitialData = function(populated = true) {
       depositTerms: "Refundable",
       rules: { smoking: "No", pets: "No", guests: "Yes", curfew: "None" },
       rentHistory: [],
-      amenities: ["WiFi", "Fridge", "Water Purifier"],
+      amenities: { attachedBathroom: true, attachedKitchen: false, isFurnished: true, rooftopAccess: true, powerBackup: true, liftAccess: false, parking: true },
       photos: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600"]
     });
 
@@ -99,7 +99,7 @@ window.getInitialData = function(populated = true) {
       depositTerms: "Refundable",
       rules: { smoking: "No", pets: "No", guests: "No", curfew: "10 PM" },
       rentHistory: [],
-      amenities: ["WiFi", "Maid Service"],
+      amenities: { attachedBathroom: false, attachedKitchen: true, isFurnished: false, rooftopAccess: true, powerBackup: false, liftAccess: true, parking: false },
       photos: ["https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600"]
     });
 

@@ -234,7 +234,14 @@ function getFiltered() {
     if (gender !== 'any' && l.genderPref !== gender) return false;
     if (l.costs.totalMonthly > budget) return false;
     if (verified && !l.isVerified) return false;
-    for (const a of amens) if (!l.amenities[a]) return false;
+    for (const a of amens) {
+      if (Array.isArray(l.amenities)) {
+        // Fallback for legacy string arrays in seed data
+        return false;
+      } else if (!l.amenities || !l.amenities[a]) {
+        return false;
+      }
+    }
     return true;
   });
   if (sort === 'cost_asc') r.sort((a,b)=>a.costs.totalMonthly-b.costs.totalMonthly);
@@ -402,6 +409,24 @@ function saveNewListing(e) {
   document.getElementById('createListingForm').reset();
   showToast('Listing published successfully!');
   applyFilters();
+}
+
+// Parse URL parameters for initial search
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('zone')) {
+  const z = urlParams.get('zone');
+  const el = document.querySelector(`.zone[value="${z}"]`);
+  if (el) el.checked = true;
+}
+if (urlParams.get('type')) {
+  const t = urlParams.get('type');
+  const el = document.querySelector(`.ptype[value="${t}"]`);
+  if (el) el.checked = true;
+}
+if (urlParams.get('budget')) {
+  const b = urlParams.get('budget');
+  document.getElementById('budget').value = b;
+  document.getElementById('budgetVal').textContent = fmt(b);
 }
 
 applyFilters();

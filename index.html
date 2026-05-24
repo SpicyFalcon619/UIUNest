@@ -15,7 +15,7 @@
 <section class="hero">
   <h1>Find your home near UIU. Transparent costs, compatible flatmates, trusted landlords.</h1>
   <p>The only platform that shows you every hidden cost before you commit.</p>
-  <form class="hero-search" onsubmit="event.preventDefault();location.href='listings.html'">
+  <form class="hero-search" onsubmit="event.preventDefault(); location.href='listings.html?zone='+document.getElementById('heroZone').value+'&type='+document.getElementById('heroRoom').value+'&budget='+(document.getElementById('heroBudget').value || 15000)">
     <select id="heroZone"><option value="">All Zones</option></select>
     <select id="heroRoom">
       <option value="">Any room type</option>
