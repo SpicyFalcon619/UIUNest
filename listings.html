@@ -263,9 +263,11 @@ function applyFilters() {
   const r = getFiltered();
   document.getElementById('countLabel').textContent = `Showing ${r.length} listings`;
   document.getElementById('listingsGrid').innerHTML = r.map(renderListingCard).join('') || '<p style="color:var(--gray); grid-column: 1/-1; text-align: center; padding: 40px 0;">No listings match your filters.</p>';
-  attachWatchlistHandlers();
   renderListingsOnMap(map, r);
   if (window.lucide) lucide.createIcons();
+  
+  // Fix for Leaflet gray tiles issue (forces map to recalculate its dimensions)
+  setTimeout(() => map.invalidateSize(), 100);
 }
 
 function resetFilters() {
