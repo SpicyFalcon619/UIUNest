@@ -34,7 +34,7 @@ if ($method === 'GET') {
             $result[] = [
                 'id' => $b['bill_id'],
                 'listingId' => $b['listing_id'],
-                'month' => $b['bill_month'],
+                'month' => substr($b['bill_month'], 0, 7),
                 'electricity' => (float)$b['electricity_amount'],
                 'gas' => (float)$b['gas_amount'],
                 'water' => (float)$b['water_amount'],
@@ -59,6 +59,8 @@ if ($method === 'GET') {
     $input = json_decode(file_get_contents('php://input'), true);
     $listing_id = $input['listingId'] ?? null;
     $month = $input['month'] ?? '';
+    if (strlen($month) === 7) $month .= '-01'; // convert YYYY-MM to YYYY-MM-01 for MySQL DATE
+    
     $electricity = $input['electricity'] ?? 0;
     $gas = $input['gas'] ?? 0;
     $water = $input['water'] ?? 0;
