@@ -6,10 +6,13 @@ header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Fetch all listings with basic info
     $stmt = $pdo->query("
-        SELECT l.*, z.zone_name as zone, u.name as owner_name, u.email as owner_email
+        SELECT l.*, z.zone_name as zone, u.name as owner_name, u.email as owner_email,
+               up.sleep_schedule as sleep, up.diet, up.guest_policy as guest, 
+               up.smoking_tolerance as smoking, up.noise_tolerance as noise, up.cleanliness_score as cleanliness
         FROM listings l
         JOIN zones z ON l.zone_id = z.zone_id
         JOIN users u ON l.user_id = u.user_id
+        LEFT JOIN user_preferences up ON l.user_id = up.user_id
     ");
     $listings = $stmt->fetchAll();
     
@@ -67,6 +70,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'lat' => (float)$l['lat'],
             'lng' => (float)$l['lng'],
             'ownerEmail' => $l['owner_email'],
+            'sleep' => $l['sleep'] ?? 'flexible',
+            'diet' => $l['diet'] ?? 'non_veg',
+            'guest' => $l['guest'] ?? 'restricted',
+            'smoking' => isset($l['smoking']) ? (int)$l['smoking'] : 0,
+            'noise' => $l['noise'] ?? 'moderate',
+            'cleanliness' => isset($l['cleanliness']) ? (int)$l['cleanliness'] : 3,
             'costs' => $costsByListing[$id] ?? null,
             'amenities' => $amenByListing[$id] ?? null,
             'compositeScore' => 4.5, // placeholder
