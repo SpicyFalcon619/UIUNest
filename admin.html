@@ -97,8 +97,65 @@ function renderCharts() {
   });
 }
 
+async function loadAdminData() {
+  try {
+    const res = await fetch('api/admin_verifications.php');
+    const data = await res.json();
+    if (data.success) {
+      renderVerifications(data.verifications);
+    } else {
+      showToast(data.error || 'Failed to load verifications', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function renderVerifications(verifs) {
+  document.getElementById('statVerifications').textContent = verifs.filter(v => v.status === 'pending').length;
+
+  document.getElementById('verifTbody').innerHTML = verifs.map(v => {
+    return `
+      <tr>
+        <td><strong>${v.name}</strong><br><span style="font-size:12px;color:var(--gray);">${v.email}</span></td>
+        <td>${v.nid_type}</td>
+        <td>${v.description}<br><a href="${v.document_path}" target="_blank" style="color:var(--navy);font-weight:600;font-size:12px;"><i data-lucide="external-link" class="lucide-sm"></i> View Document</a></td>
+        <td>${v.submitted_at}</td>
+        <td>
+          ${v.status === 'approved'
+            ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Approved</span>'
+            : (v.status === 'rejected' ? '<span class="badge badge-red"><i data-lucide="x" class="lucide-sm"></i> Rejected</span>' : 
+            `<div style="display:flex;gap:6px;"><button class="btn btn-success btn-sm" onclick="actionVerif(${v.verification_id}, 'approve')">Approve</button>
+             <button class="btn btn-danger btn-sm" onclick="actionVerif(${v.verification_id}, 'reject')">Reject</button></div>`)
+          }
+        </td>
+      </tr>`;
+  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray);">No verification requests submitted yet.</td></tr>';
+  
+  if (window.lucide) lucide.createIcons();
+}
+
+async function actionVerif(id, action) {
+  try {
+    const res = await fetch('api/admin_action_verif.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Verification ' + action + 'd successfully!');
+      loadAdminData(); // refresh list
+    } else {
+      showToast(data.error || 'Failed to update verification', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+}
+
 function renderAdminDashboard() {
-  // Enforce stats recalculation
+  // Enforce stats recalculation (assuming mockData for now, except verifications)
   recalculateAdminStats();
 
   // Populate dynamic stats cards
@@ -106,8 +163,6 @@ function renderAdminDashboard() {
   document.getElementById('statUsers').textContent = mockData.users.length;
   const openComplaintsCount = mockData.complaints.filter(c => c.status !== 'Resolved').length;
   document.getElementById('statComplaints').textContent = openComplaintsCount;
-  const pendingVerifsCount = mockData.verifs.filter(v => !v.approved).length;
-  document.getElementById('statVerifications').textContent = pendingVerifsCount;
 
   // Render Demand alert
   const alertEl = document.getElementById('demandAlert');
@@ -149,24 +204,6 @@ function renderAdminDashboard() {
       </tr>`;
   }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray);">No complaints filed yet.</td></tr>';
 
-  // Render verification requests
-  document.getElementById('verifTbody').innerHTML = mockData.verifs.map(v => {
-    return `
-      <tr>
-        <td><strong>${v.name}</strong><br><span style="font-size:12px;color:var(--gray);">${v.email}</span></td>
-        <td>${v.nidType}</td>
-        <td>${v.desc}</td>
-        <td>${v.date}</td>
-        <td>
-          ${v.approved
-            ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Approved</span>'
-            : `<div style="display:flex;gap:6px;"><button class="btn btn-success btn-sm" onclick="approveVerif(${v.id})">Approve</button>
-               <button class="btn btn-danger btn-sm" onclick="rejectVerif(${v.id})">Reject</button></div>`
-          }
-        </td>
-      </tr>`;
-  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray);">No verification requests submitted yet.</td></tr>';
-
   // Render all users
   document.getElementById('allUsersTbody').innerHTML = mockData.users.map(u => `
     <tr>
@@ -195,7 +232,7 @@ function renderAdminDashboard() {
     </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);">No listings found.</td></tr>';
 
   renderCharts();
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 }
 
 function setComplaintStatus(id, s) {
@@ -205,43 +242,6 @@ function setComplaintStatus(id, s) {
     saveMockData();
     renderAdminDashboard();
     showToast('Complaint status updated');
-  }
-}
-
-function approveVerif(id) {
-  const v = mockData.verifs.find(x => x.id === id);
-  if (v) {
-    v.approved = true;
-    
-    // Also verify all existing listings of this landlord
-    mockData.listings.forEach(l => {
-      if (l.ownerEmail === v.email) {
-        l.isVerified = true;
-      }
-    });
-
-    saveMockData();
-    renderAdminDashboard();
-    showToast('Landlord and listings verified successfully!');
-  }
-}
-
-function rejectVerif(id) {
-  const i = mockData.verifs.findIndex(x => x.id === id);
-  if (i >= 0) {
-    const v = mockData.verifs[i];
-    
-    // Set existing listings of this landlord to unverified
-    mockData.listings.forEach(l => {
-      if (l.ownerEmail === v.email) {
-        l.isVerified = false;
-      }
-    });
-
-    mockData.verifs.splice(i, 1);
-    saveMockData();
-    renderAdminDashboard();
-    showToast('Verification request rejected', 'error');
   }
 }
 
@@ -268,6 +268,8 @@ function setUserStatus(id, s) {
 
 // Initial render
 renderAdminDashboard();
+loadAdminData();
+
 </script>
 </body>
 </html>

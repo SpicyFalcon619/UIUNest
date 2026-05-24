@@ -370,3 +370,28 @@ function conditionBadge(c) {
   const label = { new: 'New', like_new: 'Like New', good: 'Good', fair: 'Fair' }[c] || c;
   return `<span class="badge ${m[c] || 'badge-gray'}">${label}</span>`;
 }
+
+async function loadListingsFromDB() {
+  try {
+    const res = await fetch('api/listings.php');
+    const data = await res.json();
+    if (data.success) {
+      window.mockData.listings = data.listings;
+      recalculateAdminStats();
+      
+      if (typeof applyFilters === 'function') {
+        applyFilters();
+      }
+      
+      const ls = document.getElementById('latestListings');
+      if (ls && typeof renderListingCard === 'function') {
+        ls.innerHTML = window.mockData.listings.slice(0, 4).map(renderListingCard).join('');
+      }
+    }
+  } catch(e) {
+    console.error('Failed to load listings from DB', e);
+  }
+}
+
+// Call on load
+loadListingsFromDB();

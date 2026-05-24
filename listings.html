@@ -113,7 +113,7 @@
         <div class="form-group"><label>Latitude (Optional)</label><input type="number" step="any" id="lstLat" placeholder="e.g. 23.7900"></div>
         <div class="form-group"><label>Longitude (Optional)</label><input type="number" step="any" id="lstLng" placeholder="e.g. 90.4100"></div>
       </div>
-      <div class="form-group"><label>Photo URL (Optional)</label><input type="url" id="lstPhoto" placeholder="https://images.unsplash.com/... (optional)"></div>
+      <div class="form-group"><label>Property Photo (Image)</label><input type="file" id="lstPhoto" accept="image/*" style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;"></div>
 
       <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 14px;">Monthly Costs</div>
       <div class="grid-2">
@@ -205,11 +205,21 @@
 <script>
 mountChrome('listings');
 
-// Show list property button if eligible
-const user = window.mockData.currentUser;
-if (isLoggedIn() && user && (user.role === 'student' || user.role === 'landlord')) {
-  document.getElementById('listBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openCreateListingModal()">+ List Property</button>`;
+let user = null;
+
+async function checkUserAndLoad() {
+  try {
+    const res = await fetch('api/me.php');
+    const data = await res.json();
+    if (data.loggedIn) {
+      user = data.user;
+      if (user.role === 'student' || user.role === 'landlord' || user.role === 'admin') {
+        document.getElementById('listBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openCreateListingModal()">+ List Property</button>`;
+      }
+    }
+  } catch(e) {}
 }
+checkUserAndLoad();
 
 document.getElementById('zoneFilters').innerHTML = mockData.zones.map(z =>
   `<label><input type="checkbox" class="zone" value="${z.id}"> ${z.name}</label>`).join('');
@@ -236,7 +246,6 @@ function getFiltered() {
     if (verified && !l.isVerified) return false;
     for (const a of amens) {
       if (Array.isArray(l.amenities)) {
-        // Fallback for legacy string arrays in seed data
         return false;
       } else if (!l.amenities || !l.amenities[a]) {
         return false;
@@ -276,13 +285,25 @@ document.getElementById('budget').addEventListener('input', e => {
 document.querySelectorAll('.sidebar input, .sidebar select').forEach(el => el.addEventListener('change', applyFilters));
 
 function openCreateListingModal() {
-  if (user.role !== 'admin' && !isUserVerified(user.email)) {
-    alert("You must submit a verification document in your Profile and wait for Admin approval before listing a property.");
-    return;
+  if (!user) {
+    alert("Please log in first."); return;
   }
-  document.getElementById('createListingModal').classList.add('open');
-  document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
-  document.getElementById('customFeesContainer').innerHTML = ''; // Reset custom fees
+  // Check verification via API if landlord
+  if (user.role === 'landlord') {
+    fetch('api/verif_status.php').then(r=>r.json()).then(d=>{
+      if(d.status !== 'approved') {
+         alert("You must submit a verification document in your Profile and wait for Admin approval before listing a property.");
+      } else {
+        document.getElementById('createListingModal').classList.add('open');
+        document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+        document.getElementById('customFeesContainer').innerHTML = ''; 
+      }
+    });
+  } else {
+     document.getElementById('createListingModal').classList.add('open');
+     document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+     document.getElementById('customFeesContainer').innerHTML = ''; 
+  }
 }
 
 function addCustomFee() {
@@ -299,21 +320,16 @@ function addCustomFee() {
   container.appendChild(div);
 }
 
-function saveNewListing(e) {
+async function saveNewListing(e) {
   e.preventDefault();
   const title = document.getElementById('lstTitle').value.trim();
   const zoneId = parseInt(document.getElementById('lstZone').value);
-  const zoneObj = mockData.zones.find(z => z.id === zoneId);
   const propertyType = document.getElementById('lstType').value;
   const totalRooms = parseInt(document.getElementById('lstRooms').value);
   const currentOccupancy = parseInt(document.getElementById('lstOccupancy').value);
   const genderPref = document.getElementById('lstGender').value;
   const address = document.getElementById('lstAddress').value.trim();
-  let photo = document.getElementById('lstPhoto').value.trim();
-  if (!photo) {
-    photo = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600';
-  }
-
+  
   const baseRent = parseInt(document.getElementById('lstBaseRent').value);
   const electricityType = document.getElementById('lstElecType').value;
   const electricityAmount = parseInt(document.getElementById('lstElec').value);
@@ -323,18 +339,7 @@ function saveNewListing(e) {
   const maintenanceFee = parseInt(document.getElementById('lstMaint').value);
   const caretakerFee = parseInt(document.getElementById('lstCaretaker').value);
 
-  const customFees = [];
-  let customFeesTotal = 0;
-  document.querySelectorAll('.custom-fee-row').forEach(row => {
-    const name = row.querySelector('.cf-name').value.trim();
-    const amount = parseInt(row.querySelector('.cf-amount').value) || 0;
-    if (name && amount > 0) {
-      customFees.push({ name, amount });
-      customFeesTotal += amount;
-    }
-  });
-
-  const totalMonthly = baseRent + electricityAmount + gasBill + waterBill + internetCost + maintenanceFee + caretakerFee + customFeesTotal;
+  const totalMonthly = baseRent + electricityAmount + gasBill + waterBill + internetCost + maintenanceFee + caretakerFee;
 
   const amenities = {
     attachedBathroom: document.getElementById('lstAmenBath').checked,
@@ -346,72 +351,71 @@ function saveNewListing(e) {
     parking: document.getElementById('lstAmenParking').checked
   };
 
-  const residentPreferences = {
-    sleep: document.getElementById('lstPrefSleep').value,
-    diet: document.getElementById('lstPrefDiet').value,
-    guest: document.getElementById('lstPrefGuest').value,
-    smoking: document.getElementById('lstPrefSmoking').checked,
-    cleanliness: parseInt(document.getElementById('lstPrefClean').value),
-    noise: document.getElementById('lstPrefNoise').value
-  };
-
   const offsetLat = (Math.random() - 0.5) * 0.008;
   const offsetLng = (Math.random() - 0.5) * 0.008;
 
   let lat = parseFloat(document.getElementById('lstLat').value);
   let lng = parseFloat(document.getElementById('lstLng').value);
   
+  const zoneObj = mockData.zones.find(z => z.id === zoneId);
   if (isNaN(lat) || isNaN(lng)) {
     lat = (zoneObj ? zoneObj.lat : 23.7805) + offsetLat;
     lng = (zoneObj ? zoneObj.lng : 90.4200) + offsetLng;
   }
 
-  const user = mockData.currentUser;
-  const listingType = user.role === 'student' ? 'Student Listed' : 'Landlord Listed';
+  // Handle Photo Upload
+  let photoPath = null;
+  const fileInput = document.getElementById('lstPhoto');
+  if (fileInput.files.length > 0) {
+    const fd = new FormData();
+    fd.append('file', fileInput.files[0]);
+    fd.append('type', 'listing');
+    try {
+      const upRes = await fetch('api/upload.php', { method: 'POST', body: fd });
+      const upData = await upRes.json();
+      if (upData.success) {
+        photoPath = upData.path;
+      } else {
+        showToast('Photo upload failed', 'error');
+        return;
+      }
+    } catch(err) {
+      showToast('Photo upload network error', 'error');
+      return;
+    }
+  }
 
-  const newListing = {
-    id: Date.now(),
-    title,
-    zoneId,
-    zone: zoneObj ? zoneObj.name : 'Unknown',
-    propertyType,
-    totalRooms,
-    currentOccupancy,
-    genderPref,
-    address,
-    photos: [photo],
-    isVerified: user.role === 'admin' || (mockData.verifs && mockData.verifs.some(v => v.email === user.email && v.approved)),
-    status: 'available',
-    listingType,
-    lat: lat,
-    lng: lng,
-    costs: {
-      baseRent,
-      electricityType,
-      electricityAmount,
-      gasBill, waterBill, internetCost, maintenanceFee, caretakerFee, customFees,
-      totalMonthly
-    },
+  const payload = {
+    title, zoneId, propertyType, totalRooms, currentOccupancy, genderPref, address, lat, lng,
+    costs: { baseRent, electricityType, electricityAmount, gasBill, waterBill, internetCost, maintenanceFee, caretakerFee, totalMonthly },
     amenities,
-    residentPreferences,
-    compatibilityScore: 100,
-    compositeScore: 0,
-    reviewCount: 0,
-    ownerEmail: user.email,
-    rentHistory: [
-      { date: new Date().toLocaleDateString('en-US', {month:'short', year:'2-digit'}), rent: baseRent }
-    ]
+    photoPath // add photo path
   };
 
-  mockData.listings.push(newListing);
-  saveMockData();
-  document.getElementById('createListingModal').classList.remove('open');
-  document.getElementById('createListingForm').reset();
-  showToast('Listing published successfully!');
-  applyFilters();
+  try {
+    const res = await fetch('api/listings.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('createListingModal').classList.remove('open');
+      document.getElementById('createListingForm').reset();
+      showToast('Listing published successfully!');
+      if (typeof loadListingsFromDB === 'function') {
+        loadListingsFromDB();
+      } else {
+        location.reload();
+      }
+    } else {
+      showToast(data.error || 'Failed to create listing', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
 }
 
-// Parse URL parameters for initial search
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('zone')) {
   const z = urlParams.get('zone');

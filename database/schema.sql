@@ -233,3 +233,15 @@ CREATE TABLE applications (
     FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE,
     FOREIGN KEY (applicant_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+-- 16. verifications
+CREATE TABLE verifications (
+    verification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    nid_type ENUM('National ID', 'Passport', 'Driving License') NOT NULL,
+    document_path VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);

@@ -90,13 +90,14 @@
   <div class="card">
     <h3 style="margin:0 0 4px;color:var(--navy)">Landlord Verification</h3>
     <p style="color:var(--gray);font-size:13px;margin:0 0 14px">(For landlord/mess-owner accounts)</p>
-    <form onsubmit="submitVerification(event)">
+    <form id="verifForm" onsubmit="submitVerification(event)">
       <div class="grid-2">
-        <div class="form-group"><label>NID type</label><select id="vType"><option>National ID</option><option>Passport</option><option>Driving License</option></select></div>
+        <div class="form-group"><label>NID type</label><select id="vType"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driving License">Driving License</option></select></div>
         <div class="form-group"><label>Submit date</label><input type="date" id="vDate" required></div>
       </div>
+      <div class="form-group"><label>Upload Document (Image/PDF)</label><input type="file" id="vDoc" accept="image/*,.pdf" required style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;"></div>
       <div class="form-group"><label>Document description</label><textarea id="vDesc" placeholder="NID + property deed submitted" required></textarea></div>
-      <button class="btn btn-primary">Submit Verification Request</button>
+      <button class="btn btn-primary" id="btnSubmitVerif">Submit Verification Request</button>
       <span id="verifBadge" class="badge badge-amber" style="display:none;margin-left:10px"><i data-lucide="clock" class="lucide-sm"></i> Pending Review</span>
     </form>
   </div>
@@ -107,68 +108,70 @@
 <script>
 mountChrome('profile');
 
-const user = window.mockData.currentUser;
+let user = null;
 
-// Load personal info
-document.getElementById('pfName').value = user.name || '';
-document.getElementById('pfEmail').value = user.email || '';
-document.getElementById('pfPhone').value = user.phone || '';
-document.getElementById('pfId').value = user.universityId || '';
-if (user.gender === 'female') {
-  document.getElementById('pfGenF').checked = true;
-} else {
-  document.getElementById('pfGenM').checked = true;
-}
-
-// Load verification status
-function checkVerifStatus() {
-  const existingVerif = window.mockData.verifs.find(v => v.email === user.email);
-  if (existingVerif) {
-    const badge = document.getElementById('verifBadge');
-    badge.style.display = 'inline-flex';
-    if (existingVerif.approved) {
-      badge.className = 'badge badge-green';
-      badge.innerHTML = '<i data-lucide="check" class="lucide-sm"></i> Approved';
+async function loadProfileData() {
+  try {
+    const res = await fetch('api/me.php');
+    const data = await res.json();
+    if (data.loggedIn) {
+      user = data.user;
+      document.getElementById('pfName').value = user.name || '';
+      document.getElementById('pfEmail').value = user.email || '';
+      document.getElementById('pfPhone').value = user.phone || '';
+      document.getElementById('pfId').value = user.universityId || '';
+      if (user.gender === 'female') {
+        document.getElementById('pfGenF').checked = true;
+      } else {
+        document.getElementById('pfGenM').checked = true;
+      }
+      checkVerifStatus();
     } else {
-      badge.className = 'badge badge-amber';
-      badge.innerHTML = '<i data-lucide="clock" class="lucide-sm"></i> Pending Review';
+      location.href = 'login.html';
     }
-    if (window.lucide) lucide.createIcons();
+  } catch (err) {
+    console.error(err);
   }
 }
-checkVerifStatus();
 
-// Load preferences
-const prefs = user.preferences || {
-  sleep: "Flexible",
-  study: 4,
-  diet: "Non-Vegetarian",
-  guest: "Restricted (weekends only)",
-  smoking: true,
-  fg: "Male",
-  cleanliness: 4,
-  noise: "Quiet"
+async function checkVerifStatus() {
+  try {
+    const res = await fetch('api/verif_status.php');
+    const data = await res.json();
+    if (data.success && data.status !== 'none') {
+      const badge = document.getElementById('verifBadge');
+      badge.style.display = 'inline-flex';
+      if (data.status === 'approved') {
+        badge.className = 'badge badge-green';
+        badge.innerHTML = '<i data-lucide="check" class="lucide-sm"></i> Approved';
+        document.getElementById('btnSubmitVerif').style.display = 'none';
+      } else if (data.status === 'pending') {
+        badge.className = 'badge badge-amber';
+        badge.innerHTML = '<i data-lucide="clock" class="lucide-sm"></i> Pending Review';
+        document.getElementById('btnSubmitVerif').style.display = 'none';
+      } else if (data.status === 'rejected') {
+        badge.className = 'badge badge-red';
+        badge.innerHTML = '<i data-lucide="x" class="lucide-sm"></i> Rejected. Try again.';
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Load default preferences (since we haven't built the prefs API yet)
+const prefs = {
+  sleep: "Flexible", study: 4, diet: "Non-Vegetarian", guest: "Restricted (weekends only)", smoking: true, fg: "Male", cleanliness: 4, noise: "Quiet"
 };
 
-document.querySelectorAll('input[name=sleep]').forEach(r => {
-  if (r.value === prefs.sleep) r.checked = true;
-});
+document.querySelectorAll('input[name=sleep]').forEach(r => { if (r.value === prefs.sleep) r.checked = true; });
 document.getElementById('prefStudy').value = prefs.study || 4;
 document.getElementById('hrVal').textContent = prefs.study || 4;
-
-document.querySelectorAll('input[name=diet]').forEach(r => {
-  if (r.value === prefs.diet) r.checked = true;
-});
-
-document.querySelectorAll('input[name=guest]').forEach(r => {
-  if (r.value === prefs.guest) r.checked = true;
-});
-
+document.querySelectorAll('input[name=diet]').forEach(r => { if (r.value === prefs.diet) r.checked = true; });
+document.querySelectorAll('input[name=guest]').forEach(r => { if (r.value === prefs.guest) r.checked = true; });
 document.getElementById('prefSmoking').checked = prefs.smoking !== false;
-
-document.querySelectorAll('input[name=fg]').forEach(r => {
-  if (r.value === prefs.fg) r.checked = true;
-});
+document.querySelectorAll('input[name=fg]').forEach(r => { if (r.value === prefs.fg) r.checked = true; });
 
 let cleanRating = prefs.cleanliness || 4;
 const cs = document.getElementById('cleanStars');
@@ -178,9 +181,7 @@ function renderCleanStars() {
 }
 renderCleanStars();
 
-document.querySelectorAll('input[name=noise]').forEach(r => {
-  if (r.value === prefs.noise) r.checked = true;
-});
+document.querySelectorAll('input[name=noise]').forEach(r => { if (r.value === prefs.noise) r.checked = true; });
 
 cs.addEventListener('click', e => {
   const rect = cs.getBoundingClientRect();
@@ -190,65 +191,68 @@ cs.addEventListener('click', e => {
 
 function saveProfile(e) {
   e.preventDefault();
-  user.name = document.getElementById('pfName').value.trim();
-  user.phone = document.getElementById('pfPhone').value.trim();
-  user.universityId = document.getElementById('pfId').value.trim();
-  
-  // Sync back to users list
-  const idx = window.mockData.users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
-  if (idx >= 0) window.mockData.users[idx] = {...user};
-  
-  saveMockData();
-  showToast('Profile details updated');
+  showToast('Profile save not implemented in API yet.', 'error');
 }
 
 function savePrefs(e) {
   e.preventDefault();
-  user.preferences = {
-    sleep: document.querySelector('input[name=sleep]:checked').value,
-    study: parseInt(document.getElementById('prefStudy').value),
-    diet: document.querySelector('input[name=diet]:checked').value,
-    guest: document.querySelector('input[name=guest]:checked').value,
-    smoking: document.getElementById('prefSmoking').checked,
-    fg: document.querySelector('input[name=fg]:checked').value,
-    cleanliness: cleanRating,
-    noise: document.querySelector('input[name=noise]:checked').value
-  };
-
-  const idx = window.mockData.users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
-  if (idx >= 0) window.mockData.users[idx] = {...user};
-
-  saveMockData();
-  const b = document.getElementById('prefBanner');
-  b.style.display = 'block';
-  setTimeout(() => { b.style.display = 'none'; }, 4000);
-  showToast('Preferences saved');
+  showToast('Preferences save not implemented in API yet.', 'error');
 }
 
-function submitVerification(e) {
+async function submitVerification(e) {
   e.preventDefault();
   
-  // Check if already submitted
-  if (window.mockData.verifs.some(v => v.email === user.email)) {
-    showToast('Verification request already pending or approved', 'error');
+  const fileInput = document.getElementById('vDoc');
+  if (!fileInput.files.length) {
+    showToast('Please select a document to upload.', 'error');
     return;
   }
 
-  const verifRequest = {
-    id: Date.now(),
-    name: user.name,
-    email: user.email,
-    nidType: document.getElementById('vType').value,
-    date: document.getElementById('vDate').value,
-    desc: document.getElementById('vDesc').value,
-    approved: false
-  };
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  formData.append('type', 'verification');
 
-  window.mockData.verifs.push(verifRequest);
-  saveMockData();
-  checkVerifStatus();
-  showToast('Verification request submitted');
+  try {
+    // 1. Upload the file
+    const uploadRes = await fetch('api/upload.php', {
+      method: 'POST',
+      body: formData
+    });
+    const uploadData = await uploadRes.json();
+
+    if (!uploadData.success) {
+      showToast(uploadData.error || 'File upload failed.', 'error');
+      return;
+    }
+
+    // 2. Submit the verification request
+    const verifRes = await fetch('api/verify.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nidType: document.getElementById('vType').value,
+        desc: document.getElementById('vDesc').value,
+        documentPath: uploadData.path
+      })
+    });
+    const verifData = await verifRes.json();
+
+    if (verifData.success) {
+      showToast('Verification request submitted');
+      document.getElementById('verifForm').reset();
+      checkVerifStatus();
+    } else {
+      showToast(verifData.error || 'Submission failed.', 'error');
+    }
+
+  } catch (err) {
+    showToast('Network error during upload.', 'error');
+  }
 }
+
+// Initial Load
+loadProfileData();
+
 </script>
 </body>
 </html>
