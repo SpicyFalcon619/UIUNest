@@ -47,8 +47,7 @@ try {
 
     // 4. Watchlisted
     $stmt = $pdo->prepare("
-        SELECT l.*, z.zone_name, c.total_monthly, c.base_rent, 
-               (SELECT photo_path FROM listings WHERE listing_id = l.listing_id) as photo_path
+        SELECT l.*, z.zone_name, c.total_monthly, c.base_rent
         FROM watchlists w
         JOIN listings l ON w.listing_id = l.listing_id
         JOIN zones z ON l.zone_id = z.zone_id
