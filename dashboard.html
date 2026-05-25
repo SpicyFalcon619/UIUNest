@@ -331,7 +331,7 @@ function renderDashboard() {
             <tbody>
               ${dashData.seekRespRecv.map(r => `
                 <tr>
-                  <td><strong>${r.responder_name}</strong></td>
+                  <td><strong>${r.responder_name}</strong>${r.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${r.responder_email}</span>` : ''}</td>
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
@@ -354,12 +354,12 @@ function renderDashboard() {
           <p style="color:var(--gray);text-align:center;padding:12px 0">You haven't responded to any requests.</p>
         ` : `
           <table class="table">
-            <thead><tr><th>Request</th><th>Landlord Email</th><th>Your Message</th><th>Status</th><th>Date</th></tr></thead>
+            <thead><tr><th>Request</th><th>Landlord</th><th>Your Message</th><th>Status</th><th>Date</th></tr></thead>
             <tbody>
               ${dashData.seekRespSent.map(r => `
                 <tr>
                   <td><strong>${r.requirements ? r.requirements.substring(0, 30) : ''}...</strong></td>
-                  <td>${r.owner_email}</td>
+                  <td>${r.owner_name || 'Landlord'}${r.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${r.owner_email}</span>` : ''}</td>
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
@@ -413,7 +413,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Buyer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersRecv.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}${o.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${o.buyer_email}</span>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -429,7 +429,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Seller</th><th>Your Bid</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersSent.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}${o.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${o.seller_email}</span>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -449,7 +449,7 @@ function renderDashboard() {
               ${appsRecv.map(a => `
                 <tr>
                   <td><strong>${a.listing_title}</strong></td>
-                  <td>${a.applicant_name}</td>
+                  <td>${a.applicant_name}${a.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${a.applicant_email}</span>` : ''}</td>
                   <td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.message}">${a.message}</div></td>
                   <td>${statusBadge(a.status)}</td>
                   <td>
@@ -473,12 +473,12 @@ function renderDashboard() {
           <p style="color:var(--gray);text-align:center;padding:12px 0">You haven't applied to any properties.</p>
         ` : `
           <table class="table">
-            <thead><tr><th>Property</th><th>Landlord Email</th><th>Status</th><th>Date</th></tr></thead>
+            <thead><tr><th>Property</th><th>Landlord</th><th>Status</th><th>Date</th></tr></thead>
             <tbody>
               ${appsSent.map(a => `
                 <tr>
                   <td><strong>${a.listing_title}</strong></td>
-                  <td>${a.owner_email}</td>
+                  <td>${a.owner_name || 'Landlord'}${a.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${a.owner_email}</span>` : ''}</td>
                   <td>${statusBadge(a.status)}</td>
                   <td>${a.created_at}</td>
                 </tr>
