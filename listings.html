@@ -300,24 +300,21 @@ document.querySelectorAll('.sidebar input, .sidebar select').forEach(el => el.ad
 
 function openCreateListingModal() {
   if (!user) {
-    alert("Please log in first."); return;
+    showToast("Please log in first.", "error"); return;
   }
-  // Check verification via API if landlord
-  if (user.role === 'landlord') {
-    fetch('api/verif_status.php').then(r=>r.json()).then(d=>{
-      if(d.status !== 'approved') {
-         alert("You must submit a verification document in your Profile and wait for Admin approval before listing a property.");
-      } else {
-        document.getElementById('createListingModal').classList.add('open');
-        document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
-        document.getElementById('customFeesContainer').innerHTML = ''; 
-      }
-    });
-  } else {
-     document.getElementById('createListingModal').classList.add('open');
-     document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
-     document.getElementById('customFeesContainer').innerHTML = ''; 
-  }
+  
+  // Check verification via API for everyone
+  fetch('api/verif_status.php').then(r=>r.json()).then(d=>{
+    if(d.status !== 'approved') {
+       showToast("You must submit a verification document in your Profile and wait for Admin approval before listing a property.", "error");
+    } else {
+      document.getElementById('createListingModal').classList.add('open');
+      document.getElementById('lstZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+      document.getElementById('customFeesContainer').innerHTML = ''; 
+    }
+  }).catch(() => {
+    showToast("Failed to check verification status.", "error");
+  });
 }
 
 function addCustomFee() {

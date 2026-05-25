@@ -184,19 +184,31 @@ document.getElementById('fPrice').addEventListener('input', e => {
 document.querySelectorAll('#fCat,#fCond,#fZone,#fPrice,#fSort').forEach(el => el.addEventListener('change', renderItems));
 
 function openSellItemModal() {
-  if (user.role !== 'admin' && !isUserVerified(user.email)) {
-    alert("You must submit a verification document in your Profile and wait for Admin approval before selling an item.");
-    return;
+  if (!user) {
+    showToast("Please log in first.", "error"); return;
   }
-  document.getElementById('sellItemModal').classList.add('open');
-  document.getElementById('itmZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+  
+  if (user.role === 'admin') {
+    showToast("Admins cannot sell items.", "error"); return;
+  }
 
-  // Linked properties list
-  const linkSel = document.getElementById('itmLinkListing');
-  linkSel.innerHTML = '<option value="">None (Not linked)</option>';
-  const myProps = mockData.listings.filter(l => l.ownerEmail === user.email);
-  myProps.forEach(l => {
-    linkSel.innerHTML += `<option value="${l.id}">${l.title}</option>`;
+  fetch('api/verif_status.php').then(r=>r.json()).then(d=>{
+    if(d.status !== 'approved') {
+       showToast("You must submit a verification document in your Profile and wait for Admin approval before selling an item.", "error");
+    } else {
+      document.getElementById('sellItemModal').classList.add('open');
+      document.getElementById('itmZone').innerHTML = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+
+      // Linked properties list
+      const linkSel = document.getElementById('itmLinkListing');
+      linkSel.innerHTML = '<option value="">None (Not linked)</option>';
+      const myProps = mockData.listings.filter(l => l.ownerEmail === user.email);
+      myProps.forEach(l => {
+        linkSel.innerHTML += `<option value="${l.id}">${l.title}</option>`;
+      });
+    }
+  }).catch(() => {
+    showToast("Failed to check verification status.", "error");
   });
 }
 
