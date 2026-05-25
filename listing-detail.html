@@ -229,7 +229,7 @@ function renderDetail() {
         </div>` : ''}
 
         <div class="card" style="margin-top:14px">
-          <button class="btn btn-outline btn-block" onclick="document.getElementById('reportModal').classList.add('open')"><i data-lucide="alert-triangle" class="lucide-sm"></i> Report / Complaint</button>
+          ${isLoggedIn() ? `<button class="btn btn-outline btn-block" onclick="document.getElementById('reportModal').classList.add('open')"><i data-lucide="alert-triangle" class="lucide-sm"></i> Report / Complaint</button>` : ''}
         </div>
       </aside>
     `;
