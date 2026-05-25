@@ -95,4 +95,6 @@ if ($method === 'POST') {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 } else {
+    echo json_encode(['success' => false, 'error' => 'Invalid method']);
+}
 ?>
