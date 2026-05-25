@@ -45,6 +45,10 @@ a:hover { color: var(--gold); }
 /* Editorial Navbar */
 #nav-mount {
   position: sticky; top: 0; z-index: 2000;
+  transition: transform 0.3s ease;
+}
+#nav-mount.nav-hidden {
+  transform: translateY(-100%);
 }
 .navbar { 
   background: rgba(253, 251, 247, 0.95); 

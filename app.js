@@ -313,7 +313,27 @@ function renderFooter() {
 function mountChrome(active) {
   const nav = document.getElementById('nav-mount');
   const ft  = document.getElementById('footer-mount');
-  if (nav) nav.innerHTML = renderNav(active);
+  
+  if (nav) {
+    nav.innerHTML = renderNav(active);
+    
+    // Auto-hide navbar on scroll down (except on index page)
+    const p = window.location.pathname;
+    const isIndex = p.endsWith('index.html') || p.endsWith('/') || p.endsWith('/UIU-Nest');
+    
+    if (!isIndex) {
+      let lastScrollY = window.scrollY;
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 80 && window.scrollY > lastScrollY) {
+          nav.classList.add('nav-hidden'); // scrolling down
+        } else {
+          nav.classList.remove('nav-hidden'); // scrolling up or at top
+        }
+        lastScrollY = window.scrollY;
+      }, { passive: true });
+    }
+  }
+  
   if (ft)  ft.innerHTML  = renderFooter();
   if (window.lucide) lucide.createIcons();
 }
