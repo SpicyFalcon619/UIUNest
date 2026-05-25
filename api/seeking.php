@@ -52,7 +52,7 @@ if ($method === 'GET') {
     $gender_pref = $_SESSION['user']['gender'];
     $budget_min = $input['budgetMin'] ?? 0;
     $budget_max = $input['budgetMax'] ?? 0;
-    $move_in_date = $input['moveInDate'] ?? null;
+    $move_in_date = !empty($input['moveInDate']) ? $input['moveInDate'] : null;
     $requirements = $input['requirements'] ?? '';
     $user_id = $_SESSION['user_id'];
     

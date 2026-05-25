@@ -86,7 +86,7 @@ function renderPosts() {
   const r = window.posts.filter(p => {
     if (zone !== 'all' && p.zone !== zone) return false;
     if (room !== 'all' && p.propertyType !== room) return false;
-    if (user && p.user_gender !== user.gender) return false;
+    // Gender is no longer filtered from view
     if (p.budgetMin > budget) return false;
     return true;
   });
@@ -110,9 +110,17 @@ function renderPosts() {
         </div>
         <div style="font-size:14px;margin-top:6px;font-weight: 500;">${p.requirements}</div>
       </div>
-      ${isLoggedIn() ? `<button class="btn btn-primary btn-sm" onclick="showToast('Response sent to ${p.user}!')">Respond</button>` : ''}
+      ${isLoggedIn() ? `<button class="btn btn-primary btn-sm" onclick="respondToPost(${p.id}, '${p.user_gender}', '${p.user}')">Respond</button>` : ''}
     </div>`}).join('') || '<p style="color:var(--gray); text-align: center; padding: 40px 0;">No active flatmate requests found. Be the first to post!</p>';
   if (window.lucide) lucide.createIcons();
+}
+
+function respondToPost(id, gender, name) {
+  if (user && user.role !== 'admin' && gender !== user.gender) {
+    showToast(`You cannot respond to requests from ${gender} users.`, 'error');
+    return;
+  }
+  showToast('Response sent to ' + name + '!');
 }
 
 function openRequestModal() {

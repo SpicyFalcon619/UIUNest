@@ -13,8 +13,8 @@ if ($method === 'GET') {
         $stmt = $pdo->query("
             SELECT i.*, u.name as seller, z.zone_name as zone 
             FROM items i
-            JOIN users u ON i.seller_id = u.user_id
-            JOIN zones z ON i.zone_id = z.zone_id
+            LEFT JOIN users u ON i.seller_id = u.user_id
+            LEFT JOIN zones z ON i.zone_id = z.zone_id
             ORDER BY i.created_at DESC
         ");
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -98,6 +98,54 @@ if ($method === 'GET') {
         echo json_encode(['success' => true, 'item_id' => $pdo->lastInsertId()]);
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!isset($input['id'])) {
+        echo json_encode(['success' => false, 'error' => 'Missing ID']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("UPDATE items SET title = ?, asking_price = ?, item_condition = ? WHERE item_id = ? AND seller_id = ?");
+        $stmt->execute([
+            trim($input['title']),
+            (float)$input['price'],
+            $input['condition'],
+            $input['id'],
+            $_SESSION['user_id']
+        ]);
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => 'Database error']);
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    if (!isset($input['id'])) {
+        echo json_encode(['success' => false, 'error' => 'Missing ID']);
+        exit;
+    }
+    
+    try {
+        // Also delete associated offers or let cascade handle it?
+        $stmt = $pdo->prepare("DELETE FROM items WHERE item_id = ? AND seller_id = ?");
+        $stmt->execute([$input['id'], $_SESSION['user_id']]);
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => 'Database error']);
     }
 } else {
     echo json_encode(['error' => 'Method not allowed']);

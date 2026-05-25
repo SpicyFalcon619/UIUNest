@@ -247,7 +247,7 @@ function getFiltered() {
     if (zones.length && !zones.includes(l.zoneId)) return false;
     if (ptypes.length && !ptypes.includes(l.propertyType)) return false;
     if (ltype !== 'all' && l.listingType !== ltype) return false;
-    if (user && l.genderPref !== user.gender) return false;
+    // Gender is no longer filtered from view
     if (l.costs.totalMonthly > budget) return false;
     if (verified && !l.isVerified) return false;
     for (const a of amens) {

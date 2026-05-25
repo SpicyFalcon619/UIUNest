@@ -553,40 +553,63 @@ async function deleteListing(id) {
 
 // Exchange Item actions
 function editItem(id) {
-  const it = mockData.exchangeItems.find(x => x.id === id);
+  const it = dashData.myItems.find(x => x.item_id === id);
   if (!it) return;
-  document.getElementById('editItemId').value = it.id;
+  document.getElementById('editItemId').value = it.item_id;
   document.getElementById('editItemTitle').value = it.title;
-  document.getElementById('editItemPrice').value = it.price;
-  document.getElementById('editItemCondition').value = it.condition;
+  document.getElementById('editItemPrice').value = it.asking_price;
+  document.getElementById('editItemCondition').value = it.item_condition;
 
   document.getElementById('editItemModal').classList.add('open');
 }
 
-function saveEditedItem(e) {
+async function saveEditedItem(e) {
   e.preventDefault();
   const id = parseInt(document.getElementById('editItemId').value);
-  const it = mockData.exchangeItems.find(x => x.id === id);
-  if (it) {
-    it.title = document.getElementById('editItemTitle').value.trim();
-    it.price = parseInt(document.getElementById('editItemPrice').value);
-    it.condition = document.getElementById('editItemCondition').value;
+  const data = {
+    id: id,
+    title: document.getElementById('editItemTitle').value.trim(),
+    price: parseInt(document.getElementById('editItemPrice').value),
+    condition: document.getElementById('editItemCondition').value
+  };
 
-    saveMockData();
-    document.getElementById('editItemModal').classList.remove('open');
-    showToast('Exchange item updated successfully!');
-    renderDashboard();
+  try {
+    const res = await fetch('api/exchange.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+      document.getElementById('editItemModal').classList.remove('open');
+      showToast('Exchange item updated successfully!');
+      loadAdminData();
+    } else {
+      showToast(result.error || 'Failed to update item', 'error');
+    }
+  } catch(e) {
+    showToast('Network error', 'error');
   }
 }
 
-function deleteItem(id) {
+async function deleteItem(id) {
   if (confirm('Are you sure you want to remove this item?')) {
-    mockData.exchangeItems = mockData.exchangeItems.filter(it => it.id !== id);
-    // Also remove related offers
-    mockData.offers = mockData.offers.filter(o => o.itemId !== id);
-    saveMockData();
-    showToast('Exchange item removed', 'error');
-    renderDashboard();
+    try {
+      const res = await fetch('api/exchange.php', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+      });
+      const result = await res.json();
+      if (result.success) {
+        showToast('Item deleted successfully!');
+        loadAdminData();
+      } else {
+        showToast(result.error || 'Failed to delete item', 'error');
+      }
+    } catch(e) {
+      showToast('Network error', 'error');
+    }
   }
 }
 
