@@ -170,7 +170,8 @@ CREATE TABLE monthly_bills (
 CREATE TABLE bill_payments (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     bill_id INT,
-    resident_user_id INT,
+    resident_user_id INT NULL,
+    resident_label VARCHAR(50) NULL,
     status ENUM('paid', 'unpaid') DEFAULT 'unpaid',
     paid_at DATETIME NULL,
     FOREIGN KEY (bill_id) REFERENCES monthly_bills(bill_id) ON DELETE CASCADE,
@@ -201,7 +202,7 @@ CREATE TABLE items (
     item_condition ENUM('new', 'like_new', 'good', 'fair') NOT NULL,
     asking_price DECIMAL(10,2) NOT NULL,
     reason_for_selling VARCHAR(300) NULL,
-    photos TEXT NULL,
+    photo_url VARCHAR(255) NULL,
     status ENUM('available', 'sold', 'withdrawn') DEFAULT 'available',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (seller_id) REFERENCES users(user_id) ON DELETE CASCADE,
