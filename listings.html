@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Browse Listings - UIUNest</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=6">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -206,6 +206,7 @@
 mountChrome('listings');
 
 let user = null;
+let allListings = [];
 
 async function checkUserAndLoad() {
   try {
@@ -218,6 +219,16 @@ async function checkUserAndLoad() {
       }
     }
   } catch(e) {}
+  
+  try {
+    const lRes = await fetch('api/listings.php');
+    const lData = await lRes.json();
+    if (lData.success) {
+      allListings = lData.listings;
+    }
+  } catch(e) {}
+  
+  applyFilters();
 }
 checkUserAndLoad();
 
@@ -237,7 +248,7 @@ function getFiltered() {
   const verified = document.getElementById('verifiedOnly').checked;
   const sort = document.getElementById('sort').value;
 
-  let r = mockData.listings.filter(l => {
+  let r = allListings.filter(l => {
     if (zones.length && !zones.includes(l.zoneId)) return false;
     if (ptypes.length && !ptypes.includes(l.propertyType)) return false;
     if (ltype !== 'all' && l.listingType !== ltype) return false;
@@ -267,7 +278,8 @@ function applyFilters() {
   if (window.lucide) lucide.createIcons();
   
   // Fix for Leaflet gray tiles issue (forces map to recalculate its dimensions)
-  setTimeout(() => map.invalidateSize(), 100);
+  setTimeout(() => map.invalidateSize(), 150);
+  setTimeout(() => map.invalidateSize(), 500);
 }
 
 function resetFilters() {
