@@ -22,7 +22,22 @@
 <script>
 mountChrome('exchange');
 const id = getQueryId();
-const it = mockData.exchangeItems.find(x => x.id === id);
+let it = null;
+
+async function init() {
+  try {
+    const res = await fetch('api/exchange.php');
+    const data = await res.json();
+    if (data.success) {
+      it = data.items.find(x => x.id === id);
+      renderPage();
+    } else {
+      showToast('Failed to load item', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+}
 
 function renderPage() {
   const root = document.getElementById('content');
@@ -47,7 +62,14 @@ function renderPage() {
 
   root.innerHTML = `
     <div>
-      <img class="detail-photo" src="${it.photo}" alt="${it.title}">
+      <div class="gallery">
+        <img class="detail-photo" id="mainPhoto" src="${it.photo}" alt="${it.title}">
+        ${(it.photos && it.photos.length > 1) ? `
+          <div style="display:flex; gap:10px; margin-top:10px; overflow-x:auto;">
+            ${it.photos.map(p => `<img src="${p}" style="height:60px; width:80px; object-fit:cover; border-radius:4px; cursor:pointer; border:1px solid var(--border)" onclick="document.getElementById('mainPhoto').src='${p}'">`).join('')}
+          </div>
+        ` : ''}
+      </div>
       <h1 style="margin:18px 0 6px;color:var(--navy)">${it.title}</h1>
       <div class="badges" style="margin-bottom:14px">
         <span class="badge badge-navy">${it.category}</span>
@@ -257,7 +279,7 @@ function acceptOffer(offerId) {
   }
 }
 
-renderPage();
+init();
 </script>
 </body>
 </html>

@@ -2,6 +2,9 @@
 require 'db.php';
 session_start();
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
 
 if (!isset($_SESSION['user'])) {
     echo json_encode(['success' => false, 'error' => 'Not authenticated']);
@@ -20,6 +23,7 @@ try {
         'offersRecv' => [],
         'appsSent' => [],
         'appsRecv' => [],
+        'mySeeking' => [],
         'hasPreferences' => false
     ];
 
@@ -111,6 +115,17 @@ try {
     ");
     $stmt->execute([$userId]);
     $data['appsRecv'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // 8. My Seeking Posts
+    $stmt = $pdo->prepare("
+        SELECT s.*, z.zone_name as zone 
+        FROM seeking_posts s 
+        JOIN zones z ON s.zone_id = z.zone_id 
+        WHERE s.user_id = ?
+        ORDER BY s.created_at DESC
+    ");
+    $stmt->execute([$userId]);
+    $data['mySeeking'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode(['success' => true, 'data' => $data]);
 } catch (PDOException $e) {

@@ -120,7 +120,7 @@ async function loadDashboardData() {
 function renderDashboard() {
   if (!dashData || !currentUser) return;
 
-  const { myListings, myItems, watched, offersSent, offersRecv, appsSent, appsRecv, hasPreferences, verifStatus } = dashData;
+  const { myListings, myItems, watched, offersSent, offersRecv, appsSent, appsRecv, hasPreferences, verifStatus, mySeeking } = dashData;
 
   const activeOffersCount = offersSent.filter(o => o.status === 'pending' || o.status === 'countered').length +
                             offersRecv.filter(o => o.status === 'pending' || o.status === 'countered').length;
@@ -163,6 +163,7 @@ function renderDashboard() {
       <div class="tab active" data-tab="listings" onclick="switchTab('listings')">My Listings</div>
       ${currentUser.role !== 'landlord' ? `
       <div class="tab" data-tab="items" onclick="switchTab('items')">My Exchange Items</div>
+      <div class="tab" data-tab="seeking" onclick="switchTab('seeking')">Looking For</div>
       <div class="tab" data-tab="watch" onclick="switchTab('watch')">Watchlist</div>
       <div class="tab" data-tab="offers" onclick="switchTab('offers')">Offers</div>
       ` : ''}
@@ -217,6 +218,30 @@ function renderDashboard() {
                     <button class="btn btn-danger btn-sm" onclick="deleteItem(${it.item_id})">Delete</button>
                     <a class="btn btn-primary btn-sm" href="item-detail.html?id=${it.item_id}">View</a>
                   </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+    </div>
+
+    <div id="tab-seeking" style="display:none">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">My "Looking For" Requests</h3>
+        ${(!mySeeking || mySeeking.length === 0) ? `
+          <p style="color:var(--gray);text-align:center;padding:24px 0">You haven't posted any requests. <a href="seeking.html">Post a request</a></p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>Zone</th><th>Property Type</th><th>Budget</th><th>Move-in Date</th><th>Status</th></tr></thead>
+            <tbody>
+              ${mySeeking.map(s => `
+                <tr>
+                  <td><strong>${s.zone}</strong></td>
+                  <td>${formatPropertyType(s.property_type)}</td>
+                  <td>${fmt(s.budget_min)} - ${fmt(s.budget_max)}</td>
+                  <td>${s.move_in_date || 'N/A'}</td>
+                  <td>${statusBadge(s.status)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -404,12 +429,20 @@ function saveEditedListing(e) {
   }
 }
 
-function deleteListing(id) {
+async function deleteListing(id) {
   if (confirm('Are you sure you want to delete this listing?')) {
-    mockData.listings = mockData.listings.filter(l => l.id !== id);
-    saveMockData();
-    showToast('Listing deleted', 'error');
-    renderDashboard();
+    try {
+      const res = await fetch('api/listings.php?id=' + id, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Listing deleted', 'error');
+        loadDashboardData();
+      } else {
+        showToast(data.error || 'Failed to delete listing', 'error');
+      }
+    } catch(err) {
+      showToast('Network error', 'error');
+    }
   }
 }
 

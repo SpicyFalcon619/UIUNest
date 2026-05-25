@@ -99,7 +99,10 @@
         </select>
       </div>
       <div class="form-group"><label>Description</label><textarea id="itmDesc" required placeholder="Describe the item condition, size, age, etc."></textarea></div>
-      <div class="form-group"><label>Photo (Optional)</label><input type="file" id="itmPhoto" accept="image/*"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Thumbnail Image (Required)</label><input type="file" id="itmThumbnail" accept="image/*" required style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;"></div>
+        <div class="form-group"><label>Gallery Photos (Optional)</label><input type="file" id="itmPhotos" accept="image/*" multiple style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;"></div>
+      </div>
       <button type="submit" class="btn btn-primary btn-block">Post Item for Sale</button>
     </form>
   </div>
@@ -224,15 +227,61 @@ async function saveNewItem(e) {
   formData.append('linkedListingId', parseInt(document.getElementById('itmLinkListing').value) || '');
   formData.append('description', document.getElementById('itmDesc').value.trim());
   
-  const fileInput = document.getElementById('itmPhoto');
-  if (fileInput.files.length > 0) {
-    formData.append('photo', fileInput.files[0]);
+  let photos = [];
+  
+  // Upload Thumbnail
+  const thumbInput = document.getElementById('itmThumbnail');
+  if (thumbInput.files.length > 0) {
+    const fd = new FormData();
+    fd.append('file', thumbInput.files[0]);
+    fd.append('type', 'exchange');
+    try {
+      const upRes = await fetch('api/upload.php', { method: 'POST', body: fd });
+      const upData = await upRes.json();
+      if (upData.success) {
+        photos.push(upData.path);
+      } else {
+        showToast('Thumbnail upload failed: ' + upData.error, 'error');
+        return;
+      }
+    } catch(err) {
+      showToast('Thumbnail upload network error', 'error');
+      return;
+    }
+  } else {
+    showToast('Thumbnail is required', 'error');
+    return;
   }
+
+  // Upload Gallery Photos
+  const fileInput = document.getElementById('itmPhotos');
+  if (fileInput.files.length > 0) {
+    for (let i = 0; i < fileInput.files.length; i++) {
+      const fd = new FormData();
+      fd.append('file', fileInput.files[i]);
+      fd.append('type', 'exchange');
+      try {
+        const upRes = await fetch('api/upload.php', { method: 'POST', body: fd });
+        const upData = await upRes.json();
+        if (upData.success) {
+          photos.push(upData.path);
+        } else {
+          showToast('Gallery photo upload failed: ' + upData.error, 'error');
+          return;
+        }
+      } catch(err) {
+        showToast('Gallery upload network error', 'error');
+        return;
+      }
+    }
+  }
+
+  formData.append('photos', JSON.stringify(photos));
 
   try {
     const res = await fetch('api/exchange.php', {
       method: 'POST',
-      body: formData // Browser automatically sets Content-Type to multipart/form-data
+      body: formData
     });
     const data = await res.json();
     if (data.success) {

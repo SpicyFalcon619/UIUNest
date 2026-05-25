@@ -96,9 +96,19 @@
 <script>
 mountChrome('listings');
 let l;
-function renderDetail() {
+async function renderDetail() {
   const id = getQueryId();
-  l = mockData.listings.find(x => x.id === id);
+  try {
+    const res = await fetch('api/listings.php?id=' + id);
+    const data = await res.json();
+    if (data.success && data.listings && data.listings.length > 0) {
+      l = data.listings[0];
+    } else {
+      l = null;
+    }
+  } catch(e) {
+    l = null;
+  }
 
   if (!l) {
     document.getElementById('content').innerHTML = `
@@ -129,7 +139,12 @@ function renderDetail() {
 
     document.getElementById('content').innerHTML = `
       <div>
-        <img class="detail-photo" src="${l.photos && l.photos[0] ? l.photos[0] : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600'}" alt="${l.title}">
+        <img class="detail-photo" id="mainPhoto" src="${l.photos && l.photos[0] ? l.photos[0] : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600'}" alt="${l.title}">
+        ${l.photos && l.photos.length > 1 ? `
+          <div style="display:flex; gap:10px; margin-top:10px; overflow-x:auto;">
+            ${l.photos.map(p => `<img src="${p}" style="height:60px; width:80px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="document.getElementById('mainPhoto').src='${p}'">`).join('')}
+          </div>
+        ` : ''}
         <h1 style="margin:18px 0 6px;color:var(--navy)">${l.title}</h1>
         <div style="color:var(--gray);font-size:14px;margin-bottom:10px"><i data-lucide="map-pin" class="lucide-sm"></i> ${l.address}</div>
         <div class="badges" style="margin-bottom:18px">
@@ -155,6 +170,11 @@ function renderDetail() {
               (Number(c.caretakerFee)||0) + (c.customFees ? c.customFees.reduce((sum, f) => sum + (Number(f.amount)||0), 0) : (Number(c.otherFees)||0))
             )}</td></tr>
           </table>
+        </div>
+
+        <div class="card" style="margin-bottom:18px">
+          <h3 style="margin:0 0 10px;color:var(--navy)">Description</h3>
+          <p style="margin:0;font-size:14px;color:var(--dark);line-height:1.5;white-space:pre-wrap">${l.description || 'No description provided.'}</p>
         </div>
 
         <div class="card" style="margin-bottom:18px">
@@ -207,7 +227,7 @@ function renderDetail() {
       <aside>
         <div id="map-detail"></div>
         <div class="card" style="margin-top:14px">
-          <h3 style="margin:0 0 8px;color:var(--navy)">Landlord / Contact</h3>
+          <h3 style="margin:0 0 8px;color:var(--navy)">${l.listingType === 'Landlord Listed' ? 'Landlord Contact' : 'Student Contact'}</h3>
           <div style="font-weight:600" id="ownerName">Owner</div>
           <div style="font-size:13px;color:var(--gray);margin:6px 0" id="ownerEmailText">Email: </div>
           ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `<button class="btn btn-primary btn-block" onclick="document.getElementById('applyModal').classList.add('open')">Apply for Home</button>` : ''}

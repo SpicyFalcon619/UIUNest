@@ -416,6 +416,17 @@ const offerStates = {
   withdrawn: { next: [] }
 };
 
+function formatPropertyType(type) {
+  const map = {
+    'single_room': 'Single Room',
+    'shared_room': 'Shared Room',
+    'full_mess': 'Full Mess',
+    'sublet': 'Sub-let',
+    'any': 'Any'
+  };
+  return map[type] || type;
+}
+
 function statusBadge(status) {
   const map = {
     pending: 'badge-amber', countered: 'badge-light-blue',

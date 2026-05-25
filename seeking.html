@@ -20,7 +20,7 @@
 
   <div class="card" style="margin-bottom:18px;display:flex;flex-wrap:wrap;gap:12px;align-items:end">
     <div class="form-group" style="margin:0"><label>Zone</label><select id="fZone"><option value="all">All</option></select></div>
-    <div class="form-group" style="margin:0"><label>Room type</label><select id="fRoom"><option value="all">Any</option><option value="single">Single</option><option value="shared">Shared</option></select></div>
+    <div class="form-group" style="margin:0"><label>Property Type</label><select id="fRoom"><option value="all">Any</option><option value="single_room">Single Room</option><option value="shared_room">Shared Room</option><option value="full_mess">Full Mess</option><option value="sublet">Sub-let</option></select></div>
     <div class="form-group" style="margin:0;min-width:200px"><label>Max budget: <span id="bVal">৳10,000</span></label><input type="range" id="fBudget" min="2000" max="10000" step="500" value="10000"></div>
   </div>
 
@@ -37,9 +37,8 @@
         <div class="form-group"><label>Budget min (৳)</label><input type="number" id="pMin" required value="3000"></div>
         <div class="form-group"><label>Budget max (৳)</label><input type="number" id="pMax" required value="5000"></div>
       </div>
-      <div class="form-group"><label>Room type</label>
-        <select id="pRoom"><option value="any">Any</option><option value="single">Single</option><option value="shared">Shared</option></select>
-      </div>
+      <div class="form-group"><label>Property Type</label>
+        <select id="pRoom"><option value="any">Any</option><option value="single_room">Single Room</option><option value="shared_room">Shared Room</option><option value="full_mess">Full Mess</option><option value="sublet">Sub-let</option></select>
       </div>
       <div class="form-group"><label>Move-in date</label><input type="date" id="pDate" required></div>
       <div class="form-group"><label>Requirements</label><textarea id="pReq" required placeholder="Quiet, clean, study-focused roommate needed..."></textarea></div>
@@ -57,6 +56,11 @@ const fZoneOpts = mockData.zones.map(z => `<option value="${z.name}">${z.name}</
 const pZoneOpts = mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
 document.getElementById('fZone').innerHTML += fZoneOpts;
 document.getElementById('pZone').innerHTML = pZoneOpts;
+
+let user = null;
+if (isLoggedIn()) {
+  user = JSON.parse(localStorage.getItem('uiunest_current_user_v4') || 'null');
+}
 
 window.posts = [];
 
@@ -81,7 +85,7 @@ function renderPosts() {
 
   const r = window.posts.filter(p => {
     if (zone !== 'all' && p.zone !== zone) return false;
-    if (room !== 'all' && p.roomType !== room) return false;
+    if (room !== 'all' && p.propertyType !== room) return false;
     if (user && p.user_gender !== user.gender) return false;
     if (p.budgetMin > budget) return false;
     return true;
@@ -101,7 +105,7 @@ function renderPosts() {
         <div style="margin:8px 0" class="badges">
           <span class="budget-badge">${fmt(p.budgetMin)}–${fmt(p.budgetMax)}</span>
           <span class="badge badge-navy">${p.zone}</span>
-          <span class="badge badge-blue">${p.roomType}</span>
+          <span class="badge badge-blue">${formatPropertyType(p.propertyType)}</span>
 
         </div>
         <div style="font-size:14px;margin-top:6px;font-weight: 500;">${p.requirements}</div>
@@ -127,7 +131,7 @@ async function addPost(e) {
     zone_id: parseInt(document.getElementById('pZone').value),
     budgetMin: parseInt(document.getElementById('pMin').value),
     budgetMax: parseInt(document.getElementById('pMax').value),
-    roomType: document.getElementById('pRoom').value,
+    propertyType: document.getElementById('pRoom').value,
 
     moveInDate: document.getElementById('pDate').value,
     requirements: document.getElementById('pReq').value.trim()
@@ -156,11 +160,8 @@ async function addPost(e) {
 document.getElementById('fBudget').addEventListener('input', e => document.getElementById('bVal').textContent = fmt(e.target.value));
 document.querySelectorAll('#fZone,#fRoom,#fBudget').forEach(el => el.addEventListener('change', renderPosts));
 
-if (isLoggedIn()) {
-  const user = JSON.parse(localStorage.getItem('uiunest_current_user_v4') || '{}');
-  if (user.role === 'student') {
-    document.getElementById('requestBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openRequestModal()">+ Post a Request</button>`;
-  }
+if (user && user.role === 'student') {
+  document.getElementById('requestBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openRequestModal()">+ Post a Request</button>`;
 }
 
 loadPosts();

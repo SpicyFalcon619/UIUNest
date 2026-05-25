@@ -1,6 +1,9 @@
 <?php
 session_start();
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
 require 'db.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -18,6 +21,8 @@ if ($method === 'GET') {
         
         // Map keys to match frontend expectations
         $mapped = array_map(function($it) {
+            $photos = $it['photos'] ? json_decode($it['photos'], true) : [];
+            $mainPhoto = !empty($photos) ? $photos[0] : ($it['photo_url'] ?: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600');
             return [
                 'id' => $it['item_id'],
                 'title' => $it['title'],
@@ -28,7 +33,8 @@ if ($method === 'GET') {
                 'zoneId' => $it['zone_id'],
                 'linkedListingId' => $it['listing_id'],
                 'description' => $it['description'],
-                'photo' => $it['photo_url'] ?: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600',
+                'photo' => $mainPhoto,
+                'photos' => $photos,
                 'seller' => $it['seller'],
                 'seller_id' => $it['seller_id'],
                 'status' => $it['status']
@@ -57,26 +63,36 @@ if ($method === 'GET') {
     
     // Default photo
     $photo_url = 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600';
+    $photos_json = '[]';
 
-    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = '../uploads/exchange/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+    if (isset($_POST['photos'])) {
+        $photos_arr = json_decode($_POST['photos'], true);
+        if (is_array($photos_arr) && count($photos_arr) > 0) {
+            $photo_url = $photos_arr[0];
+            $photos_json = $_POST['photos'];
         }
-        
-        // Clean filename
-        $fileName = time() . '_' . preg_replace("/[^a-zA-Z0-9.]/", "_", basename($_FILES['photo']['name']));
-        $targetPath = $uploadDir . $fileName;
-        
-        if (move_uploaded_file($_FILES['photo']['tmp_name'], $targetPath)) {
-            $photo_url = 'uploads/exchange/' . $fileName;
+    } else {
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = '../uploads/exchange/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            
+            // Clean filename
+            $fileName = time() . '_' . preg_replace("/[^a-zA-Z0-9.]/", "_", basename($_FILES['photo']['name']));
+            $targetPath = $uploadDir . $fileName;
+            
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $targetPath)) {
+                $photo_url = 'uploads/exchange/' . $fileName;
+                $photos_json = json_encode([$photo_url]);
+            }
         }
     }
     
     try {
-        $stmt = $pdo->prepare("INSERT INTO items (seller_id, zone_id, listing_id, category, title, description, item_condition, asking_price, photo_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO items (seller_id, zone_id, listing_id, category, title, description, item_condition, asking_price, photo_url, photos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
-            $seller_id, $zone_id, $listing_id ?: null, $category, $title, $description, $condition, $asking_price, $photo_url
+            $seller_id, $zone_id, $listing_id ?: null, $category, $title, $description, $condition, $asking_price, $photo_url, $photos_json
         ]);
         
         echo json_encode(['success' => true, 'item_id' => $pdo->lastInsertId()]);

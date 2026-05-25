@@ -2,10 +2,19 @@
 require 'db.php';
 session_start();
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $where = "";
+    $params = [];
+    if (isset($_GET['id'])) {
+        $where = "WHERE l.listing_id = ?";
+        $params[] = $_GET['id'];
+    }
     // Fetch all listings with basic info
-    $stmt = $pdo->query("
+    $stmt = $pdo->prepare("
         SELECT l.*, z.zone_name as zone, u.name as owner_name, u.email as owner_email,
                up.sleep_schedule as sleep, up.diet, up.guest_policy as guest, 
                up.smoking_tolerance as smoking, up.noise_tolerance as noise, up.cleanliness_score as cleanliness
@@ -13,7 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         JOIN zones z ON l.zone_id = z.zone_id
         JOIN users u ON l.user_id = u.user_id
         LEFT JOIN user_preferences up ON l.user_id = up.user_id
+        $where
     ");
+    $stmt->execute($params);
     $listings = $stmt->fetchAll();
     
     // Fetch costs
@@ -80,7 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'amenities' => $amenByListing[$id] ?? null,
             'compositeScore' => 4.5, // placeholder
             'reviewCount' => 0,
-            'photos' => ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600']
+            'description' => $l['description'],
+            'photos' => !empty($l['photos']) ? json_decode($l['photos'], true) : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600']
         ];
     }
     
@@ -99,7 +111,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
         
-        $stmt = $pdo->prepare("INSERT INTO listings (user_id, zone_id, listing_type, property_type, title, address, lat, lng, gender_pref, total_rooms, current_occupancy, status, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', ?)");
+        $stmt = $pdo->prepare("INSERT INTO listings (user_id, zone_id, listing_type, property_type, title, address, lat, lng, gender_pref, total_rooms, current_occupancy, status, is_verified, description, photos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, ?, ?)");
         
         $lType = $_SESSION['user']['role'] === 'landlord' ? 'full_property' : 'peer_listing';
         $isVerified = $_SESSION['user']['role'] === 'admin' ? 1 : 0; 
@@ -116,7 +128,9 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user']['gender'], 
             $input['totalRooms'], 
             $input['currentOccupancy'], 
-            $isVerified
+            $isVerified,
+            $input['description'] ?? null,
+            isset($input['photos']) && is_array($input['photos']) ? json_encode($input['photos']) : null
         ]);
         $listingId = $pdo->lastInsertId();
         
@@ -147,5 +161,38 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+}
+elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    if (!isset($_SESSION['user'])) {
+        echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+        exit;
+    }
+    if (!isset($_GET['id'])) {
+        echo json_encode(['success' => false, 'error' => 'Missing ID']);
+        exit;
+    }
+    
+    $id = $_GET['id'];
+    $userId = $_SESSION['user']['id'];
+    $role = $_SESSION['user']['role'];
+    
+    $stmt = $pdo->prepare("SELECT user_id FROM listings WHERE listing_id = ?");
+    $stmt->execute([$id]);
+    $listing = $stmt->fetch();
+    
+    if (!$listing) {
+        echo json_encode(['success' => false, 'error' => 'Not found']);
+        exit;
+    }
+    
+    if ($listing['user_id'] != $userId && $role !== 'admin') {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+    
+    $del = $pdo->prepare("DELETE FROM listings WHERE listing_id = ?");
+    $del->execute([$id]);
+    
+    echo json_encode(['success' => true]);
 }
 ?>

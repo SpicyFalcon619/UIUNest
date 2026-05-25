@@ -23,7 +23,7 @@ if ($method === 'GET') {
                 'id' => $p['post_id'],
                 'zone' => $p['zone'],
                 'zoneId' => $p['zone_id'],
-                'roomType' => $p['room_type'],
+                'propertyType' => $p['property_type'],
                 'genderPref' => $p['preferred_gender'],
                 'budgetMin' => (float)$p['budget_min'],
                 'budgetMax' => (float)$p['budget_max'],
@@ -48,7 +48,7 @@ if ($method === 'GET') {
     $input = json_decode(file_get_contents('php://input'), true);
     
     $zone_id = $input['zone_id'] ?? null;
-    $room_type = $input['roomType'] ?? '';
+    $property_type = $input['propertyType'] ?? '';
     $gender_pref = $_SESSION['user']['gender'];
     $budget_min = $input['budgetMin'] ?? 0;
     $budget_max = $input['budgetMax'] ?? 0;
@@ -57,9 +57,9 @@ if ($method === 'GET') {
     $user_id = $_SESSION['user_id'];
     
     try {
-        $stmt = $pdo->prepare("INSERT INTO seeking_posts (user_id, zone_id, budget_min, budget_max, room_type, preferred_gender, move_in_date, requirements) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO seeking_posts (user_id, zone_id, budget_min, budget_max, property_type, preferred_gender, move_in_date, requirements) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
-            $user_id, $zone_id, $budget_min, $budget_max, $room_type, $gender_pref, $move_in_date, $requirements
+            $user_id, $zone_id, $budget_min, $budget_max, $property_type, $gender_pref, $move_in_date, $requirements
         ]);
         
         echo json_encode(['success' => true, 'post_id' => $pdo->lastInsertId()]);
