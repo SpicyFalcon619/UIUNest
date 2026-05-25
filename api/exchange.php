@@ -11,7 +11,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     try {
         $stmt = $pdo->query("
-            SELECT i.*, u.name as seller, z.zone_name as zone 
+            SELECT i.*, u.name as seller, u.email as seller_email, z.zone_name as zone 
             FROM items i
             LEFT JOIN users u ON i.seller_id = u.user_id
             LEFT JOIN zones z ON i.zone_id = z.zone_id
@@ -37,6 +37,7 @@ if ($method === 'GET') {
                 'photos' => $photos,
                 'seller' => $it['seller'] ?? '',
                 'seller_id' => $it['seller_id'] ?? null,
+                'sellerEmail' => $it['seller_email'] ?? '',
                 'status' => $it['status'] ?? 'available'
             ];
         }, $items);
