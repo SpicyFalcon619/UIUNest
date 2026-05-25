@@ -1,22 +1,17 @@
-# Backend Transition Task List
+# Backend Migration Tasks (Priority 2)
 
-- [x] **Create Database SQL Scripts**
-  - [x] Generate `database/schema.sql` (15 tables with all constraints)
-  - [x] Generate `database/seed.sql` (Initial data to populate the DB)
-- [x] **Setup PHP Connection**
-  - [x] Create `api/db.php` configured for XAMPP defaults (`root`, no password)
-- [x] **Build PHP APIs**
-  - [x] `api/login.php`, `api/register.php`, `api/logout.php` (Session management)
-  - [x] `api/listings.php` (Fetch and create listings)
-- [x] **File Upload & Verifications**
-  - [x] Add `verifications` table to `schema.sql`.
-  - [x] Create `uploads/verifications`, `uploads/listings`, `uploads/items` directories.
-  - [x] Implement `api/upload.php`.
-  - [x] Implement `api/verify.php` and `api/admin_action_verif.php`.
-  - [x] Modify `profile.html` to support file upload for verifications.
-  - [x] Modify `admin.html` to fetch and view verification documents.
-  - [x] Modify `listings.html` to support image upload for properties.
-- [x] **Build PHP APIs**
-  - [x] `api/dashboard.php` (Aggregate queries for stats and tables)
-- [x] **Walkthrough & Documentation**
-  - [x] Document all DB schema changes for user's ERD.
+- [x] **1. Cloud Watchlist**
+  - [x] Create `api/watchlist.php` (GET/POST).
+  - [x] Update `app.js` `toggleWatchlist()` to POST to the API.
+  - [x] Update `app.js` `loadWatchlist()` to GET from the API.
+- [x] **2. User Profiles & Preferences**
+  - [x] Create `api/profile.php` (GET/POST).
+  - [x] Update `profile.html` UI (Add Cleanliness Score 1-5).
+  - [x] Update `profile.html` scripts to fetch/save preferences.
+  - [x] Integrate live preferences into Match % calculator.
+
+- [x] **3. Admin Dashboard Enhancements**
+  - [x] Create `api/admin_stats.php` to fetch system metrics (totals, rent by zone, demand vs supply).
+  - [x] Create `api/admin_complaints.php` and `api/admin_action_complaint.php` for fetching and resolving complaints.
+  - [x] Create `api/admin_action_listing.php` to handle listing deletion.
+  - [x] Update `admin.html` JS to replace `mockData` and wire up the UI buttons and charts to live API endpoints.

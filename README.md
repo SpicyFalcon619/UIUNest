@@ -49,5 +49,16 @@ If you prefer to keep the repository in your Documents or Downloads folder, you 
 Once the database is imported and the folder is in `htdocs` (or symlinked), open your browser and go to:
 `http://localhost/UIU-Nest`
 
+#### Master Admin Account
+The database comes pre-configured with a master admin account to access the dashboard.
+- **Login ID**: `ADM-MASTER` (or `master@admin.com`)
+- **Password**: `1265Master`
+
+### 4. Developer Documentation
+For teammates and future developers, check the `docs/` folder for up-to-date architectural notes:
+- `docs/system_architecture.md`: A full technical walkthrough of the frontend Chrome system, database structure, API flow, and feature algorithms.
+- `docs/walkthrough.md`: A log of recently completed technical implementations.
+- `docs/changelog_vs_report.md`: Tracks architectural changes and deviations from the original UIUNest academic report and ERD.
+
 ### Note for AI Assistants
-If you are using an AI assistant to help build this project, instruct it to read `docs/walkthrough.md` and `docs/task.md` to instantly catch up on the backend architecture and what has already been built.
+If you are using an AI assistant to help build this project, instruct it to read `docs/system_architecture.md`, `docs/walkthrough.md`, and `docs/task.md` to instantly catch up on the backend architecture and what has already been built.

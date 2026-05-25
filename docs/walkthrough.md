@@ -1,67 +1,71 @@
-# Feature Delivered: File Upload & Landlord Verification System
+# Walkthrough: Backend Migration (Phase 1)
 
-I have successfully implemented the file upload architecture and connected the Landlord Verification flow to your backend MySQL database!
+I've completed the heavy lifting for **Phase 1: Backend Migration**. The app's "split brain" has been resolved for three major features: The Exchange, Seeking Posts, and Mess Bills. They are now fully wired to the live MySQL database via PHP APIs!
 
-## 1. Database & ERD Updates
-To keep your ERD and project report accurate, please make the following updates:
+## What was accomplished
 
-- **New Table (16th Table): `verifications`**
-  I have appended this to `database/schema.sql`. It tracks Landlord verification requests.
-  ```sql
-  CREATE TABLE verifications (
-      verification_id INT AUTO_INCREMENT PRIMARY KEY,
-      user_id INT,
-      nid_type ENUM('National ID', 'Passport', 'Driving License') NOT NULL,
-      document_path VARCHAR(255) NOT NULL,
-      description TEXT NULL,
-      status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-  );
-  ```
+### 1. The Exchange (Marketplace)
+- Added a new `photo_url` column to the `items` database table so users can post photos of their items.
+- Built `api/exchange.php` to handle fetching all active items and posting new items securely.
+- Updated `exchange.html` so the grid loads items from the live database. When a user fills out the "Sell an Item" form, it instantly posts to the database and reloads the grid.
 
-- **New Table (17th Table): `watchlists`**
-  This was added to replace the localStorage "saved properties" feature.
-  ```sql
-  CREATE TABLE watchlists (
-      watchlist_id INT AUTO_INCREMENT PRIMARY KEY,
-      user_id INT,
-      listing_id INT,
-      added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(user_id, listing_id),
-      FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-      FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
-  );
-  ```
-- **Relationship Note for ERD**: `users` has a 1-to-many relationship with `verifications`. `users` and `listings` both have a 1-to-many relationship with `watchlists`.
+### 2. Looking For (Seeking Posts)
+- Built `api/seeking.php` to handle roommate requests.
+- Updated `seeking.html` to load live posts.
+- The "+ Post a Request" form now validates input and correctly saves it to the `seeking_posts` table linked to the user's account.
 
-## 2. File Upload Architecture
-- I created a new directory structure in your project folder: `uploads/verifications`, `uploads/listings`, and `uploads/items`.
-- Created **`api/upload.php`**: This securely receives `multipart/form-data`, validates that it is an image or PDF, generates a unique random file name to prevent overwriting, saves it to the correct folder, and returns the relative path to be saved in the database.
+### 3. Mess Bill Manager
+- Added a `resident_label` column to the `bill_payments` table to easily track splits like "Resident 1", "Resident 2" without requiring every resident to have a registered account.
+- Built `api/bills.php` with complex logic:
+  - `GET`: Fetches all bills and their payment tracker status for a specific property.
+  - `POST`: Logs a new month's bill, calculates the per-person split, and auto-generates the `bill_payments` tracker rows. If you submit the same month twice, it cleverly updates the existing bill instead of creating a duplicate.
+  - `PUT`: Marks a resident's payment as "paid" securely.
+- Updated `bills.html` to fetch the logged-in user's properties from the live database, allowing them to manage and track real bills.
 
-## 3. Frontend & API Integrations
+## Verification
+- XAMPP was restarted and tested.
+- Schema alterations executed perfectly.
+- All three APIs (`exchange.php`, `seeking.php`, `bills.php`) were wired into the frontend Javascript controllers.
+- Watchlist and Profile preferences are successfully saving to the database and correctly persisting across page loads.
+- Global event delegation fixed the "double fire" bug for the watchlist heart icon.
+- Leaflet map rendering fixed to prevent unloaded gray tiles.
 
-### Profile Page (Verifications)
-- Updated `profile.html` with an `<input type="file">`.
-- When a user submits their verification, the form first calls `api/upload.php` to save the file.
-- It then calls the new **`api/verify.php`** to save the verification request and document path to the database.
-- Added **`api/verif_status.php`** which dynamically updates the "Pending Review" / "Approved" badge based on actual DB status.
+# Phase 3: Admin Dashboard Enhancements (Complete)
+The Admin Dashboard (`admin.html`) is now fully powered by live data from the database, dropping all reliance on the frontend `mockData` array.
 
-### Admin Dashboard
-- Created **`api/admin_verifications.php`** to fetch all pending verifications from the DB.
-- Updated `admin.html` to pull this data dynamically.
-- The Admin table now features a **"View Document"** link that directly opens the uploaded file (e.g., `uploads/verifications/12345_abc.jpg`) in a new tab.
-- Created **`api/admin_action_verif.php`**: When the Admin clicks Approve, it sets the verification status to `approved` AND automatically executes an SQL query to set `is_verified = 1` for all listings owned by that user!
+## Core Implementations
+1. **System Analytics Pipeline (`api/admin_stats.php`)**
+   - The backend now actively computes live system metrics: Total Listings, Open Complaints, and Average Rent aggregated by Zone using `GROUP BY`.
+   - Demand vs. Supply intelligence is actively calculated by comparing the volume of active `seeking_posts` against available `listings` in each zone.
+2. **Complaints Management (`api/admin_complaints.php` & `api/admin_action_complaint.php`)**
+   - The dashboard dynamically pulls all user complaints with `JOIN` statements to resolve the Complainant and the associated Listing Owner.
+   - The "Resolve" and "Review" action buttons issue POST requests to update the complaint state in the live database.
+3. **Moderation Controls (`api/admin_action_listing.php`)**
+   - Admins can now completely delete severe or fraudulent listings directly from the dashboard. This securely invokes a `DELETE` query that cascades through the database to clean up associated amenities, costs, and complaints.
 
-### Property Listings
-- Updated `listings.html` so that the "Photo URL" field is now a standard File Upload field.
-- The form now seamlessly uploads the property image to `uploads/listings/` using the same robust API before saving the new listing to the database.
+## Verification
+- The top summary cards (Total Users, Total Listings, Open Complaints) accurately reflect database totals.
+- Chart.js successfully consumes the JSON output from `admin_stats.php` to render the Bar Charts.
+- Clicking the Action buttons (`Resolve`, `Delete Listing`) actively modifies the database and automatically refreshes the UI via the `loadAdminData()` flow.
 
-## How to Test
-1. Make sure XAMPP is running. Log in as a Landlord.
-2. Go to your **Profile** and upload a dummy image in the Verification section. Click Submit.
-3. You will see a "Pending Review" badge.
-4. Log out and log in as the **Admin**.
-5. You will see the new verification request on the Dashboard. Click **View Document** to verify the image successfully uploaded!
-6. Click **Approve**.
-7. Log back in as the Landlord, and try listing a property—you'll now be able to upload a photo for your property!
+---
+
+# Walkthrough: Backend Migration (Phase 2)
+
+Phase 2 tackled the Watchlist and User Profiles, moving them out of `localStorage` and into the real MySQL database.
+
+## What was accomplished
+
+### 1. Cloud Watchlist
+- Built `api/watchlist.php` to act as a toggle switch (add/remove) for saved listings.
+- Rewrote the global Javascript functions in `app.js` to automatically fetch your saved listings when you log in. 
+- The heart buttons across the app now sync directly with the `watchlists` database table. If you favorite a property on your laptop, it will be favorited on your phone too!
+
+### 2. User Profiles & Preferences
+- Added the missing "Cleanliness Score" slider to the frontend `profile.html` page.
+- Allowed users to edit their registered email address, as requested.
+- Built `api/profile.php` to handle updates for both basic info (`users` table) and housing preferences (`user_preferences` table).
+- Integrated the database preferences directly into the session payload at login, meaning the **Match Percentage** calculator now runs accurately against live data from the server instead of mock data!
+
+> [!TIP]
+> Try going to your Profile, changing your "Sleep Schedule" or "Cleanliness", and then browsing the Listings page. You'll see your Match Percentages against other students instantly recalculate!
