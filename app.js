@@ -546,5 +546,21 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => fetchNotifications(), 500);
 });
 
+window.addEventListener('click', e => {
+  // Close modals when clicking the modal-bg backdrop
+  if (e.target.classList && e.target.classList.contains('modal-bg')) {
+    e.target.classList.remove('open');
+  }
+
+  // Close notification dropdown when clicking outside
+  const notifMenu = document.getElementById('notifMenu');
+  const notifBtn = document.getElementById('notifBtn');
+  if (notifMenu && notifMenu.classList.contains('open')) {
+    if (!notifMenu.contains(e.target) && (!notifBtn || !notifBtn.contains(e.target))) {
+      notifMenu.classList.remove('open');
+    }
+  }
+});
+
 // Call on load
 loadListingsFromDB();

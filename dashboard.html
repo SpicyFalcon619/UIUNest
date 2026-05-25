@@ -127,6 +127,7 @@ const root = document.getElementById('content');
 
 let dashData = null;
 let currentUser = null;
+let currentDashboardTab = new URLSearchParams(window.location.search).get('tab') || 'listings';
 
 let confirmActionCallback = null;
 function showConfirm(title, text, callback) {
@@ -172,12 +173,6 @@ async function loadDashboardData() {
     if (dbData.success) {
       dashData = dbData.data;
       renderDashboard();
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const tab = urlParams.get('tab');
-      if (tab && typeof switchTab === 'function') {
-        setTimeout(() => switchTab(tab), 100);
-      }
     } else {
       showToast(dbData.error || 'Failed to load dashboard data', 'error');
     }
@@ -505,9 +500,11 @@ function renderDashboard() {
     </div>`;
 
   if (window.lucide) lucide.createIcons();
+  setTimeout(() => switchTab(currentDashboardTab), 0);
 }
 
 function switchTab(t) {
+  currentDashboardTab = t;
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === t));
   ['listings', 'items', 'seeking', 'watch', 'offers', 'applications'].forEach(n => {
     const el = document.getElementById('tab-' + n);
