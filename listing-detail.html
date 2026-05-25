@@ -137,122 +137,128 @@ async function renderDetail() {
       return `<div class="amenity ${on ? '' : 'off'}">${labels[k] || k}</div>`;
     }
 
-    document.getElementById('content').innerHTML = `
-      <div>
-        <img class="detail-photo" id="mainPhoto" src="${l.photos && l.photos[0] ? l.photos[0] : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'20\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'middle\'>No Photo Available</text></svg>'}" alt="${l.title}">
-        ${l.photos && l.photos.length > 1 ? `
-          <div style="display:flex; gap:10px; margin-top:10px; overflow-x:auto;">
-            ${l.photos.map(p => `<img src="${p}" style="height:60px; width:80px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="document.getElementById('mainPhoto').src='${p}'">`).join('')}
+    try {
+      document.getElementById('content').innerHTML = `
+        <div>
+          <img class="detail-photo" id="mainPhoto" src="${l.photos && l.photos[0] ? l.photos[0] : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'20\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'middle\'>No Photo Available</text></svg>'}" alt="${l.title}">
+          ${l.photos && l.photos.length > 1 ? `
+            <div style="display:flex; gap:10px; margin-top:10px; overflow-x:auto;">
+              ${l.photos.map(p => `<img src="${p}" style="height:60px; width:80px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="document.getElementById('mainPhoto').src='${p}'">`).join('')}
+            </div>
+          ` : ''}
+          <h1 style="margin:18px 0 6px;color:var(--navy)">${l.title}</h1>
+          <div style="color:var(--gray);font-size:14px;margin-bottom:10px"><i data-lucide="map-pin" class="lucide-sm"></i> ${l.address}</div>
+          <div class="badges" style="margin-bottom:18px">
+            <span class="badge badge-navy">${l.zone}</span>
+            ${l.isVerified ? '<span class="badge badge-gold"><i data-lucide="check-circle" class="lucide-sm"></i> Verified</span>' : ''}
+            ${statusBadge(l.status)}
           </div>
-        ` : ''}
-        <h1 style="margin:18px 0 6px;color:var(--navy)">${l.title}</h1>
-        <div style="color:var(--gray);font-size:14px;margin-bottom:10px"><i data-lucide="map-pin" class="lucide-sm"></i> ${l.address}</div>
-        <div class="badges" style="margin-bottom:18px">
-          <span class="badge badge-navy">${l.zone}</span>
-          ${l.isVerified ? '<span class="badge badge-gold"><i data-lucide="check-circle" class="lucide-sm"></i> Verified</span>' : ''}
-          ${statusBadge(l.status)}
-        </div>
 
-        <div class="card" style="margin-bottom:18px">
-          <h3 style="margin:0 0 10px;color:var(--navy)"><i data-lucide="coins" class="lucide-sm"></i> Cost Breakdown</h3>
-          <table class="cost-table">
-            <tr><td>Base Rent</td><td>${fmt(c.baseRent)}</td></tr>
-            <tr><td>Electricity ${elecLabel}</td><td>${fmt(c.electricityAmount)}</td></tr>
-            <tr><td>Gas Bill</td><td>${fmt(c.gasBill)}</td></tr>
-            <tr><td>Water Bill</td><td>${fmt(c.waterBill)}</td></tr>
-            <tr><td>Internet</td><td>${fmt(c.internetCost)}</td></tr>
-            <tr><td>Building Maintenance</td><td>${fmt(c.maintenanceFee)}</td></tr>
-            <tr><td>Caretaker Fee</td><td>${fmt(c.caretakerFee)}</td></tr>
-            ${c.customFees ? c.customFees.map(f => `<tr><td>${f.name}</td><td>${fmt(f.amount)}</td></tr>`).join('') : (c.otherFees ? `<tr><td>Other Fees</td><td>${fmt(c.otherFees)}</td></tr>` : '')}
-            <tr class="total-row"><td>True Monthly Total</td><td>${fmt(
-              (Number(c.baseRent)||0) + (Number(c.electricityAmount)||0) + (Number(c.gasBill)||0) +
-              (Number(c.waterBill)||0) + (Number(c.internetCost)||0) + (Number(c.maintenanceFee)||0) +
-              (Number(c.caretakerFee)||0) + (c.customFees ? c.customFees.reduce((sum, f) => sum + (Number(f.amount)||0), 0) : (Number(c.otherFees)||0))
-            )}</td></tr>
-          </table>
-        </div>
-
-        <div class="card" style="margin-bottom:18px">
-          <h3 style="margin:0 0 10px;color:var(--navy)">Description</h3>
-          <p style="margin:0;font-size:14px;color:var(--dark);line-height:1.5;white-space:pre-wrap">${l.description || 'No description provided.'}</p>
-        </div>
-
-        <div class="card" style="margin-bottom:18px">
-          <h3 style="margin:0 0 10px;color:var(--navy)">Property details</h3>
-          <div class="grid-3" style="font-size:13px">
-            <div><strong>Type:</strong> ${l.propertyType.replace('_',' ')}</div>
-            <div><strong>Rooms:</strong> ${l.totalRooms}</div>
-            <div><strong>Occupancy:</strong> ${l.currentOccupancy}/${l.totalRooms} occupied</div>
-            <div><strong>Gender Pref:</strong> ${l.genderPref}</div>
-            <div><strong>Status:</strong> ${l.status}</div>
-            <div><strong>Listing Type:</strong> ${l.listingType}</div>
+          <div class="card" style="margin-bottom:18px">
+            <h3 style="margin:0 0 10px;color:var(--navy)"><i data-lucide="coins" class="lucide-sm"></i> Cost Breakdown</h3>
+            <table class="cost-table">
+              <tr><td>Base Rent</td><td>${fmt(c.baseRent)}</td></tr>
+              <tr><td>Electricity ${elecLabel}</td><td>${fmt(c.electricityAmount)}</td></tr>
+              <tr><td>Gas Bill</td><td>${fmt(c.gasBill)}</td></tr>
+              <tr><td>Water Bill</td><td>${fmt(c.waterBill)}</td></tr>
+              <tr><td>Internet</td><td>${fmt(c.internetCost)}</td></tr>
+              <tr><td>Building Maintenance</td><td>${fmt(c.maintenanceFee)}</td></tr>
+              <tr><td>Caretaker Fee</td><td>${fmt(c.caretakerFee)}</td></tr>
+              ${c.customFees ? c.customFees.map(f => `<tr><td>${f.name}</td><td>${fmt(f.amount)}</td></tr>`).join('') : (c.otherFees ? `<tr><td>Other Fees</td><td>${fmt(c.otherFees)}</td></tr>` : '')}
+              <tr class="total-row"><td>True Monthly Total</td><td>${fmt(
+                (Number(c.baseRent)||0) + (Number(c.electricityAmount)||0) + (Number(c.gasBill)||0) +
+                (Number(c.waterBill)||0) + (Number(c.internetCost)||0) + (Number(c.maintenanceFee)||0) +
+                (Number(c.caretakerFee)||0) + (c.customFees ? c.customFees.reduce((sum, f) => sum + (Number(f.amount)||0), 0) : (Number(c.otherFees)||0))
+              )}</td></tr>
+            </table>
           </div>
-        </div>
 
-        <div class="card" style="margin-bottom:18px">
-          <h3 style="margin:0 0 10px;color:var(--navy)">Amenities</h3>
-          <div class="amenity-grid">${l.amenities ? Object.keys(l.amenities).map(k => amenityIcon(k, l.amenities[k])).join('') : ''}</div>
-        </div>
+          <div class="card" style="margin-bottom:18px">
+            <h3 style="margin:0 0 10px;color:var(--navy)">Description</h3>
+            <p style="margin:0;font-size:14px;color:var(--dark);line-height:1.5;white-space:pre-wrap">${l.description || 'No description provided.'}</p>
+          </div>
 
-        ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `
-        <div class="card" style="margin-bottom:18px">
-          <h3 style="margin:0 0 10px;color:var(--navy)">Compatibility with current residents</h3>
-          <div style="display:flex;align-items:center;gap:18px">
-            <div class="compat-circle" style="background:${compatColor.color}">${userCompat.score}%</div>
-            <div>
-              <div class="badge" style="background:${compatColor.bg};color:${compatColor.color}">${compatColor.label}</div>
-              <div style="margin-top:8px;font-size:13px;color:var(--gray)">
-                ${userCompat.matched.length ? 'Matched: ' + userCompat.matched.join(', ') : ''} 
-                ${userCompat.unmatched.length ? (userCompat.matched.length ? ' · ' : '') + 'Mismatched: ' + userCompat.unmatched.join(', ') : ''}
-                ${!userCompat.matched.length && !userCompat.unmatched.length ? 'No preferences defined.' : ''}
-              </div>
+          <div class="card" style="margin-bottom:18px">
+            <h3 style="margin:0 0 10px;color:var(--navy)">Property details</h3>
+            <div class="grid-3" style="font-size:13px">
+              <div><strong>Type:</strong> ${(l.propertyType||'').replace('_',' ')}</div>
+              <div><strong>Rooms:</strong> ${l.totalRooms}</div>
+              <div><strong>Occupancy:</strong> ${l.currentOccupancy}/${l.totalRooms} occupied</div>
+              <div><strong>Gender Pref:</strong> ${l.genderPref}</div>
+              <div><strong>Status:</strong> ${l.status}</div>
+              <div><strong>Listing Type:</strong> ${l.listingType}</div>
             </div>
           </div>
-        </div>` : ''}
 
-        <div class="card" style="margin-bottom:18px">
-          <h3 style="margin:0 0 10px;color:var(--navy)">Rent History</h3>
-          <canvas id="rentChart" height="80"></canvas>
-        </div>
-
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <h3 style="margin:0;color:var(--navy)">Reviews (${l.reviewCount})</h3>
-            ${isLoggedIn() ? `<button class="btn btn-gold-outline btn-sm" onclick="document.getElementById('reviewModal').classList.add('open')">Write a Review</button>` : ''}
+          <div class="card" style="margin-bottom:18px">
+            <h3 style="margin:0 0 10px;color:var(--navy)">Amenities</h3>
+            <div class="amenity-grid">${l.amenities ? Object.keys(l.amenities).map(k => amenityIcon(k, l.amenities[k])).join('') : ''}</div>
           </div>
-          <div id="reviewsList"></div>
-        </div>
-      </div>
 
-      <aside>
-        <div id="map-detail"></div>
-        <div class="card" style="margin-top:14px">
-          <h3 style="margin:0 0 8px;color:var(--navy)">${l.listingType === 'Landlord Listed' ? 'Landlord Contact' : 'Student Contact'}</h3>
-          <div style="font-weight:600" id="ownerName">Owner</div>
-          <div style="font-size:13px;color:var(--gray);margin:6px 0" id="ownerEmailText">Email: </div>
-          ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `<button class="btn btn-primary btn-block" onclick="applyForListing(${l.id}, '${l.genderPref}')">Apply for Home</button>` : ''}
-          ${(!isLoggedIn() || (window.mockData.currentUser && window.mockData.currentUser.role !== 'admin')) ? `<button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" style="margin-top:10px;width:100%;text-align:center"><i data-lucide="heart" class="lucide-sm"></i> ${wl ? 'Saved' : 'Save to watchlist'}</button>` : ''}
-        </div>
-
-        ${linkedItems.length ? `
-        <div class="card" style="margin-top:14px">
-          <h3 style="margin:0 0 10px;color:var(--navy)">Items from this tenant</h3>
-          ${linkedItems.slice(0,2).map(it => `
-            <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
-              <img src="${it.photo}" style="width:60px;height:60px;object-fit:cover;border-radius:6px">
-              <div style="flex:1">
-                <div style="font-size:13px;font-weight:600">${it.title}</div>
-                <div style="color:var(--navy);font-weight:700">${fmt(it.price)}</div>
+          ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `
+          <div class="card" style="margin-bottom:18px">
+            <h3 style="margin:0 0 10px;color:var(--navy)">Compatibility with current residents</h3>
+            <div style="display:flex;align-items:center;gap:18px">
+              <div class="compat-circle" style="background:${compatColor.color}">${userCompat.score}%</div>
+              <div>
+                <div class="badge" style="background:${compatColor.bg};color:${compatColor.color}">${compatColor.label}</div>
+                <div style="margin-top:8px;font-size:13px;color:var(--gray)">
+                  ${userCompat.matched.length ? 'Matched: ' + userCompat.matched.join(', ') : ''} 
+                  ${userCompat.unmatched.length ? (userCompat.matched.length ? ' · ' : '') + 'Mismatched: ' + userCompat.unmatched.join(', ') : ''}
+                  ${!userCompat.matched.length && !userCompat.unmatched.length ? 'No preferences defined.' : ''}
+                </div>
               </div>
-              <a class="btn btn-outline btn-sm" href="item-detail.html?id=${it.id}">View</a>
-            </div>`).join('')}
-        </div>` : ''}
+            </div>
+          </div>` : ''}
 
-        <div class="card" style="margin-top:14px">
-          ${isLoggedIn() ? `<button class="btn btn-outline btn-block" onclick="document.getElementById('reportModal').classList.add('open')"><i data-lucide="alert-triangle" class="lucide-sm"></i> Report / Complaint</button>` : ''}
+          <div class="card" style="margin-bottom:18px">
+            <h3 style="margin:0 0 10px;color:var(--navy)">Rent History</h3>
+            <canvas id="rentChart" height="80"></canvas>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <h3 style="margin:0;color:var(--navy)">Reviews (${l.reviewCount})</h3>
+              ${isLoggedIn() ? `<button class="btn btn-gold-outline btn-sm" onclick="document.getElementById('reviewModal').classList.add('open')">Write a Review</button>` : ''}
+            </div>
+            <div id="reviewsList"></div>
+          </div>
         </div>
-      </aside>
-    `;
+
+        <aside>
+          <div id="map-detail"></div>
+          <div class="card" style="margin-top:14px">
+            <h3 style="margin:0 0 8px;color:var(--navy)">${l.listingType === 'Landlord Listed' ? 'Landlord Contact' : 'Student Contact'}</h3>
+            <div style="font-weight:600" id="ownerName">Owner</div>
+            <div style="font-size:13px;color:var(--gray);margin:6px 0" id="ownerEmailText">Email: </div>
+            ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `<button class="btn btn-primary btn-block" onclick="applyForListing(${l.id}, '${l.genderPref}')">Apply for Home</button>` : ''}
+            ${(!isLoggedIn() || (window.mockData.currentUser && window.mockData.currentUser.role !== 'admin')) ? `<button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" style="margin-top:10px;width:100%;text-align:center"><i data-lucide="heart" class="lucide-sm"></i> ${wl ? 'Saved' : 'Save to watchlist'}</button>` : ''}
+          </div>
+
+          ${linkedItems.length ? `
+          <div class="card" style="margin-top:14px">
+            <h3 style="margin:0 0 10px;color:var(--navy)">Items from this tenant</h3>
+            ${linkedItems.slice(0,2).map(it => `
+              <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+                <img src="${it.photo}" style="width:60px;height:60px;object-fit:cover;border-radius:6px">
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:600">${it.title}</div>
+                  <div style="color:var(--navy);font-weight:700">${fmt(it.price)}</div>
+                </div>
+                <a class="btn btn-outline btn-sm" href="item-detail.html?id=${it.id}">View</a>
+              </div>`).join('')}
+          </div>` : ''}
+
+          <div class="card" style="margin-top:14px">
+            ${isLoggedIn() ? `<button class="btn btn-outline btn-block" onclick="document.getElementById('reportModal').classList.add('open')"><i data-lucide="alert-triangle" class="lucide-sm"></i> Report / Complaint</button>` : ''}
+          </div>
+        </aside>
+      `;
+    } catch (err) {
+      document.getElementById('content').innerHTML = `<div style="color:red;padding:20px;grid-column:1/-1;"><h1>Render Error</h1><pre>${err.stack}</pre></div>`;
+      console.error(err);
+      return;
+    }
 
     // Render Owner name and email nicely
     const ownerUser = mockData.users.find(u => u.email === l.ownerEmail);
@@ -367,7 +373,7 @@ function submitComplaint(e) {
   showToast('Complaint filed. Admin will review.');
 }
 
-function submitApplication(e) {
+async function submitApplication(e) {
   e.preventDefault();
   const msg = document.getElementById('appMessage').value.trim();
   
