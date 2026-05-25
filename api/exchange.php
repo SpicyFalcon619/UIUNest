@@ -22,7 +22,7 @@ if ($method === 'GET') {
         // Map keys to match frontend expectations
         $mapped = array_map(function($it) {
             $photos = $it['photos'] ? json_decode($it['photos'], true) : [];
-            $mainPhoto = !empty($photos) ? $photos[0] : ($it['photo_url'] ?: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600');
+            $mainPhoto = !empty($photos) ? $photos[0] : ($it['photo_url'] ?: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="%23e2e8f0"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="%2394a3b8" text-anchor="middle" dominant-baseline="middle">No Photo Available</text></svg>');
             return [
                 'id' => $it['item_id'],
                 'title' => $it['title'],
@@ -62,7 +62,7 @@ if ($method === 'GET') {
     $seller_id = $_SESSION['user_id'];
     
     // Default photo
-    $photo_url = 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600';
+    $photo_url = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="%23e2e8f0"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="%2394a3b8" text-anchor="middle" dominant-baseline="middle">No Photo Available</text></svg>';
     $photos_json = '[]';
 
     if (isset($_POST['photos'])) {

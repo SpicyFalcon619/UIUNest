@@ -42,6 +42,8 @@ The Admin Dashboard (`admin.html`) is now fully powered by live data from the da
    - The "Resolve" and "Review" action buttons issue POST requests to update the complaint state in the live database.
 3. **Moderation Controls (`api/admin_action_listing.php`)**
    - Admins can now completely delete severe or fraudulent listings directly from the dashboard. This securely invokes a `DELETE` query that cascades through the database to clean up associated amenities, costs, and complaints.
+4. **Session Security Fix**
+   - Corrected authorization bug where admin actions were incorrectly reading the user's role from the session. All 8 admin APIs now securely check `$_SESSION['user']['role']`.
 
 ## Verification
 - The top summary cards (Total Users, Total Listings, Open Complaints) accurately reflect database totals.
@@ -69,3 +71,25 @@ Phase 2 tackled the Watchlist and User Profiles, moving them out of `localStorag
 
 > [!TIP]
 > Try going to your Profile, changing your "Sleep Schedule" or "Cleanliness", and then browsing the Listings page. You'll see your Match Percentages against other students instantly recalculate!
+
+---
+
+# Phase 4: Dashboard Comprehensive Edit Listing & Image Overhaul
+
+This phase radically upgraded the Edit Listing capability from the user Dashboard, and completely decoupled the frontend from mock data imagery.
+
+## Core Implementations
+
+1. **Expanded Edit Listing Modal**
+   - Replaced the tiny, basic "Edit" modal in `dashboard.html` with a gigantic, comprehensive form mirroring the "Create Listing" interface.
+   - Added full Address, Description, detailed Utility costs (Gas, Electricity, Water, Internet, Maintenance, Caretaker), and a full Amenities checklist.
+   - Smart State Loading: Opening the modal now asynchronously queries `api/listings.php?id=X` to fetch the complete, live dataset for that property (including complex joined tables) and seamlessly populates every single input field in the modal.
+
+2. **Backend PUT Integration (`api/listings.php`)**
+   - Added a highly robust `PUT` HTTP method listener to handle the incoming comprehensive payload.
+   - Updates `listings`, `utility_costs`, and `listing_amenities` inside a single secure database transaction (`pdo->beginTransaction()`).
+
+3. **Complete Mock Data Image Decoupling**
+   - Removed all hardcoded fallbacks to external Unsplash image URLs across the entire codebase (`dashboard.html`, `listing-detail.html`, `app.js`, `api/listings.php`, `api/exchange.php`, `data.js`).
+   - Implemented dynamic database JSON parsing for the watchlist images (`l.photos`).
+   - Replaced the external Unsplash fallback with a fully self-contained, inline SVG Graphic ("No Photo Available") that prevents broken image links natively without relying on external internet connections or testing data.

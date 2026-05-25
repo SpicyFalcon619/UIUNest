@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'compositeScore' => 4.5, // placeholder
             'reviewCount' => 0,
             'description' => $l['description'],
-            'photos' => !empty($l['photos']) ? json_decode($l['photos'], true) : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600']
+            'photos' => !empty($l['photos']) && $l['photos'] !== 'null' ? json_decode($l['photos'], true) : ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="%23e2e8f0"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="%2394a3b8" text-anchor="middle" dominant-baseline="middle">No Photo Available</text></svg>']
         ];
     }
     

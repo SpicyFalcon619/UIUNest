@@ -360,7 +360,7 @@ function renderListingCard(l) {
 
   return `
     <div class="listing-card ${compatClass}">
-      <img src="${l.photos && l.photos[0] ? l.photos[0] : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600'}" alt="${l.title}" class="listing-photo" loading="lazy">
+      <img src="${l.photos && l.photos[0] ? l.photos[0] : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'20\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'middle\'>No Photo Available</text></svg>'}" alt="${l.title}" class="listing-photo" loading="lazy">
       <div class="listing-body">
         <div class="badges">
           <span class="badge badge-navy">${l.zone}</span>

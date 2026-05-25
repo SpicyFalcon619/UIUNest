@@ -308,7 +308,11 @@ function renderDashboard() {
               currentOccupancy: l.current_occupancy,
 
               costs: { totalMonthly: l.total_monthly || 0 },
-              photos: [l.photo_path || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600'],
+              photos: (() => {
+                let p = [];
+                try { p = JSON.parse(l.photos); } catch(e){}
+                return p && p.length > 0 ? p : ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="%23e2e8f0"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="%2394a3b8" text-anchor="middle" dominant-baseline="middle">No Photo Available</text></svg>'];
+              })(),
               compositeScore: 4.5, // placeholder
               reviewCount: 0,
               isVerified: l.is_verified,
