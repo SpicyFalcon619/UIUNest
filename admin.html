@@ -249,8 +249,9 @@ function renderVerifications(verifs) {
           ${v.status === 'approved'
             ? '<span class="badge badge-green"><i data-lucide="check-circle" class="lucide-sm"></i> Approved</span>'
             : (v.status === 'rejected' ? '<span class="badge badge-red"><i data-lucide="x" class="lucide-sm"></i> Rejected</span>' : 
+              (v.status === 'revoked' ? '<span class="badge badge-red"><i data-lucide="alert-circle" class="lucide-sm"></i> Revoked</span>' :
             `<div style="display:flex;gap:6px;"><button class="btn btn-success btn-sm" onclick="actionVerif(${v.verification_id}, 'approve')">Approve</button>
-             <button class="btn btn-danger btn-sm" onclick="actionVerif(${v.verification_id}, 'reject')">Reject</button></div>`)
+             <button class="btn btn-danger btn-sm" onclick="actionVerif(${v.verification_id}, 'reject')">Reject</button></div>`))
           }
         </td>
       </tr>`;
