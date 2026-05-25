@@ -28,6 +28,12 @@ try {
     $stmt->execute([$userId]);
     $data['hasPreferences'] = $stmt->rowCount() > 0;
 
+    // 1b. Check Verification Status
+    $stmt = $pdo->prepare("SELECT status FROM verifications WHERE user_id = ? ORDER BY submitted_at DESC LIMIT 1");
+    $stmt->execute([$userId]);
+    $verif = $stmt->fetch(PDO::FETCH_ASSOC);
+    $data['verifStatus'] = $verif ? $verif['status'] : 'none';
+
     // 2. My Listings
     $stmt = $pdo->prepare("
         SELECT l.*, z.zone_name, c.total_monthly 

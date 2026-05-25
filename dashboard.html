@@ -126,7 +126,7 @@ async function loadDashboardData() {
 function renderDashboard() {
   if (!dashData || !currentUser) return;
 
-  const { myListings, myItems, watched, offersSent, offersRecv, appsSent, appsRecv, hasPreferences } = dashData;
+  const { myListings, myItems, watched, offersSent, offersRecv, appsSent, appsRecv, hasPreferences, verifStatus } = dashData;
 
   const activeOffersCount = offersSent.filter(o => o.status === 'pending' || o.status === 'countered').length +
                             offersRecv.filter(o => o.status === 'pending' || o.status === 'countered').length;
@@ -134,9 +134,24 @@ function renderDashboard() {
   const compatStatus = (currentUser.role === 'student' && hasPreferences) ? 'Complete <i data-lucide="check" class="lucide-sm"></i>' : 'Setup Required';
   const compatColor = (currentUser.role === 'student' && hasPreferences) ? 'var(--success)' : 'var(--warning)';
 
+  let verifText = 'N/A';
+  let verifColor = 'var(--gray)';
+  if (currentUser.role === 'landlord' || verifStatus !== 'none') {
+    if (verifStatus === 'none') { verifText = 'Unverified'; verifColor = 'var(--gray)'; }
+    else if (verifStatus === 'pending') { verifText = 'Pending <i data-lucide="clock" class="lucide-sm"></i>'; verifColor = 'var(--amber)'; }
+    else if (verifStatus === 'approved') { verifText = 'Verified <i data-lucide="check-circle" class="lucide-sm"></i>'; verifColor = 'var(--success)'; }
+    else if (verifStatus === 'rejected') { verifText = 'Rejected <i data-lucide="x-circle" class="lucide-sm"></i>'; verifColor = 'var(--danger)'; }
+  }
+
   root.innerHTML = `
     <h1 class="page-title">Welcome back, ${currentUser.name}</h1>
     <div class="stats-row" style="margin-bottom:20px">
+      <div class="stat-card">
+        <div class="stat-label">Verification</div>
+        <div class="stat-value" style="font-size:18px;color:${verifColor};padding-top:10px">
+          ${verifText}
+        </div>
+      </div>
       <div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-value">${myListings.length}</div></div>
       ${currentUser.role !== 'landlord' ? `
       <div class="stat-card"><div class="stat-label">Watchlisted</div><div class="stat-value">${watched.length}</div></div>
