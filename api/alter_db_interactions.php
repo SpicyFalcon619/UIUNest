@@ -1,5 +1,5 @@
 <?php
-require 'api/db.php';
+require 'db.php';
 
 try {
     $sql = "

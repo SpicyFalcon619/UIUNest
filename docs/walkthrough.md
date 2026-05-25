@@ -1,141 +1,139 @@
-# Walkthrough: Backend Migration (Phase 1)
+# UIUNest v1.0.0 — Feature Walkthrough
 
-I've completed the heavy lifting for **Phase 1: Backend Migration**. The app's "split brain" has been resolved for three major features: The Exchange, Seeking Posts, and Mess Bills. They are now fully wired to the live MySQL database via PHP APIs!
-
-## What was accomplished
-
-### 1. The Exchange (Marketplace)
-- Added a new `photo_url` column to the `items` database table so users can post photos of their items.
-- Built `api/exchange.php` to handle fetching all active items and posting new items securely.
-- Updated `exchange.html` so the grid loads items from the live database. When a user fills out the "Sell an Item" form, it instantly posts to the database and reloads the grid.
-
-### 2. Looking For (Seeking Posts)
-- Built `api/seeking.php` to handle roommate requests.
-- Updated `seeking.html` to load live posts.
-- The "+ Post a Request" form now validates input and correctly saves it to the `seeking_posts` table linked to the user's account.
-
-### 3. Mess Bill Manager
-- Added a `resident_label` column to the `bill_payments` table to easily track splits like "Resident 1", "Resident 2" without requiring every resident to have a registered account.
-- Built `api/bills.php` with complex logic:
-  - `GET`: Fetches all bills and their payment tracker status for a specific property.
-  - `POST`: Logs a new month's bill, calculates the per-person split, and auto-generates the `bill_payments` tracker rows. If you submit the same month twice, it cleverly updates the existing bill instead of creating a duplicate.
-  - `PUT`: Marks a resident's payment as "paid" securely.
-- Updated `bills.html` to fetch the logged-in user's properties from the live database, allowing them to manage and track real bills.
-
-## Verification
-- XAMPP was restarted and tested.
-- Schema alterations executed perfectly.
-- All three APIs (`exchange.php`, `seeking.php`, `bills.php`) were wired into the frontend Javascript controllers.
-- Watchlist and Profile preferences are successfully saving to the database and correctly persisting across page loads.
-- Global event delegation fixed the "double fire" bug for the watchlist heart icon.
-- Leaflet map rendering fixed to prevent unloaded gray tiles.
-
-# Phase 3: Admin Dashboard Enhancements (Complete)
-The Admin Dashboard (`admin.html`) is now fully powered by live data from the database, dropping all reliance on the frontend `mockData` array.
-
-## Core Implementations
-1. **System Analytics Pipeline (`api/admin_stats.php`)**
-   - The backend now actively computes live system metrics: Total Listings, Open Complaints, and Average Rent aggregated by Zone using `GROUP BY`.
-   - Demand vs. Supply intelligence is actively calculated by comparing the volume of active `seeking_posts` against available `listings` in each zone.
-2. **Complaints Management (`api/admin_complaints.php` & `api/admin_action_complaint.php`)**
-   - The dashboard dynamically pulls all user complaints with `JOIN` statements to resolve the Complainant and the associated Listing Owner.
-   - The "Resolve" and "Review" action buttons issue POST requests to update the complaint state in the live database.
-3. **Moderation Controls (`api/admin_action_listing.php`)**
-   - Admins can now completely delete severe or fraudulent listings directly from the dashboard. This securely invokes a `DELETE` query that cascades through the database to clean up associated amenities, costs, and complaints.
-4. **Session Security Fix**
-   - Corrected authorization bug where admin actions were incorrectly reading the user's role from the session. All 8 admin APIs now securely check `$_SESSION['user']['role']`.
-
-## Verification
-- The top summary cards (Total Users, Total Listings, Open Complaints) accurately reflect database totals.
-- Chart.js successfully consumes the JSON output from `admin_stats.php` to render the Bar Charts.
-- Clicking the Action buttons (`Resolve`, `Delete Listing`) actively modifies the database and automatically refreshes the UI via the `loadAdminData()` flow.
+This document summarizes all features and technical implementations completed for the v1.0.0 release.
 
 ---
 
-# Walkthrough: Backend Migration (Phase 2)
+## Authentication & User Roles
 
-Phase 2 tackled the Watchlist and User Profiles, moving them out of `localStorage` and into the real MySQL database.
-
-## What was accomplished
-
-### 1. Cloud Watchlist
-- Built `api/watchlist.php` to act as a toggle switch (add/remove) for saved listings.
-- Rewrote the global Javascript functions in `app.js` to automatically fetch your saved listings when you log in. 
-- The heart buttons across the app now sync directly with the `watchlists` database table. If you favorite a property on your laptop, it will be favorited on your phone too!
-
-### 2. User Profiles & Preferences
-- Added the missing "Cleanliness Score" slider to the frontend `profile.html` page.
-- Allowed users to edit their registered email address, as requested.
-- Built `api/profile.php` to handle updates for both basic info (`users` table) and housing preferences (`user_preferences` table).
-- Integrated the database preferences directly into the session payload at login, meaning the **Match Percentage** calculator now runs accurately against live data from the server instead of mock data!
-
-> [!TIP]
-> Try going to your Profile, changing your "Sleep Schedule" or "Cleanliness", and then browsing the Listings page. You'll see your Match Percentages against other students instantly recalculate!
+- **Login / Register**: Students, Landlords, and Admin can all log in via email or university ID. Passwords are hashed with `bcrypt` (PHP `password_hash`).
+- **Role-Based UI**: Navigation links, forms, and dashboard tabs are conditionally rendered based on the user's role (`student`, `landlord`, `admin`). Landlords do not see the "Looking For" section. Admins do not see marketplace/bills/notifications.
+- **Session Management**: PHP sessions (`$_SESSION`) handle server-side auth. The client stores user data in `localStorage` under `uiunest_current_user_v4`.
 
 ---
 
-# Phase 4: Dashboard Comprehensive Edit Listing & Image Overhaul
+## Profile & Profile Picture
 
-This phase radically upgraded the Edit Listing capability from the user Dashboard, and completely decoupled the frontend from mock data imagery.
-
-## Core Implementations
-
-1. **Expanded Edit Listing Modal**
-   - Replaced the tiny, basic "Edit" modal in `dashboard.html` with a gigantic, comprehensive form mirroring the "Create Listing" interface.
-   - Added full Address, Description, detailed Utility costs (Gas, Electricity, Water, Internet, Maintenance, Caretaker), and a full Amenities checklist.
-   - Smart State Loading: Opening the modal now asynchronously queries `api/listings.php?id=X` to fetch the complete, live dataset for that property (including complex joined tables) and seamlessly populates every single input field in the modal.
-
-2. **Backend PUT Integration (`api/listings.php`)**
-   - Added a highly robust `PUT` HTTP method listener to handle the incoming comprehensive payload.
-   - Updates `listings`, `utility_costs`, and `listing_amenities` inside a single secure database transaction (`pdo->beginTransaction()`).
-
-3. **Complete Mock Data Image Decoupling**
-   - Removed all hardcoded fallbacks to external Unsplash image URLs across the entire codebase (`dashboard.html`, `listing-detail.html`, `app.js`, `api/listings.php`, `api/exchange.php`, `data.js`).
-   - Implemented dynamic database JSON parsing for the watchlist images (`l.photos`).
-   - Replaced the external Unsplash fallback with a fully self-contained, inline SVG Graphic ("No Photo Available") that prevents broken image links natively without relying on external internet connections or testing data.
+- Users can edit their name, email, phone, and university ID from `profile.html`.
+- **Profile Picture Upload**: A file input with an instant circular preview allows any user to upload a profile photo. The image is securely uploaded to `uploads/profiles/` via `api/upload.php`. The path is saved to the `profile_pic` column in the `users` table.
+- After saving, the top-right navbar avatar immediately replaces the initials badge with the uploaded photo (via `mountChrome()` re-render).
+- Profile pictures persist across sessions and page refreshes via `localStorage` + PHP session.
 
 ---
 
-# Phase 5: System Resiliency & Custom UX Modals
+## Housing Listings
 
-This phase focused on hardening the APIs against poorly formatted input and completely standardizing the frontend user experience by dropping reliance on ugly native browser modals.
-
-## Core Implementations
-
-1. **Custom Confirmation UX Engine**
-   - Eliminated all usage of `window.confirm()` and `window.alert()` throughout the application.
-   - Built a lightweight, globally accessible CSS/JS modal architecture (`#confirmModal`) integrated into `dashboard.html` and `admin.html`.
-   - Actions like "Delete Listing", "Delete Exchange Item", and "Delete Seeking Request" now route seamlessly through the `showConfirm(title, text, callback)` function, providing a native-app feel.
-
-2. **API Payload Resilience & Bug Fixes**
-   - **Seeking Posts (`api/seeking.php`)**: Implemented a `DELETE` method that safely parses the incoming JSON request ID, avoiding PHP Warnings/Notices that were silently corrupting JSON response strings and crashing the frontend fetch calls with "Network errors".
-   - **Exchange API (`api/exchange.php`)**: Handled complex table joins to retrieve the `seller_email` natively, resolving "undefined email" issues in the UI.
-   - **Admin Session Security Fix (`api/admin_stats.php`, etc)**: Resolved an authentication lockout bug. The admin APIs were checking for an improperly mapped `$_SESSION['role']` instead of the fully structured `$_SESSION['user']['role']`, which was artificially wiping the admin dashboard tables.
-   - **Chart.js Infinite Resize Loop (`admin.html`)**: Hardened the Admin Dashboard layout by wrapping responsive Chart.js instances inside fixed-height relative containers, resolving a severe CSS bug where charts would stretch infinitely down the page.
+- Browse listings with Leaflet map integration, zone filters, and pagination.
+- Listings can be created by landlords with multiple images, amenities, and pricing.
+- Verified landlords get a **Verified badge** on all their listings.
+- Students can apply directly to listings. Landlords can approve/reject applications.
+- A **Watchlist** (heart icon) lets students save favourites, synced to the server.
 
 ---
 
-# Phase 6: Core Interactions & Notifications Integration
+## Flatmate Compatibility Matching
 
-This phase fully decoupled the platform's social interactions from the frontend Mock Data arrays, ensuring that Listing Applications, Marketplace Bids, and Seeking Responses are permanently stored in the live MySQL database.
+- Students fill in a preference profile: sleep schedule, diet, guest policy, smoking tolerance, cleanliness score, noise level.
+- A weighted compatibility algorithm compares any two users' preferences and outputs a 0–100 score.
+- Listings show a colour-coded compatibility badge when viewed while logged in as a student.
 
-## Core Implementations
+---
 
-1. **Global Notification Engine (`api/notifications.php`)**
-   - Added a `notifications` table to the database.
-   - Added a dynamic Notification Bell to the main navbar (`app.js`).
-   - The bell polls the server asynchronously upon login and displays an unread badge.
-   - Users can click the bell to view a dropdown of system alerts (e.g., "John applied to your listing") and mark them as read.
+## Exchange Marketplace
 
-2. **Listing Applications (`api/applications.php`)**
-   - Re-wired the "Apply for Home" modal in `listing-detail.html` to execute a `POST` request to the backend.
-   - The API verifies the user hasn't already applied, securely logs the application to the database, and automatically triggers a notification to the listing owner.
+- Any user can list items for sale (furniture, appliances, books, etc.) with photos and pricing.
+- Buyers can make offers; sellers can accept, counter, or reject.
+- A dedicated **Offers** tab in the Dashboard shows all incoming/outgoing offers and their status history.
+- Both buyers and sellers can **delete** a completed or cancelled offer from their history.
 
-3. **Marketplace Offers (`api/offers.php`)**
-   - Re-wired the "Make Offer" modal in `item-detail.html` to securely commit bids to the `offers` table instead of local storage.
-   - Triggers an instant notification to the item seller upon a successful bid.
+---
 
-4. **Seeking Responses (`api/seeking_responses.php`)**
-   - Added a `seeking_responses` table to the database schema.
-   - Built a brand new "Respond Modal" on the frontend (`seeking.html`) that allows users to send structured text messages to students looking for housing.
-   - Updated the Dashboard (`dashboard.html`) to natively fetch and display "Responses Sent" and "Responses Received" in the "Looking For" tab.
+## Mess Bill Manager
+
+- Landlords can create monthly bills per listing, specifying electricity, gas, water, internet, and custom fee entries.
+- Bills are split per resident and shown to tenants in their `bills.html` view.
+- Tenants can mark their share as paid.
+
+---
+
+## Looking For (Seeking Posts)
+
+- Students can post "Looking For" ads specifying budget, zone, property type, and preferred gender.
+- Other users (landlords/students) can respond to these posts.
+- **Hidden from Landlords** — the "Looking For" nav link is not shown to landlord accounts.
+
+---
+
+## Notifications
+
+- An in-app notification bell appears in the navbar for non-admin users.
+- Notifications are created server-side and displayed in a dropdown with unread count badge.
+- Clicking a notification marks it as read and navigates to the relevant page.
+- **Triggered automatically for**:
+  - Verification approved → user notified, redirected to profile
+  - Verification rejected → user notified, redirected to profile
+  - Verification revoked by admin → user notified, redirected to profile
+
+---
+
+## Admin Dashboard
+
+- Accessible only to users with `role = 'admin'`. Non-admin access is blocked server-side.
+- **Stats Cards**: Total users, active listings, pending verifications, open complaints.
+- **Users Tab**: View all users with role, status, and verification badges. Admin can:
+  - **Suspend / Activate** accounts
+  - **Revoke Verification** — removes verified status, un-verifies all listings, notifies the user, and allows them to re-apply
+- **Verifications Tab**: Review pending verification document submissions. Admin can:
+  - **Approve** — marks user as verified, verifies all their listings, sends approval notification
+  - **Reject** — sends rejection notification
+  - Previously revoked requests display a "Revoked" badge (not re-actioned)
+- **Listings Tab**: View and permanently delete any listing platform-wide.
+- **Complaints Tab**: Review, escalate to "Under Review", resolve, or delete the associated listing.
+
+---
+
+## User Verification Flow
+
+1. Landlord/student visits `profile.html` and submits documents via the Verification form.
+2. Admin reviews in the Admin Dashboard and approves or rejects.
+3. On approval: all listings owned by the user get `is_verified = 1`. A green **Verified** badge appears on those listings.
+4. On the profile page, if verification is approved/pending, the upload form hides and a status badge is shown instead.
+5. If revoked: the form reappears so the user can re-submit fresh documents.
+
+---
+
+## File Uploads
+
+All uploads are handled by `api/upload.php`, which:
+- Accepts types: `listing`, `item`, `verification`, `profile`
+- Saves to `uploads/{type}s/` with a unique randomised filename
+- Only allows `jpg`, `jpeg`, `png`, `pdf` extensions
+- Returns a relative path for storage in the database
+
+---
+
+## Key Files Reference
+
+| File | Purpose |
+|------|---------|
+| `app.js` | Core JS: nav rendering, auth, localStorage, toast, utilities |
+| `data.js` | Static seed/fallback data for offline/demo use |
+| `style.css` | Global design system: variables, components, layout |
+| `api/db.php` | PDO database connection |
+| `api/login.php` | Login + session creation, returns full user object incl. `profile_pic` |
+| `api/profile.php` | GET/POST profile info + preferences + profile_pic |
+| `api/upload.php` | Secure file upload handler |
+| `api/admin_action_verif.php` | Approve/reject verifications + send notifications |
+| `api/admin_revoke_verif.php` | Revoke verification + notify user |
+| `api/notifications.php` | Fetch and mark-as-read notifications |
+| `api/reset_db.php` | Truncates all tables + seeds master admin (dev use only) |
+| `database/schema.sql` | Full MySQL schema — 19 tables |
+
+---
+
+## v1.0.0 Release Notes
+
+**Release Date:** May 2026  
+**Tag:** `v1.0.0`
+
+This is the first stable release of UIUNest. All core features across student housing, marketplace, mess bills, notifications, admin dashboard, user verification, and profile management are fully implemented and tested.

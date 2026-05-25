@@ -11,6 +11,7 @@ CREATE TABLE users (
     gender ENUM('male', 'female', 'other') NOT NULL,
     phone VARCHAR(20) NULL,
     university_id VARCHAR(50) NULL,
+    profile_pic VARCHAR(255) NULL,
     status ENUM('active', 'suspended') DEFAULT 'active',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

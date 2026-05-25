@@ -1,64 +1,106 @@
 # UIUNest
 
-UIUNest is a comprehensive platform designed for UIU (United International University) students to find verified housing, match with compatible flatmates, and safely buy or sell items in a local marketplace.
+UIUNest is a comprehensive platform designed for UIU (United International University) students, landlords, and administrators. It covers verified housing discovery, flatmate compatibility matching, a peer-to-peer exchange marketplace, mess bill management, and a full admin dashboard — all in a single, mobile-friendly web application.
 
 ## Features
-- **Housing Listings:** Browse and list verified properties around the UIU campus with integrated Leaflet maps.
-- **Flatmate Matching:** Find flatmates based on compatibility scores (study habits, sleep schedules, cleanliness, etc.).
-- **Exchange Marketplace:** Buy and sell furniture, appliances, and study materials safely with direct offer negotiation.
-- **Mess Bill Manager:** Easily track and split monthly utility and rent bills among residents.
-- **Landlord Verification:** Admin verification for landlords and property owners to ensure safety and authenticity.
+
+### For Students
+- **Housing Listings:** Browse verified properties around the UIU campus with Leaflet maps, zone filters, and price ranges.
+- **Flatmate Matching:** Find roommates with a weighted compatibility score based on sleep schedule, diet, noise tolerance, cleanliness, and guest policy.
+- **Exchange Marketplace:** Buy and sell furniture, appliances, and study materials with direct offer/counter-offer negotiation.
+- **Mess Bill Manager:** Track, split, and pay monthly utility and rent bills among housemates.
+- **Looking For:** Post or respond to "Looking For" ads to find accommodation quickly.
+- **Watchlist:** Save favourite listings for later.
+- **Notifications:** Real-time in-app notifications for verification updates, offer responses, and more.
+
+### For Landlords
+- **Property Listings:** Create and manage rental listings with photos, amenities, and pricing.
+- **Tenant Applications:** Review and accept or reject tenancy applications.
+- **Verification:** Upload identity documents for admin verification to earn a verified badge on all listings.
+- **Bills Management:** Create and manage monthly bills for tenants.
+
+### For Master Admin
+- **User Management:** View all users, suspend/activate accounts, and revoke verifications.
+- **Verification Review:** Approve or reject landlord/user verification document submissions with one click, automatically notifying the user.
+- **Complaints Handling:** Review, escalate, and resolve complaints between users.
+- **Admin Stats:** Real-time dashboard with total users, listings, pending verifications, and open complaints.
 
 ## Tech Stack
-- **Frontend:** HTML, CSS, JavaScript (Vanilla)
-- **Backend:** PHP
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript
+- **Backend:** PHP 8+
 - **Database:** MySQL
 - **Icons:** [Lucide Icons](https://lucide.dev)
 - **Maps:** [Leaflet.js](https://leafletjs.com)
 - **Charts:** [Chart.js](https://www.chartjs.org/)
 
 ## Local Development & Setup
-Because this project uses PHP and MySQL, **you must use a local server environment like XAMPP** to run the application.
 
-### 1. Database Setup
-1. Start **Apache** and **MySQL** from the XAMPP Control Panel.
-2. Open a browser and navigate to `http://localhost/phpmyadmin`.
-3. Create a new database named **`uiunest`**.
-4. Click on the `uiunest` database, go to the **Import** tab.
-5. Upload the `database/schema.sql` file located in this repository and click Import. This will generate all the necessary tables (users, listings, verifications, etc.).
+This project requires a PHP + MySQL server environment. [XAMPP](https://www.apachefriends.org/) is recommended.
 
-### 2. Codebase Setup
-You have two options to serve the codebase via XAMPP:
+### 1. Start Your Server
+1. Open the XAMPP Control Panel and start **Apache** and **MySQL**.
+
+### 2. Database Setup
+1. Open `http://localhost/phpmyadmin` in your browser.
+2. Create a new database named **`uiunest`**.
+3. Select the `uiunest` database → go to the **Import** tab → upload `database/schema.sql` → click **Import**.
+
+This creates all 19 tables including users, listings, verifications, notifications, marketplace items, bills, and more.
+
+### 3. Place the Project in htdocs
 
 #### Option A: Direct Folder (Recommended)
-Simply clone or move this entire repository directly into your XAMPP `htdocs` directory.
-- Windows: `C:\xampp\htdocs\UIU-Nest`
-- Mac: `/Applications/XAMPP/htdocs/UIU-Nest`
+Clone or move the repository directly into XAMPP's `htdocs` directory:
+- **Windows:** `C:\xampp\htdocs\UIU-Nest`
+- **Mac:** `/Applications/XAMPP/htdocs/UIU-Nest`
 
-#### Option B: The "Shortcut" Method (Symlink)
-If you prefer to keep the repository in your Documents or Downloads folder, you can create a symbolic link (shortcut) inside `htdocs` that points to your folder.
+#### Option B: Symbolic Link
+Keep the repo anywhere and create a shortcut into `htdocs`.
 
-**On Windows:**
-1. Open Command Prompt as **Administrator**.
-2. Run the following command (replace the paths with your actual paths):
-   ```cmd
-   mklink /D "C:\xampp\htdocs\UIU-Nest" "C:\Users\YourName\Downloads\UIU-Nest"
-   ```
+**Windows (run as Administrator):**
+```cmd
+mklink /D "C:\xampp\htdocs\UIU-Nest" "C:\Users\YourName\Downloads\UIU-Nest"
+```
 
-### 3. Run the App
-Once the database is imported and the folder is in `htdocs` (or symlinked), open your browser and go to:
-`http://localhost/UIU-Nest`
+### 4. Open the App
+Navigate to: `http://localhost/UIU-Nest`
 
-#### Master Admin Account
-The database comes pre-configured with a master admin account to access the dashboard.
-- **Login ID**: `ADM-MASTER` (or `master@admin.com`)
-- **Password**: `1265Master`
+### 5. Master Admin Account
+The schema includes a `reset_db.php` utility that seeds the master admin:
+- **Login:** `ADM-MASTER` or `master@admin.com`
+- **Password:** `1265Master`
 
-### 4. Developer Documentation
-For teammates and future developers, check the `docs/` folder for up-to-date architectural notes:
-- `docs/system_architecture.md`: A full technical walkthrough of the frontend Chrome system, database structure, API flow, and feature algorithms.
-- `docs/walkthrough.md`: A log of recently completed technical implementations.
-- `docs/changelog_vs_report.md`: Tracks architectural changes and deviations from the original UIUNest academic report and ERD.
+> ⚠️ **Security Note:** Delete or password-protect `api/reset_db.php` before deploying to production.
+
+## Project Structure
+
+```
+UIU-Nest/
+├── api/                   # All PHP backend endpoints
+│   ├── db.php             # Database connection
+│   ├── login.php          # Authentication
+│   ├── profile.php        # Profile read/update (incl. profile picture)
+│   ├── listings.php       # Listing CRUD
+│   ├── exchange.php       # Marketplace items & offers
+│   ├── bills.php          # Mess bill management
+│   ├── notifications.php  # In-app notifications
+│   ├── admin_*.php        # Admin-only action endpoints
+│   ├── upload.php         # File upload handler (images, docs)
+│   └── reset_db.php       # DB reset + master admin seeder
+├── database/
+│   └── schema.sql         # Full MySQL schema (19 tables)
+├── uploads/               # User-uploaded files (gitignored)
+├── docs/                  # Developer documentation
+├── *.html                 # Page files (index, listings, dashboard, etc.)
+├── app.js                 # Core JS: nav, auth, utilities, shared state
+├── style.css              # Global stylesheet
+└── data.js                # Static seed/fallback data
+```
+
+## Developer Documentation
+For teammates and future developers, the `docs/` folder contains up-to-date architectural notes:
+- `docs/system_architecture.md` — Technical overview of the frontend Chrome system, database schema, API flows, and feature algorithms.
+- `docs/walkthrough.md` — Log of all major completed implementations and what changed.
 
 ### Note for AI Assistants
-If you are using an AI assistant to help build this project, instruct it to read `docs/system_architecture.md`, `docs/walkthrough.md`, and `docs/task.md` to instantly catch up on the backend architecture and what has already been built.
+If you are using an AI assistant to help build this project, instruct it to read `docs/system_architecture.md` and `docs/walkthrough.md` to instantly understand the backend architecture and history of changes.
