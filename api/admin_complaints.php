@@ -20,6 +20,7 @@ try {
             c.category,
             c.description,
             c.status,
+            c.document_path,
             DATE_FORMAT(c.created_at, '%Y-%m-%d') as date
         FROM complaints c
         LEFT JOIN users u ON c.complainant_id = u.user_id

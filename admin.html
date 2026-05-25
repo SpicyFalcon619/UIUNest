@@ -70,7 +70,7 @@
 </div>
 
 <!-- Document Modal -->
-<div id="docModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+<div id="docModal" class="modal-bg" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:white;padding:20px;border-radius:12px;width:98%;max-width:1200px;height:95vh;display:flex;flex-direction:column;position:relative;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:15px;">
@@ -331,11 +331,7 @@ function renderAdminDashboard() {
         <td>${statusBadge(c.status)}</td>
         <td>${c.date}</td>
         <td>
-          <div style="display:flex;gap:4px">
-            ${c.status === 'Submitted' ? `<button class="btn btn-outline btn-sm" onclick="setComplaintStatus(${c.id}, 'Under Review')">Review</button>` : ''}
-            ${c.status !== 'Resolved' ? `<button class="btn btn-success btn-sm" onclick="setComplaintStatus(${c.id}, 'Resolved')">Resolve</button>` : ''}
-            <button class="btn btn-danger btn-sm" onclick="deleteListingAdmin(${c.listingId})">Del Listing</button>
-          </div>
+          <button class="btn btn-outline btn-sm" onclick="viewComplaint(${c.id})"><i data-lucide="eye" class="lucide-sm"></i> View</button>
         </td>
       </tr>`;
   }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray);">No complaints filed yet.</td></tr>';
@@ -372,6 +368,40 @@ async function setComplaintStatus(id, s) {
   } catch (err) {
     showToast('Network error', 'error');
   }
+}
+
+function viewComplaint(id) {
+  const c = allComplaints.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('compUser').textContent = c.userEmail;
+  document.getElementById('compOwner').textContent = 'Owner #' + c.ownerId;
+  document.getElementById('compCat').textContent = c.category;
+  document.getElementById('compDate').textContent = c.date;
+  document.getElementById('compDesc').textContent = c.description || 'No description provided.';
+  
+  if (c.document_path) {
+    document.getElementById('compDocWrap').style.display = 'block';
+    document.getElementById('compDocLink').onclick = (e) => {
+      e.preventDefault();
+      openDocModal(c.document_path);
+    };
+  } else {
+    document.getElementById('compDocWrap').style.display = 'none';
+  }
+  
+  let actionsHtml = '';
+  if (c.status === 'Submitted') {
+    actionsHtml += `<button class="btn btn-outline" onclick="setComplaintStatus(${c.id}, 'Under Review'); document.getElementById('complaintModal').classList.remove('open')">Mark as Reviewing</button>`;
+  }
+  if (c.status !== 'Resolved') {
+    actionsHtml += `<button class="btn btn-success" onclick="setComplaintStatus(${c.id}, 'Resolved'); document.getElementById('complaintModal').classList.remove('open')">Resolve</button>`;
+  }
+  if (c.listingId) {
+    actionsHtml += `<button class="btn btn-danger" onclick="deleteListingAdmin(${c.listingId}); document.getElementById('complaintModal').classList.remove('open')">Delete Listing</button>`;
+  }
+  
+  document.getElementById('compActions').innerHTML = actionsHtml;
+  document.getElementById('complaintModal').classList.add('open');
 }
 
 async function deleteListingAdmin(id) {
@@ -419,5 +449,30 @@ renderAdminDashboard();
 loadAdminData();
 
 </script>
+<!-- Complaint Modal -->
+<div class="modal-bg" id="complaintModal">
+  <div class="modal" style="max-width:500px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="margin:0;color:var(--navy)">Complaint Details</h3>
+      <button class="modal-close" onclick="document.getElementById('complaintModal').classList.remove('open')">×</button>
+    </div>
+    <div style="background:var(--bg);padding:16px;border-radius:8px;border:1px solid var(--border);margin-bottom:16px;">
+      <div style="margin-bottom:8px"><strong>Complainant:</strong> <span id="compUser"></span></div>
+      <div style="margin-bottom:8px"><strong>Against Owner:</strong> <span id="compOwner"></span></div>
+      <div style="margin-bottom:8px"><strong>Category:</strong> <span id="compCat"></span></div>
+      <div style="margin-bottom:8px"><strong>Date:</strong> <span id="compDate"></span></div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;">
+      <div style="font-weight:600;margin-bottom:6px;">Description:</div>
+      <div id="compDesc" style="color:var(--gray);font-size:14px;white-space:pre-wrap;word-break:break-word;"></div>
+      <div id="compDocWrap" style="margin-top:12px;display:none;">
+        <div style="font-weight:600;margin-bottom:6px;">Attachment:</div>
+        <a href="#" id="compDocLink" style="color:var(--navy);font-weight:600;font-size:13px;"><i data-lucide="paperclip" class="lucide-sm"></i> View Document</a>
+      </div>
+    </div>
+    <div id="compActions" style="display:flex;gap:10px;justify-content:flex-end">
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
