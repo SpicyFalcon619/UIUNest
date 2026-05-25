@@ -91,7 +91,7 @@
     </form>
   </div>
 
-  <div class="card">
+  <div class="card" id="verifCard">
     <h3 style="margin:0 0 4px;color:var(--navy)">Landlord Verification</h3>
     <p style="color:var(--gray);font-size:13px;margin:0 0 14px">(For landlord/mess-owner accounts)</p>
     <form id="verifForm" onsubmit="submitVerification(event)">
@@ -140,6 +140,10 @@ async function loadProfileData() {
         document.getElementById('housingPrefsCard').style.display = 'none';
       } else {
         document.getElementById('pfIdLabel').textContent = 'UIU Student ID';
+      }
+      
+      if (u.role !== 'landlord') {
+        document.getElementById('verifCard').style.display = 'none';
       }
       
       const p = data.preferences || {};
