@@ -534,54 +534,6 @@ async function loadListingsFromDB() {
   }
 }
 
-async function fetchNotifications() {
-  if (!isLoggedIn()) return;
-  try {
-    const res = await fetch('api/notifications.php');
-    const data = await res.json();
-    if (data.success) {
-      const badge = document.getElementById('notifBadge');
-      const list = document.getElementById('notifList');
-      if (badge && list) {
-        if (data.unreadCount > 0) {
-          badge.style.display = 'flex';
-          badge.textContent = data.unreadCount > 9 ? '9+' : data.unreadCount;
-        } else {
-          badge.style.display = 'none';
-        }
-        
-        if (data.notifications.length === 0) {
-          list.innerHTML = '<div style="padding:10px 0;text-align:center">No notifications yet.</div>';
-        } else {
-          list.innerHTML = data.notifications.map(n => `
-            <div style="padding:10px;border-bottom:1px solid var(--border);background:${n.is_read ? 'transparent' : 'var(--light-bg)'}">
-              <div style="font-weight:${n.is_read ? 'normal' : '600'}">${n.message}</div>
-              <div style="font-size:11px;color:var(--gray);margin-top:4px">${new Date(n.created_at).toLocaleString()}</div>
-            </div>
-          `).join('');
-        }
-      }
-    }
-  } catch(e) {}
-}
-
-async function toggleNotifs() {
-  const menu = document.getElementById('notifMenu');
-  if (!menu) return;
-  menu.classList.toggle('open');
-  if (menu.classList.contains('open')) {
-    const badge = document.getElementById('notifBadge');
-    if (badge && badge.style.display !== 'none') {
-      badge.style.display = 'none';
-      fetch('api/notifications.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'mark_read' })
-      }).then(() => fetchNotifications());
-    }
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => fetchNotifications(), 500);
 });
