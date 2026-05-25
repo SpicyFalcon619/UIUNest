@@ -120,7 +120,7 @@ try {
     $stmt = $pdo->prepare("
         SELECT s.*, z.zone_name as zone 
         FROM seeking_posts s 
-        JOIN zones z ON s.zone_id = z.zone_id 
+        LEFT JOIN zones z ON s.zone_id = z.zone_id 
         WHERE s.user_id = ?
         ORDER BY s.created_at DESC
     ");

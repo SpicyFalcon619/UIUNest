@@ -99,9 +99,7 @@ if ($method === 'GET') {
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
-    } catch (PDOException $e) {
-        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-    }
+
 } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(['success' => false, 'error' => 'Unauthorized']);

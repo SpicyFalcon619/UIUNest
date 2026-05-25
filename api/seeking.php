@@ -66,6 +66,27 @@ if ($method === 'GET') {
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+} elseif ($method === 'DELETE') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    $post_id = $input['id'] ?? null;
+    
+    if (!$post_id) {
+        echo json_encode(['success' => false, 'error' => 'Post ID required']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("DELETE FROM seeking_posts WHERE post_id = ? AND user_id = ?");
+        $stmt->execute([$post_id, $_SESSION['user_id']]);
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
 } else {
     echo json_encode(['error' => 'Method not allowed']);
 }

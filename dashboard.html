@@ -414,8 +414,9 @@ function renderDashboard() {
 
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === t));
-  ['listings', 'items', 'watch', 'offers', 'applications'].forEach(n => {
-    document.getElementById('tab-' + n).style.display = (n === t ? '' : 'none');
+  ['listings', 'items', 'seeking', 'watch', 'offers', 'applications'].forEach(n => {
+    const el = document.getElementById('tab-' + n);
+    if (el) el.style.display = (n === t ? '' : 'none');
   });
 }
 
