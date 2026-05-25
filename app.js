@@ -339,12 +339,15 @@ async function markNotifRead(id, link) {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({id})
     });
-    if (link && link !== 'null' && link !== 'undefined') {
-      location.href = link;
-    } else {
-      location.href = 'dashboard.html';
-    }
-  } catch(e) {}
+  } catch(e) {
+    console.error('Failed to mark notification as read:', e);
+  }
+  
+  if (link && link !== 'null' && link !== 'undefined') {
+    location.href = link;
+  } else {
+    location.href = 'dashboard.html';
+  }
 }
 
 function renderFooter() {
