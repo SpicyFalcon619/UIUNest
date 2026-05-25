@@ -164,7 +164,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(31, 58, 45, 0.1); 
 }
 .radio-row { display: flex; flex-wrap: wrap; gap: 20px; }
-.radio-row label, .checkbox-label { display: flex !important; align-items: center; gap: 8px; font-weight: 500 !important; font-size: 15px; cursor: pointer; color: var(--dark) !important; }
+.radio-row label, .checkbox-label, label:has(input[type="checkbox"]:not(.switch input)) { display: flex !important; align-items: center; gap: 8px; font-weight: 500 !important; font-size: 15px; cursor: pointer; color: var(--dark) !important; margin-bottom: 0; }
 input[type="radio"], input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--navy); width: 18px; height: 18px; }
 
 /* Grids & Layouts */
