@@ -85,6 +85,11 @@ if ($method === 'POST') {
         $upd = $pdo->prepare("UPDATE applications SET status = ? WHERE application_id = ?");
         $upd->execute([$status, $app_id]);
 
+        if ($status === 'accepted') {
+            $updList = $pdo->prepare("UPDATE listings SET status = 'occupied' WHERE listing_id = ?");
+            $updList->execute([$app['listing_id']]);
+        }
+
         // Notify applicant
         $notifMsg = "Your application for " . $app['title'] . " was " . $status . ".";
         $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?, 'application', ?, 'dashboard.html?tab=applications')");

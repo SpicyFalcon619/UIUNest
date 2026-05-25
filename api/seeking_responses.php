@@ -84,6 +84,11 @@ if ($method === 'POST') {
         $upd = $pdo->prepare("UPDATE seeking_responses SET status = ? WHERE response_id = ?");
         $upd->execute([$status, $response_id]);
 
+        if ($status === 'accepted') {
+            $updPost = $pdo->prepare("UPDATE seeking_posts SET status = 'fulfilled' WHERE post_id = ?");
+            $updPost->execute([$resp['post_id']]);
+        }
+
         $notifMsg = "Your response to a looking-for post was " . $status . ".";
         $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?, 'seeking_response', ?, 'dashboard.html?tab=seeking')");
         $notifStmt->execute([$resp['responder_id'], $notifMsg]);

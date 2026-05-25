@@ -109,6 +109,11 @@ if ($method === 'POST') {
         } else {
             $upd = $pdo->prepare("UPDATE offers SET status = ? WHERE offer_id = ?");
             $upd->execute([$status, $offer_id]);
+            
+            if ($status === 'accepted') {
+                $updItem = $pdo->prepare("UPDATE items SET status = 'sold' WHERE item_id = ?");
+                $updItem->execute([$offer['item_id']]);
+            }
         }
 
         // Send notification to the other party
