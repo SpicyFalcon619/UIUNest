@@ -46,7 +46,7 @@ if ($method === 'POST') {
         if ($listing && $listing['user_id'] != $applicant_id) {
             $notifMsg = $_SESSION['user']['name'] . " applied to your listing: " . $listing['title'];
             $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?, 'application', ?, ?)");
-            $notifStmt->execute([$listing['user_id'], $notifMsg, 'dashboard.html']);
+            $notifStmt->execute([$listing['user_id'], $notifMsg, 'dashboard.html?tab=applications']);
         }
         
         $pdo->commit();

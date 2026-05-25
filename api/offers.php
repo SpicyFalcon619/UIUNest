@@ -46,7 +46,7 @@ if ($method === 'POST') {
         if ($item && $item['seller_id'] != $buyer_id) {
             $notifMsg = $_SESSION['user']['name'] . " offered ৳" . number_format($offer_price) . " on your item: " . $item['title'];
             $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?, 'offer', ?, ?)");
-            $notifStmt->execute([$item['seller_id'], $notifMsg, 'dashboard.html']);
+            $notifStmt->execute([$item['seller_id'], $notifMsg, 'dashboard.html?tab=offers']);
         }
         
         $pdo->commit();

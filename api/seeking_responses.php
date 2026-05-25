@@ -45,7 +45,7 @@ if ($method === 'POST') {
         if ($post && $post['user_id'] != $responder_id) {
             $notifMsg = $_SESSION['user']['name'] . " responded to your 'Looking for' post.";
             $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?, 'seeking_response', ?, ?)");
-            $notifStmt->execute([$post['user_id'], $notifMsg, 'dashboard.html']);
+            $notifStmt->execute([$post['user_id'], $notifMsg, 'dashboard.html?tab=seeking']);
         }
         
         $pdo->commit();
