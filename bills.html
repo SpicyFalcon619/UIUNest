@@ -85,8 +85,21 @@ function renderBillManager(myProps, activeListing, activeBills) {
   const propOptions = myProps.map(l => `<option value="${l.id}" ${l.id === activeListing.id ? 'selected' : ''}>${l.title}</option>`).join('');
 
   // Months available to log
-  const months = ["January 2026", "February 2026", "March 2026", "April 2026", "May 2026", "June 2026", "July 2026", "August 2026", "September 2026", "October 2026", "November 2026", "December 2026"];
-  const monthOptions = months.map(m => `<option value="${m}">${m}</option>`).join('');
+  const months = [
+    { val: "2026-01", label: "January 2026" },
+    { val: "2026-02", label: "February 2026" },
+    { val: "2026-03", label: "March 2026" },
+    { val: "2026-04", label: "April 2026" },
+    { val: "2026-05", label: "May 2026" },
+    { val: "2026-06", label: "June 2026" },
+    { val: "2026-07", label: "July 2026" },
+    { val: "2026-08", label: "August 2026" },
+    { val: "2026-09", label: "September 2026" },
+    { val: "2026-10", label: "October 2026" },
+    { val: "2026-11", label: "November 2026" },
+    { val: "2026-12", label: "December 2026" }
+  ];
+  const monthOptions = months.map(m => `<option value="${m.val}">${m.label}</option>`).join('');
 
   root.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
@@ -117,12 +130,15 @@ function renderBillManager(myProps, activeListing, activeBills) {
             <div class="form-group"><label>Water (৳)</label><input type="number" class="bill-in" id="b_water" min="0" value="100" required></div>
             <div class="form-group"><label>Internet (৳)</label><input type="number" class="bill-in" id="b_internet" min="0" value="500" required></div>
           </div>
-          <div class="form-group"><label>Other/Optional Fees (৳)</label><input type="number" class="bill-in" id="b_other" min="0" value="0" required></div>
+          <div class="grid-2">
+            <div class="form-group"><label>Other/Optional Fees (৳)</label><input type="number" class="bill-in" id="b_other" min="0" value="0" required></div>
+            <div class="form-group"><label>Occupants to split by</label><input type="number" class="bill-in" id="b_occupancy" min="1" value="${activeListing.currentOccupancy || 3}" required></div>
+          </div>
           
           <div style="background:var(--light-bg);padding:14px;border-radius:8px;border-left:3px solid var(--navy);margin-top:8px">
             <div style="font-weight:700;font-size:18px;color:var(--navy)">Total: <span id="liveTotal">৳1,400</span></div>
             <div style="font-size:14px;color:var(--gray);margin-top:4px">
-              Per Person: <strong id="livePerPerson">৳467</strong> (split among ${activeListing.currentOccupancy || 3} occupants)
+              Per Person: <strong id="livePerPerson">৳467</strong>
             </div>
           </div>
           <button type="submit" class="btn btn-primary btn-block" style="margin-top:12px">Log & Save Month's Bills</button>
@@ -179,8 +195,8 @@ function renderBillManager(myProps, activeListing, activeBills) {
   `;
 
   // Attach recalc handlers
-  document.querySelectorAll('.bill-in').forEach(i => i.addEventListener('input', () => recalcLive(activeListing.currentOccupancy || 3)));
-  recalcLive(activeListing.currentOccupancy || 3);
+  document.querySelectorAll('.bill-in').forEach(i => i.addEventListener('input', recalcLive));
+  recalcLive();
 
   // Load payment tracker for default month if exists
   if (activeBills.length > 0) {
@@ -193,11 +209,12 @@ function switchProperty(id) {
   location.href = `bills.html?id=${id}`;
 }
 
-function recalcLive(occupancy) {
+function recalcLive() {
   const ids = ['b_electricity','b_gas','b_water','b_internet','b_other'];
   const total = ids.reduce((s,i) => s + (parseFloat(document.getElementById(i).value) || 0), 0);
+  const occupancy = parseInt(document.getElementById('b_occupancy').value) || 1;
   document.getElementById('liveTotal').textContent = fmt(total);
-  document.getElementById('livePerPerson').textContent = fmt(Math.round(total / (occupancy || 1)));
+  document.getElementById('livePerPerson').textContent = fmt(Math.round(total / occupancy));
 }
 
 async function saveBill(e, listingId) {
@@ -208,11 +225,9 @@ async function saveBill(e, listingId) {
   const water = parseInt(document.getElementById('b_water').value) || 0;
   const internet = parseInt(document.getElementById('b_internet').value) || 0;
   const other = parseInt(document.getElementById('b_other').value) || 0;
+  const occupancy = parseInt(document.getElementById('b_occupancy').value) || 1;
 
   const total = electricity + gas + water + internet + other;
-  
-  const listing = userListings.find(l => l.id === listingId);
-  const occupancy = listing ? listing.currentOccupancy || 3 : 3;
   const perPerson = Math.round(total / occupancy);
 
   const payload = {

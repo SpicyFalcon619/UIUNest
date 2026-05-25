@@ -34,7 +34,7 @@ if ($method === 'GET') {
             $result[] = [
                 'id' => $b['bill_id'],
                 'listingId' => $b['listing_id'],
-                'month' => substr($b['bill_month'], 0, 7),
+                'month' => date('F Y', strtotime($b['bill_month'])),
                 'electricity' => (float)$b['electricity_amount'],
                 'gas' => (float)$b['gas_amount'],
                 'water' => (float)$b['water_amount'],
