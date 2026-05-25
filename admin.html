@@ -65,12 +65,19 @@
 
 <!-- Document Modal -->
 <div id="docModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:800px;height:90vh;display:flex;flex-direction:column;position:relative;">
+  <div style="background:white;padding:20px;border-radius:12px;width:98%;max-width:1200px;height:95vh;display:flex;flex-direction:column;position:relative;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <h3 style="margin:0;color:var(--navy)">Verification Document</h3>
+      <div style="display:flex;align-items:center;gap:15px;">
+        <h3 style="margin:0;color:var(--navy)">Verification Document</h3>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:13px;color:var(--gray);"><i data-lucide="zoom-out" class="lucide-sm"></i></span>
+          <input type="range" id="docZoom" min="10" max="300" value="100" oninput="applyDocZoom(this.value)" style="width:120px;">
+          <span style="font-size:13px;color:var(--gray);"><i data-lucide="zoom-in" class="lucide-sm"></i></span>
+        </div>
+      </div>
       <button onclick="document.getElementById('docModal').style.display='none'" style="background:var(--light-gray);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i data-lucide="x" class="lucide-sm"></i></button>
     </div>
-    <div id="docContainer" style="flex-grow:1;width:100%;border:1px solid var(--border);border-radius:8px;background:#f3f4f6;overflow:auto;display:flex;align-items:center;justify-content:center;padding:10px;"></div>
+    <div id="docContainer" style="flex-grow:1;width:100%;border:1px solid var(--border);border-radius:8px;background:#f3f4f6;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:10px;"></div>
   </div>
 </div>
 
@@ -178,7 +185,9 @@ function renderVerifications(verifs) {
       <tr>
         <td><strong>${v.name}</strong><br><span style="font-size:12px;color:var(--gray);">${v.email}</span></td>
         <td>${v.nid_type}</td>
-        <td>${v.description}<br><a href="#" onclick="event.preventDefault();openDocModal('${v.document_path}')" style="color:var(--navy);font-weight:600;font-size:12px;"><i data-lucide="external-link" class="lucide-sm"></i> View Document</a></td>
+        <td>${v.description}<br>
+          ${v.document_path.split(',').map((path, i) => `<a href="#" onclick="event.preventDefault();openDocModal('${path}')" style="color:var(--navy);font-weight:600;font-size:12px;margin-right:8px;display:inline-block;margin-top:4px;"><i data-lucide="external-link" class="lucide-sm"></i> View Doc ${i + 1}</a>`).join('')}
+        </td>
         <td>${v.submitted_at}</td>
         <td>
           ${v.status === 'approved'
@@ -199,11 +208,25 @@ function openDocModal(url) {
   const ext = url.split('.').pop().toLowerCase();
   
   if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-    container.innerHTML = `<img src="${url}" style="max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;" onclick="this.style.objectFit = this.style.objectFit === 'contain' ? 'none' : 'contain';"/>`;
+    container.innerHTML = `<img src="${url}" style="width:100%;height:auto;object-fit:contain;transition:width 0.2s;" />`;
   } else {
-    container.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;"></iframe>`;
+    container.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;transition:width 0.2s, height 0.2s;"></iframe>`;
   }
+  document.getElementById('docZoom').value = 100;
   document.getElementById('docModal').style.display = 'flex';
+}
+
+function applyDocZoom(val) {
+  const container = document.getElementById('docContainer');
+  const el = container.firstElementChild;
+  if (el) {
+    if (el.tagName === 'IMG') {
+      el.style.width = val + '%';
+    } else if (el.tagName === 'IFRAME') {
+      el.style.width = val + '%';
+      el.style.height = val + '%';
+    }
+  }
 }
 
 async function actionVerif(id, action) {

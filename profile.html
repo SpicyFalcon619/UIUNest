@@ -96,7 +96,7 @@
     <p style="color:var(--gray);font-size:13px;margin:0 0 14px">(For landlord/mess-owner accounts)</p>
     <form id="verifForm" onsubmit="submitVerification(event)">
       <div class="form-group"><label>NID type</label><select id="vType"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driving License">Driving License</option></select></div>
-      <div class="form-group"><label>Upload Document (Image/PDF)</label><input type="file" id="vDoc" accept="image/*,.pdf" required style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;"></div>
+      <div class="form-group"><label>Upload Document(s) (Image/PDF)</label><input type="file" id="vDoc" accept="image/*,.pdf" multiple required style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;"></div>
       <div class="form-group"><label>Document description</label><textarea id="vDesc" placeholder="NID + property deed submitted" required></textarea></div>
       <button class="btn btn-primary" id="btnSubmitVerif">Submit Verification Request</button>
       <span id="verifBadge" class="badge badge-amber" style="display:none;margin-left:10px"><i data-lucide="clock" class="lucide-sm"></i> Pending Review</span>
@@ -255,21 +255,24 @@ async function submitVerification(e) {
     return;
   }
 
-  const formData = new FormData();
-  formData.append('file', fileInput.files[0]);
-  formData.append('type', 'verification');
-
   try {
-    // 1. Upload the file
-    const uploadRes = await fetch('api/upload.php', {
-      method: 'POST',
-      body: formData
-    });
-    const uploadData = await uploadRes.json();
+    const uploadedPaths = [];
+    for (let i = 0; i < fileInput.files.length; i++) {
+      const formData = new FormData();
+      formData.append('file', fileInput.files[i]);
+      formData.append('type', 'verification');
 
-    if (!uploadData.success) {
-      showToast(uploadData.error || 'File upload failed.', 'error');
-      return;
+      const uploadRes = await fetch('api/upload.php', {
+        method: 'POST',
+        body: formData
+      });
+      const uploadData = await uploadRes.json();
+
+      if (!uploadData.success) {
+        showToast(uploadData.error || ('File ' + (i+1) + ' upload failed.'), 'error');
+        return;
+      }
+      uploadedPaths.push(uploadData.path);
     }
 
     // 2. Submit the verification request
@@ -279,7 +282,7 @@ async function submitVerification(e) {
       body: JSON.stringify({
         nidType: document.getElementById('vType').value,
         desc: document.getElementById('vDesc').value,
-        documentPath: uploadData.path
+        documentPath: uploadedPaths.join(',')
       })
     });
     const verifData = await verifRes.json();
