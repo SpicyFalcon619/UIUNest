@@ -357,27 +357,33 @@ function submitReview(e) {
   location.reload();
 }
 
-function submitComplaint(e) {
+async function submitComplaint(e) {
   e.preventDefault();
   const category = document.getElementById('repCategory').value;
   const desc = document.getElementById('repDesc').value.trim();
 
-  const newComplaint = {
-    id: Date.now(),
-    listingId: l.id,
-    listingTitle: l.title,
-    category,
-    desc,
-    userEmail: mockData.currentUser ? mockData.currentUser.email : 'anonymous@uiu.ac.bd',
-    status: 'Submitted',
-    date: new Date().toLocaleDateString('en-US')
-  };
-
-  mockData.complaints.push(newComplaint);
-  saveMockData();
-  document.getElementById('reportModal').classList.remove('open');
-  document.getElementById('reportForm').reset();
-  showToast('Complaint filed. Admin will review.');
+  try {
+    const res = await fetch('api/complaint.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        listingId: l.id,
+        againstUserId: l.ownerId,
+        category,
+        desc
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('reportModal').classList.remove('open');
+      document.getElementById('reportForm').reset();
+      showToast('Complaint filed. Admin will review.');
+    } else {
+      showToast(data.error || 'Failed to file complaint', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
 }
 
 async function submitApplication(e) {

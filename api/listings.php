@@ -80,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'listingType' => $l['listing_type'] === 'full_property' ? 'Landlord Listed' : 'Student Listed',
             'lat' => (float)$l['lat'],
             'lng' => (float)$l['lng'],
+            'ownerId' => (int)$l['user_id'],
             'ownerName' => $l['owner_name'],
             'ownerEmail' => $l['owner_email'],
             'sleep' => $l['sleep'] ?? 'flexible',
