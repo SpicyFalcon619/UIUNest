@@ -92,12 +92,16 @@
   </div>
 
   <div class="card" id="verifCard">
-    <h3 style="margin:0 0 4px;color:var(--navy)">Landlord Verification</h3>
-    <p style="color:var(--gray);font-size:13px;margin:0 0 14px">(For landlord/mess-owner accounts)</p>
+    <h3 style="margin:0 0 4px;color:var(--navy)">Property Verification</h3>
+    <p style="color:var(--gray);font-size:13px;margin:0 0 14px">(For landlords or students subletting)</p>
     <form id="verifForm" onsubmit="submitVerification(event)">
-      <div class="form-group"><label>NID type</label><select id="vType"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driving License">Driving License</option></select></div>
-      <div class="form-group"><label>Upload Document(s) (Image/PDF)</label><input type="file" id="vDoc" accept="image/*,.pdf" multiple required style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;"></div>
-      <div class="form-group"><label>Document description</label><textarea id="vDesc" placeholder="NID + property deed submitted" required></textarea></div>
+      <div class="form-group"><label>Document type</label><select id="vType"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driving License">Driving License</option></select></div>
+      <div class="form-group">
+        <label>Upload Document(s) (Image/PDF)</label>
+        <input type="file" id="vDoc" accept="image/*,.pdf" multiple required style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;" onchange="updateFileList(this)">
+        <div id="fileListDisplay" style="font-size:13px;color:var(--gray);margin-top:6px;"></div>
+      </div>
+      <div class="form-group"><label>Document description</label><textarea id="vDesc" placeholder="Identity document + property deed submitted" required></textarea></div>
       <button class="btn btn-primary" id="btnSubmitVerif">Submit Verification Request</button>
       <span id="verifBadge" class="badge badge-amber" style="display:none;margin-left:10px"><i data-lucide="clock" class="lucide-sm"></i> Pending Review</span>
     </form>
@@ -139,7 +143,7 @@ async function loadProfileData() {
         document.getElementById('pfIdLabel').textContent = 'UIU Student ID';
       }
       
-      if (u.role !== 'landlord') {
+      if (u.role === 'admin') {
         document.getElementById('verifCard').style.display = 'none';
       }
       
@@ -244,6 +248,37 @@ async function savePrefs(e) {
   } catch (err) {
     showToast('Network error', 'error');
   }
+}
+
+function updateFileList(input) {
+  const display = document.getElementById('fileListDisplay');
+  if (input.files.length === 0) {
+    display.innerHTML = '';
+    return;
+  }
+  let items = [];
+  for (let i = 0; i < input.files.length; i++) {
+    items.push(
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px;background:var(--bg);border-radius:4px;margin-bottom:4px;">
+        <span><i data-lucide="file" class="lucide-sm"></i> ${input.files[i].name}</span>
+        <button type="button" onclick="removeFile(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0;display:flex;align-items:center;" title="Remove file"><i data-lucide="x" class="lucide-sm"></i></button>
+      </div>`
+    );
+  }
+  display.innerHTML = `<strong>Selected ${input.files.length} file(s):</strong><div style="margin-top:8px">${items.join('')}</div>`;
+  if (window.lucide) lucide.createIcons();
+}
+
+function removeFile(index) {
+  const input = document.getElementById('vDoc');
+  const dt = new DataTransfer();
+  for (let i = 0; i < input.files.length; i++) {
+    if (i !== index) {
+      dt.items.add(input.files[i]);
+    }
+  }
+  input.files = dt.files;
+  updateFileList(input);
 }
 
 async function submitVerification(e) {

@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $docPath = $input['documentPath'] ?? '';
 
     if (empty($nidType) || empty($docPath)) {
-        echo json_encode(['success' => false, 'error' => 'NID Type and Document are required.']);
+        echo json_encode(['success' => false, 'error' => 'Document Type and Document are required.']);
         exit;
     }
 
