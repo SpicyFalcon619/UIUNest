@@ -55,7 +55,85 @@ if ($method === 'POST') {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+} elseif ($method === 'GET') {
+    $item_id = $_GET['item_id'] ?? null;
+    if (!$item_id) {
+        echo json_encode(['success' => false, 'error' => 'Missing item ID']);
+        exit;
+    }
+    try {
+        $stmt = $pdo->prepare("
+            SELECT o.*, u.name as buyer_name, u.email as buyer_email 
+            FROM offers o 
+            JOIN users u ON o.buyer_id = u.user_id 
+            WHERE o.item_id = ? 
+            ORDER BY o.created_at DESC
+        ");
+        $stmt->execute([$item_id]);
+        $offers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'offers' => $offers]);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+} elseif ($method === 'PUT') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $offer_id = $input['id'] ?? null;
+    $status = $input['status'] ?? null;
+    $counter_price = $input['counterPrice'] ?? null;
+
+    if (!$offer_id || !$status) {
+        echo json_encode(['success' => false, 'error' => 'Missing id or status']);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+        
+        $stmt = $pdo->prepare("
+            SELECT o.*, i.seller_id, i.title, o.buyer_id 
+            FROM offers o 
+            JOIN items i ON o.item_id = i.item_id 
+            WHERE o.offer_id = ?
+        ");
+        $stmt->execute([$offer_id]);
+        $offer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$offer || ($offer['seller_id'] != $buyer_id && $offer['buyer_id'] != $buyer_id)) {
+            echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+            exit;
+        }
+
+        if ($status === 'countered') {
+            $upd = $pdo->prepare("UPDATE offers SET status = ?, counter_price = ?, message = 'Seller countered the offer' WHERE offer_id = ?");
+            $upd->execute([$status, $counter_price, $offer_id]);
+        } else {
+            $upd = $pdo->prepare("UPDATE offers SET status = ? WHERE offer_id = ?");
+            $upd->execute([$status, $offer_id]);
+        }
+
+        // Send notification to the other party
+        $notify_user = ($offer['seller_id'] == $buyer_id) ? $offer['buyer_id'] : $offer['seller_id'];
+        $notifMsg = "Your offer on '" . $offer['title'] . "' was " . $status . ".";
+        if ($status === 'accepted') {
+            $notifMsg = "Offer on '" . $offer['title'] . "' was ACCEPTED! Check your dashboard.";
+        } else if ($status === 'countered') {
+            $notifMsg = "Seller countered your offer on '" . $offer['title'] . "' with ৳" . number_format($counter_price) . ".";
+        }
+        
+        $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?, 'offer_update', ?, 'dashboard.html?tab=offers')");
+        $notifStmt->execute([$notify_user, $notifMsg]);
+
+        // If accepted, we could also update item status to 'sold' optionally, but let's just update offer status for now
+        if ($status === 'accepted') {
+            $itemUpd = $pdo->prepare("UPDATE items SET status = 'sold' WHERE item_id = ?");
+            $itemUpd->execute([$offer['item_id']]);
+        }
+
+        $pdo->commit();
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
 } else {
-    echo json_encode(['success' => false, 'error' => 'Invalid method']);
-}
 ?>

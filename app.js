@@ -321,7 +321,7 @@ async function fetchNotifications() {
       }
       
       list.innerHTML = data.notifications.length === 0 ? '<div style="padding:10px 0;text-align:center">No notifications</div>' : data.notifications.map(n => 
-        `<div style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;background:${n.is_read ? 'transparent' : '#f0f9ff'}" onclick="markNotifRead(${n.notif_id}, '${n.link}')">
+        `<div style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;background:${n.is_read ? 'transparent' : '#f0f9ff'}" onclick="markNotifRead(${n.notif_id}, '${n.link || 'dashboard.html'}')">
            <div style="font-weight:${n.is_read ? 'normal' : 'bold'};color:var(--navy)">${n.message}</div>
            <div style="font-size:11px;color:#888;margin-top:4px">${new Date(n.created_at).toLocaleString()}</div>
          </div>`
@@ -339,8 +339,11 @@ async function markNotifRead(id, link) {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({id})
     });
-    if (link) location.href = link;
-    else fetchNotifications();
+    if (link && link !== 'null' && link !== 'undefined') {
+      location.href = link;
+    } else {
+      location.href = 'dashboard.html';
+    }
   } catch(e) {}
 }
 

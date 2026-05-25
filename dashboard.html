@@ -327,7 +327,7 @@ function renderDashboard() {
           <p style="color:var(--gray);text-align:center;padding:12px 0">No responses yet.</p>
         ` : `
           <table class="table">
-            <thead><tr><th>From</th><th>Message</th><th>Status</th><th>Date</th></tr></thead>
+            <thead><tr><th>From</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody>
               ${dashData.seekRespRecv.map(r => `
                 <tr>
@@ -335,6 +335,12 @@ function renderDashboard() {
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
+                  <td>
+                    ${r.status === 'pending' ? `
+                      <button class="btn btn-success btn-sm" onclick="setSeekingResponseStatus(${r.response_id}, 'accepted')">Accept</button>
+                      <button class="btn btn-danger btn-sm" onclick="setSeekingResponseStatus(${r.response_id}, 'rejected')">Reject</button>
+                    ` : ''}
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
@@ -709,13 +715,41 @@ async function deleteItem(id) {
   });
 }
 
-function setAppStatus(id, status) {
-  const app = mockData.applications.find(x => x.id === id);
-  if (app) {
-    app.status = status;
-    saveMockData();
-    showToast('Application ' + status);
-    loadDashboardData();
+async function setAppStatus(id, status) {
+  try {
+    const res = await fetch('api/applications.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Application ' + status);
+      loadDashboardData();
+    } else {
+      showToast(data.error || 'Failed to update application', 'error');
+    }
+  } catch (e) {
+    showToast('Network error', 'error');
+  }
+}
+
+async function setSeekingResponseStatus(id, status) {
+  try {
+    const res = await fetch('api/seeking_responses.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Response ' + status);
+      loadDashboardData();
+    } else {
+      showToast(data.error || 'Failed to update response', 'error');
+    }
+  } catch (e) {
+    showToast('Network error', 'error');
   }
 }
 

@@ -54,7 +54,45 @@ if ($method === 'POST') {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+} elseif ($method === 'PUT') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $response_id = $input['id'] ?? null;
+    $status = $input['status'] ?? null;
+
+    if (!$response_id || !$status) {
+        echo json_encode(['success' => false, 'error' => 'Missing id or status']);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+        
+        $stmt = $pdo->prepare("
+            SELECT r.*, p.user_id as post_owner 
+            FROM seeking_responses r 
+            JOIN seeking_posts p ON r.post_id = p.post_id 
+            WHERE r.response_id = ?
+        ");
+        $stmt->execute([$response_id]);
+        $resp = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$resp || $resp['post_owner'] != $responder_id) { // $responder_id is actually $_SESSION['user_id']
+            echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+            exit;
+        }
+
+        $upd = $pdo->prepare("UPDATE seeking_responses SET status = ? WHERE response_id = ?");
+        $upd->execute([$status, $response_id]);
+
+        $notifMsg = "Your response to a looking-for post was " . $status . ".";
+        $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?, 'seeking_response', ?, 'dashboard.html?tab=seeking')");
+        $notifStmt->execute([$resp['responder_id'], $notifMsg]);
+
+        $pdo->commit();
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
 } else {
-    echo json_encode(['success' => false, 'error' => 'Invalid method']);
-}
 ?>

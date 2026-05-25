@@ -55,7 +55,46 @@ if ($method === 'POST') {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+} elseif ($method === 'PUT') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $app_id = $input['id'] ?? null;
+    $status = $input['status'] ?? null; // 'accepted' or 'rejected'
+
+    if (!$app_id || !$status) {
+        echo json_encode(['success' => false, 'error' => 'Missing id or status']);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+        
+        $stmt = $pdo->prepare("
+            SELECT a.*, l.user_id as owner_id, l.title 
+            FROM applications a 
+            JOIN listings l ON a.listing_id = l.listing_id 
+            WHERE a.application_id = ?
+        ");
+        $stmt->execute([$app_id]);
+        $app = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$app || $app['owner_id'] != $applicant_id) {
+            echo json_encode(['success' => false, 'error' => 'Unauthorized or not found']);
+            exit;
+        }
+
+        $upd = $pdo->prepare("UPDATE applications SET status = ? WHERE application_id = ?");
+        $upd->execute([$status, $app_id]);
+
+        // Notify applicant
+        $notifMsg = "Your application for " . $app['title'] . " was " . $status . ".";
+        $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link) VALUES (?, 'application', ?, 'dashboard.html?tab=applications')");
+        $notifStmt->execute([$app['applicant_id'], $notifMsg]);
+
+        $pdo->commit();
+        echo json_encode(['success' => true]);
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
 } else {
-    echo json_encode(['success' => false, 'error' => 'Invalid method']);
-}
 ?>

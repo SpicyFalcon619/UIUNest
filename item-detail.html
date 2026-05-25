@@ -29,8 +29,19 @@ async function init() {
     const res = await fetch('api/exchange.php');
     const data = await res.json();
     if (data.success) {
-      it = data.items.find(x => x.id === id);
-      renderPage();
+      it = data.items.find(x => x.id === id || x.item_id === id);
+      
+      // Fetch offers
+      let itemOffers = [];
+      if (it) {
+        const offRes = await fetch('api/offers.php?item_id=' + (it.item_id || it.id));
+        const offData = await offRes.json();
+        if (offData.success) {
+          itemOffers = offData.offers;
+        }
+      }
+      
+      renderPage(itemOffers);
     } else {
       showToast('Failed to load item', 'error');
     }
@@ -39,7 +50,7 @@ async function init() {
   }
 }
 
-function renderPage() {
+function renderPage(itemOffers) {
   const root = document.getElementById('content');
   if (!it) {
     root.innerHTML = `
@@ -52,13 +63,12 @@ function renderPage() {
   }
 
   const linked = it.linkedListingId ? mockData.listings.find(l => l.id === it.linkedListingId) : null;
-  const itemOffers = mockData.offers.filter(o => o.itemId === it.id);
   const user = window.mockData.currentUser;
   const isSeller = user && user.email === it.sellerEmail;
   const sold = it.status === 'sold';
 
   // Find if current user already has a pending or countered offer on this item
-  const userExistingOffer = user ? itemOffers.find(o => o.buyerEmail === user.email && (o.status === 'pending' || o.status === 'countered')) : null;
+  const userExistingOffer = user ? itemOffers.find(o => o.buyer_email === user.email && (o.status === 'pending' || o.status === 'countered')) : null;
 
   root.innerHTML = `
     <div>
@@ -80,13 +90,12 @@ function renderPage() {
       <div class="price" style="font-size:32px;margin-bottom:14px">${fmt(it.price)}</div>
       
       <div class="card" style="margin-bottom:14px">
-        <h3 style="margin:0 0 8px;color:var(--navy)">About this item</h3>
-        <p style="font-size:14px;margin:0">${it.description || 'No description provided.'}</p>
+        <h3 style="margin:0 0 10px;color:var(--navy)">Description</h3>
+        <p style="margin:0;font-size:14px;color:var(--dark);line-height:1.5;white-space:pre-wrap">${it.description}</p>
       </div>
-      
-      <div class="card">
-        <h3 style="margin:0 0 8px;color:var(--navy)">Seller Details</h3>
-        <div style="font-weight:600">${it.seller}</div>
+      <div class="card" style="margin-bottom:14px">
+        <h3 style="margin:0 0 10px;color:var(--navy)">Seller Details</h3>
+        <div style="font-weight:600">${it.sellerName}</div>
         <div style="font-size:13px;color:var(--gray);margin-top:4px">Email: ${it.sellerEmail}</div>
       </div>
 
@@ -146,8 +155,8 @@ function renderOffers(offers, isSeller, user, sold) {
     const isCountered = o.status === 'countered';
     
     // Check roles
-    const userIsBuyer = user && user.email === o.buyerEmail;
-    const showPrice = o.counterPrice ? `${fmt(o.price)} → <strong>${fmt(o.counterPrice)}</strong>` : fmt(o.price);
+    const userIsBuyer = user && user.email === o.buyer_email;
+    const showPrice = o.counter_price ? `${fmt(o.offer_price)} → <strong>${fmt(o.counter_price)}</strong>` : fmt(o.offer_price);
 
     let actionButtons = '';
     
@@ -156,27 +165,27 @@ function renderOffers(offers, isSeller, user, sold) {
         // Seller can accept, reject, counter
         actionButtons = `
           <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-            <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.id})">Accept</button>
-            <button class="btn btn-outline btn-sm" onclick="showCounterForm(${o.id})">Counter</button>
-            <button class="btn btn-danger btn-sm" onclick="setOffer(${o.id}, 'rejected')">Reject</button>
+            <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.offer_id})">Accept</button>
+            <button class="btn btn-outline btn-sm" onclick="showCounterForm(${o.offer_id})">Counter</button>
+            <button class="btn btn-danger btn-sm" onclick="setOffer(${o.offer_id}, 'rejected')">Reject</button>
           </div>
-          <div id="counter-box-${o.id}" style="margin-top:8px; display:none;">
-            <input type="number" id="counter-input-${o.id}" placeholder="Counter Price (৳)" style="padding:6px; border:1px solid var(--border); border-radius:6px; width:120px;">
-            <button class="btn btn-primary btn-sm" onclick="sendCounter(${o.id})">Send</button>
+          <div id="counter-box-${o.offer_id}" style="margin-top:8px; display:none;">
+            <input type="number" id="counter-input-${o.offer_id}" placeholder="Counter Price (৳)" style="padding:6px; border:1px solid var(--border); border-radius:6px; width:120px;">
+            <button class="btn btn-primary btn-sm" onclick="sendCounter(${o.offer_id})">Send</button>
           </div>`;
       } else if (isCountered && userIsBuyer) {
         // Buyer can accept counter, reject counter, or withdraw
         actionButtons = `
           <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-            <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.id})">Accept Counter</button>
-            <button class="btn btn-danger btn-sm" onclick="setOffer(${o.id}, 'rejected')">Reject</button>
-            <button class="btn btn-outline btn-sm" onclick="setOffer(${o.id}, 'withdrawn')">Withdraw</button>
+            <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.offer_id})">Accept Counter</button>
+            <button class="btn btn-danger btn-sm" onclick="setOffer(${o.offer_id}, 'rejected')">Reject</button>
+            <button class="btn btn-outline btn-sm" onclick="setOffer(${o.offer_id}, 'withdrawn')">Withdraw</button>
           </div>`;
       } else if (isPending && userIsBuyer) {
         // Buyer can withdraw their pending offer
         actionButtons = `
           <div style="margin-top:8px;">
-            <button class="btn btn-outline btn-sm" onclick="setOffer(${o.id}, 'withdrawn')">Withdraw Offer</button>
+            <button class="btn btn-outline btn-sm" onclick="setOffer(${o.offer_id}, 'withdrawn')">Withdraw Offer</button>
           </div>`;
       }
     }
@@ -186,7 +195,7 @@ function renderOffers(offers, isSeller, user, sold) {
     return `
       <div style="padding:12px 0; border-bottom:1px solid var(--border); ${sold && !isAccepted ? 'opacity:0.4' : ''}">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong>${o.buyerName || o.buyerEmail}</strong>
+          <strong>${o.buyer_name || o.buyer_email}</strong>
           ${stateLabel}
         </div>
         <div style="margin:6px 0; font-size:15px;">${showPrice}</div>
@@ -231,7 +240,7 @@ function showCounterForm(offerId) {
   }
 }
 
-function sendCounter(offerId) {
+async function sendCounter(offerId) {
   const valInput = document.getElementById('counter-input-' + offerId);
   const counterVal = parseInt(valInput.value);
   if (!counterVal || counterVal <= 0) {
@@ -239,44 +248,59 @@ function sendCounter(offerId) {
     return;
   }
 
-  const o = mockData.offers.find(x => x.id === offerId);
-  if (o) {
-    o.counterPrice = counterVal;
-    o.status = 'countered';
-    o.message = `Seller countered with ${fmt(counterVal)}`;
-    saveMockData();
-    showToast('Counter offer sent');
-    renderPage();
-  }
-}
-
-function setOffer(offerId, status) {
-  const o = mockData.offers.find(x => x.id === offerId);
-  if (o) {
-    o.status = status;
-    saveMockData();
-    showToast(`Offer ${status}`);
-    renderPage();
-  }
-}
-
-function acceptOffer(offerId) {
-  const o = mockData.offers.find(x => x.id === offerId);
-  if (o) {
-    o.status = 'accepted';
-    // Mark item as sold
-    it.status = 'sold';
-    
-    // Reject all other pending/countered offers for this item
-    mockData.offers.forEach(other => {
-      if (other.itemId === it.id && other.id !== offerId && (other.status === 'pending' || other.status === 'countered')) {
-        other.status = 'rejected';
-      }
+  try {
+    const res = await fetch('api/offers.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: offerId, status: 'countered', counterPrice: counterVal })
     });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Counter offer sent');
+      init();
+    } else {
+      showToast(data.error || 'Failed to counter offer', 'error');
+    }
+  } catch(e) {
+    showToast('Network error', 'error');
+  }
+}
 
-    saveMockData();
-    showToast('Deal finalized! Item is marked as sold.');
-    renderPage();
+async function setOffer(offerId, status) {
+  try {
+    const res = await fetch('api/offers.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: offerId, status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Offer ' + status);
+      init();
+    } else {
+      showToast(data.error || 'Failed to update offer', 'error');
+    }
+  } catch(e) {
+    showToast('Network error', 'error');
+  }
+}
+
+async function acceptOffer(offerId) {
+  try {
+    const res = await fetch('api/offers.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: offerId, status: 'accepted' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Deal finalized! Item is marked as sold.');
+      init();
+    } else {
+      showToast(data.error || 'Failed to accept offer', 'error');
+    }
+  } catch(e) {
+    showToast('Network error', 'error');
   }
 }
 
