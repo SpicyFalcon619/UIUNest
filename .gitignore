@@ -28,3 +28,12 @@ UIUNest report/
 
 # Uploaded Files
 uploads/
+
+# Environment Variables & Secrets
+.env
+.env.*
+config.local.php
+
+# Dependencies
+vendor/
+node_modules/
