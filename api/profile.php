@@ -14,7 +14,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     try {
         // Fetch user basic info
-        $stmt = $pdo->prepare("SELECT name, email, phone, university_id, gender FROM users WHERE user_id = ?");
+        $stmt = $pdo->prepare("SELECT name, email, phone, university_id, gender, role FROM users WHERE user_id = ?");
         $stmt->execute([$user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
