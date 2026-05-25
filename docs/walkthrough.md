@@ -93,3 +93,22 @@ This phase radically upgraded the Edit Listing capability from the user Dashboar
    - Removed all hardcoded fallbacks to external Unsplash image URLs across the entire codebase (`dashboard.html`, `listing-detail.html`, `app.js`, `api/listings.php`, `api/exchange.php`, `data.js`).
    - Implemented dynamic database JSON parsing for the watchlist images (`l.photos`).
    - Replaced the external Unsplash fallback with a fully self-contained, inline SVG Graphic ("No Photo Available") that prevents broken image links natively without relying on external internet connections or testing data.
+
+---
+
+# Phase 5: System Resiliency & Custom UX Modals
+
+This phase focused on hardening the APIs against poorly formatted input and completely standardizing the frontend user experience by dropping reliance on ugly native browser modals.
+
+## Core Implementations
+
+1. **Custom Confirmation UX Engine**
+   - Eliminated all usage of `window.confirm()` and `window.alert()` throughout the application.
+   - Built a lightweight, globally accessible CSS/JS modal architecture (`#confirmModal`) integrated into `dashboard.html` and `admin.html`.
+   - Actions like "Delete Listing", "Delete Exchange Item", and "Delete Seeking Request" now route seamlessly through the `showConfirm(title, text, callback)` function, providing a native-app feel.
+
+2. **API Payload Resilience & Bug Fixes**
+   - **Seeking Posts (`api/seeking.php`)**: Implemented a `DELETE` method that safely parses the incoming JSON request ID, avoiding PHP Warnings/Notices that were silently corrupting JSON response strings and crashing the frontend fetch calls with "Network errors".
+   - **Exchange API (`api/exchange.php`)**: Handled complex table joins to retrieve the `seller_email` natively, resolving "undefined email" issues in the UI.
+   - **Admin Session Security Fix (`api/admin_stats.php`, etc)**: Resolved an authentication lockout bug. The admin APIs were checking for an improperly mapped `$_SESSION['role']` instead of the fully structured `$_SESSION['user']['role']`, which was artificially wiping the admin dashboard tables.
+   - **Chart.js Infinite Resize Loop (`admin.html`)**: Hardened the Admin Dashboard layout by wrapping responsive Chart.js instances inside fixed-height relative containers, resolving a severe CSS bug where charts would stretch infinitely down the page.

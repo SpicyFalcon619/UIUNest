@@ -19,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                up.sleep_schedule as sleep, up.diet, up.guest_policy as guest, 
                up.smoking_tolerance as smoking, up.noise_tolerance as noise, up.cleanliness_score as cleanliness
         FROM listings l
-        JOIN zones z ON l.zone_id = z.zone_id
-        JOIN users u ON l.user_id = u.user_id
+        LEFT JOIN zones z ON l.zone_id = z.zone_id
+        LEFT JOIN users u ON l.user_id = u.user_id
         LEFT JOIN user_preferences up ON l.user_id = up.user_id
         $where
     ");
@@ -80,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'listingType' => $l['listing_type'] === 'full_property' ? 'Landlord Listed' : 'Student Listed',
             'lat' => (float)$l['lat'],
             'lng' => (float)$l['lng'],
+            'ownerName' => $l['owner_name'],
             'ownerEmail' => $l['owner_email'],
             'sleep' => $l['sleep'] ?? 'flexible',
             'diet' => $l['diet'] ?? 'non_veg',

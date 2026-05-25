@@ -33,6 +33,9 @@ To avoid duplicating the Navigation Bar and Footer in every single HTML file, UI
 *   **Backend Truth**: Actual security is handled by PHP Sessions (`$_SESSION`). When a user logs in, an encrypted cookie is sent to the browser. Every API request automatically includes this cookie, proving the user's identity to the server.
 *   **Frontend Flags**: To make the UI feel instantaneous, the frontend stores a lightweight flag in the browser's `localStorage` (`uiunest_logged_in_v4`). The UI checks this flag to instantly know whether to show a "Login" button or a "Profile" menu without waiting for a server response.
 
+### Custom Component Ecosystem
+UIU-Nest completely avoids native browser `window.confirm()` or `window.alert()` dialogues. Instead, it relies on a standardized, visually-integrated **Custom Confirm Modal** (`#confirmModal`) built with Vanilla CSS and JS. Destructive actions (like deleting listings or requests) pass a callback function to `showConfirm(title, text, callback)`, which asynchronously executes the API fetch only upon explicit user confirmation, ensuring a seamless, native-app feel.
+
 ---
 
 ## 3. Backend & Database Architecture

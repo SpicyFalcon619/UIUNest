@@ -26,8 +26,14 @@
   <div class="alert alert-amber" id="demandAlert" style="display:none;"></div>
 
   <div class="grid-2" style="margin-bottom:20px">
-    <div class="card"><h3 style="margin:0 0 10px;color:var(--navy)">Average Rent by Zone</h3><canvas id="rentChart" height="160"></canvas></div>
-    <div class="card"><h3 style="margin:0 0 10px;color:var(--navy)">Demand vs Supply</h3><canvas id="demandChart" height="160"></canvas></div>
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:var(--navy)">Average Rent by Zone</h3>
+      <div style="position:relative; height:200px;"><canvas id="rentChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:var(--navy)">Demand vs Supply</h3>
+      <div style="position:relative; height:200px;"><canvas id="demandChart"></canvas></div>
+    </div>
   </div>
 
   <div class="card" style="margin-bottom:20px">
@@ -340,7 +346,7 @@ function renderAdminDashboard() {
       <td>${l.id}</td>
       <td><a href="listing-detail.html?id=${l.id}" style="color:var(--navy);font-weight:600;">${l.title}</a></td>
       <td>${l.zone}</td>
-      <td>${l.ownerName || l.ownerEmail.split('@')[0]}</td>
+      <td>${l.ownerName || (l.ownerEmail ? l.ownerEmail.split('@')[0] : 'Unknown')}</td>
       <td>${statusBadge(l.status)}</td>
       <td><button class="btn btn-danger btn-sm" onclick="deleteListingAdmin(${l.id})">Delete</button></td>
     </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);">No listings found.</td></tr>';
