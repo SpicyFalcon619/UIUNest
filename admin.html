@@ -103,6 +103,9 @@
 <script src="app.js"></script>
 <script>
 mountChrome('admin');
+if (!isLoggedIn() || !window.mockData.currentUser || window.mockData.currentUser.role !== 'admin') {
+  location.replace('index.html');
+}
 
 let confirmActionCallback = null;
 function showConfirm(title, text, callback) {

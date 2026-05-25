@@ -37,6 +37,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Verify all listings owned by this user
                 $stmt = $pdo->prepare("UPDATE listings SET is_verified = 1 WHERE user_id = ?");
                 $stmt->execute([$verif['user_id']]);
+                
+                // Add notification
+                $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link, is_read) VALUES (?, 'system', 'Congratulations! Your account verification has been approved. Your listings will now display a verified badge.', 'profile.html', 0)");
+                $notifStmt->execute([$verif['user_id']]);
+            }
+        } else {
+            // Rejected
+            $stmt = $pdo->prepare("SELECT user_id FROM verifications WHERE verification_id = ?");
+            $stmt->execute([$verifId]);
+            $verif = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($verif) {
+                // Add notification
+                $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, type, message, link, is_read) VALUES (?, 'system', 'Your account verification request was rejected. Please review our guidelines and try again.', 'profile.html', 0)");
+                $notifStmt->execute([$verif['user_id']]);
             }
         }
 

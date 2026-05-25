@@ -227,13 +227,15 @@
           <button class="btn btn-primary" id="btnSubmitVerif">
             Submit Verification Request
           </button>
+        </form>
+        <div style="margin-top:14px">
           <span
             id="verifBadge"
             class="badge badge-amber"
-            style="display: none; margin-left: 10px"
+            style="display: none;"
             ><i data-lucide="clock" class="lucide-sm"></i> Pending Review</span
           >
-        </form>
+        </div>
       </div>
     </div>
 
@@ -324,13 +326,13 @@
             if (data.status === "approved") {
               badge.className = "badge badge-green";
               badge.innerHTML =
-                '<i data-lucide="check-circle" class="lucide-sm"></i> Approved';
-              document.getElementById("btnSubmitVerif").style.display = "none";
+                '<i data-lucide="check-circle" class="lucide-sm"></i> Verified';
+              document.getElementById("verifForm").style.display = "none";
             } else if (data.status === "pending") {
               badge.className = "badge badge-amber";
               badge.innerHTML =
                 '<i data-lucide="clock" class="lucide-sm"></i> Pending Review';
-              document.getElementById("btnSubmitVerif").style.display = "none";
+              document.getElementById("verifForm").style.display = "none";
             } else if (data.status === "rejected") {
               badge.className = "badge badge-red";
               badge.innerHTML =
