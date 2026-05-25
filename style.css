@@ -258,7 +258,7 @@ input[type="radio"], input[type="checkbox"] { width: auto; margin: 0; accent-col
 
 /* Footer */
 #footer-mount { margin-top: auto; }
-footer { background: var(--navy); color: rgba(255,255,255,0.7); padding: 64px 24px; text-align: center; font-size: 15px; }
+footer { background: var(--navy); color: rgba(255,255,255,0.7); padding: 24px; text-align: center; font-size: 15px; }
 footer a { color: var(--white); margin: 0 16px; font-weight: 500; transition: color 0.2s ease; }
 footer a:hover { color: var(--gold); }
 

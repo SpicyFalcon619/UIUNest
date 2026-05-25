@@ -49,7 +49,7 @@
   <div class="card" style="margin-top:20px">
     <h3 style="margin:0 0 14px;color:var(--navy)">Manage All Users</h3>
     <table class="table">
-      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Verification</th><th>Action</th></tr></thead>
       <tbody id="allUsersTbody"></tbody>
     </table>
   </div>
@@ -99,7 +99,11 @@ function renderCharts() {
       labels: adminStats.avgRentByZone.map(z => z.zone),
       datasets: [{ label: 'Avg Monthly Rent (৳)', data: adminStats.avgRentByZone.map(z => z.avg), backgroundColor: '#0055AA', borderRadius: 6 }]
     },
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: { 
+      responsive: true, 
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, suggestedMax: 5000 } }
+    }
   });
 
   demandChart = new Chart(document.getElementById('demandChart'), {
@@ -111,7 +115,10 @@ function renderCharts() {
         { label: 'Listings',      data: adminStats.seekingVsListings.map(z => z.listings), backgroundColor: '#003366', borderRadius: 4 }
       ]
     },
-    options: { responsive: true }
+    options: { 
+      responsive: true,
+      scales: { y: { beginAtZero: true, suggestedMax: 5, ticks: { stepSize: 1 } } }
+    }
   });
 }
 
@@ -169,12 +176,17 @@ function renderAllUsers(users) {
       <td><span class="badge ${u.role === 'admin' ? 'badge-navy' : (u.role === 'landlord' ? 'badge-amber' : 'badge-light-blue')}">${u.role}</span></td>
       <td>${u.status === 'suspended' ? '<span class="badge badge-red">Suspended</span>' : '<span class="badge badge-green">Active</span>'}</td>
       <td>
+        ${u.verifStatus === 'approved' ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Verified</span>' : 
+          (u.verifStatus === 'pending' ? '<span class="badge badge-amber"><i data-lucide="clock" class="lucide-sm"></i> Pending</span>' : 
+          (u.verifStatus === 'rejected' ? '<span class="badge badge-red"><i data-lucide="x" class="lucide-sm"></i> Rejected</span>' : '<span class="badge badge-gray">N/A</span>'))}
+      </td>
+      <td>
         ${u.status === 'suspended' 
           ? `<button class="btn btn-success btn-sm" onclick="setUserStatus(${u.id}, 'active')">Activate</button>`
           : `<button class="btn btn-outline btn-sm" onclick="setUserStatus(${u.id}, 'suspended')">Suspend</button>`
         }
       </td>
-    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
 }
 
 function renderVerifications(verifs) {
