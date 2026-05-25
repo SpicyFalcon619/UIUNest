@@ -321,7 +321,7 @@ async function fetchNotifications() {
       }
       
       list.innerHTML = data.notifications.length === 0 ? '<div style="padding:10px 0;text-align:center">No notifications</div>' : data.notifications.map(n => 
-        `<div style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;background:${n.is_read ? 'transparent' : '#f0f9ff'}" onclick="markNotifRead(${n.notif_id}, '${n.link || 'dashboard.html'}')">
+        `<div style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;background:${n.is_read ? 'transparent' : '#f0f9ff'}" onclick="markNotifRead(${n.notif_id}, '${n.link || 'dashboard.html'}', event)">
            <div style="font-weight:${n.is_read ? 'normal' : 'bold'};color:var(--navy)">${n.message}</div>
            <div style="font-size:11px;color:#888;margin-top:4px">${new Date(n.created_at).toLocaleString()}</div>
          </div>`
@@ -332,7 +332,14 @@ async function fetchNotifications() {
   }
 }
 
-async function markNotifRead(id, link) {
+async function markNotifRead(id, link, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  
+  console.log("markNotifRead called with id:", id, "link:", link);
+
   try {
     await fetch('api/notifications.php', {
       method: 'POST',
@@ -343,11 +350,13 @@ async function markNotifRead(id, link) {
     console.error('Failed to mark notification as read:', e);
   }
   
+  let target = 'dashboard.html';
   if (link && link !== 'null' && link !== 'undefined') {
-    location.href = link;
-  } else {
-    location.href = 'dashboard.html';
+    target = link;
   }
+  
+  console.log("Navigating to target:", target);
+  window.location.href = target;
 }
 
 function renderFooter() {
