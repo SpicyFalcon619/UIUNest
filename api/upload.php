@@ -13,8 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $type = $_POST['type'] ?? 'general'; // verification, listing, item
-    $allowedTypes = ['verification', 'listing', 'item'];
+    $type = $_POST['type'] ?? 'general'; // verification, listing, item, profile
+    $allowedTypes = ['verification', 'listing', 'item', 'profile'];
     
     if (!in_array($type, $allowedTypes)) {
         $type = 'general';

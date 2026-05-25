@@ -1,5 +1,9 @@
 <?php
 require 'db.php';
-$stmt = $pdo->query("DESCRIBE users");
-print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
+try {
+    $pdo->exec("ALTER TABLE users ADD COLUMN profile_pic VARCHAR(255) NULL");
+    echo "Column added.";
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+}
 ?>

@@ -17,7 +17,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     try {
         // Fetch user basic info
-        $stmt = $pdo->prepare("SELECT name, email, phone, university_id, gender, role FROM users WHERE user_id = ?");
+        $stmt = $pdo->prepare("SELECT name, email, phone, university_id, gender, role, profile_pic FROM users WHERE user_id = ?");
         $stmt->execute([$user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -44,6 +44,7 @@ if ($method === 'GET') {
             $email = trim($input['email'] ?? '');
             $phone = trim($input['phone'] ?? '');
             $uni_id = trim($input['university_id'] ?? '');
+            $profile_pic = trim($input['profile_pic'] ?? '');
 
             if (!$name || !$email) {
                 echo json_encode(['success' => false, 'error' => 'Name and email are required']);
@@ -58,12 +59,13 @@ if ($method === 'GET') {
                 exit;
             }
 
-            $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, phone = ?, university_id = ? WHERE user_id = ?");
-            $stmt->execute([$name, $email, $phone, $uni_id, $user_id]);
+            $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, phone = ?, university_id = ?, profile_pic = ? WHERE user_id = ?");
+            $stmt->execute([$name, $email, $phone, $uni_id, $profile_pic, $user_id]);
             
             // Update session data
             $_SESSION['user']['name'] = $name;
             $_SESSION['user']['email'] = $email;
+            $_SESSION['user']['profile_pic'] = $profile_pic;
 
             echo json_encode(['success' => true]);
 

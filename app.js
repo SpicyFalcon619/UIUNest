@@ -256,9 +256,9 @@ function renderNav(active) {
   const linkHTML = links.map(l =>
     `<a href="${l.href}" class="${active === l.key ? 'active' : ''}">${l.label}</a>`).join('');
 
-  const initials = user && user.name
-    ? user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)
-    : 'US';
+  const avatarDisplay = (user && user.profile_pic)
+    ? `<img src="${user.profile_pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    : (user && user.name ? user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) : 'US');
 
   const rightHTML = logged
     ? `<div style="position:relative;display:inline-block">
@@ -271,7 +271,7 @@ function renderNav(active) {
          </div>`}
        </div>
        ${user.role === 'admin' ? '' : `<a class="icon-btn" href="dashboard.html?tab=watch" title="Watchlist"><i data-lucide="heart" class="lucide-sm"></i></a>`}
-       <div class="avatar" id="avatarBtn" onclick="document.getElementById('avatarMenu').classList.toggle('open')">${initials}
+       <div class="avatar" id="avatarBtn" onclick="document.getElementById('avatarMenu').classList.toggle('open')">${avatarDisplay}
          <div class="avatar-menu" id="avatarMenu">
            <a href="dashboard.html">Dashboard</a>
            <a href="profile.html">Profile</a>

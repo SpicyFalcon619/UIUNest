@@ -19,14 +19,15 @@ try {
     // Make university_id unique if not already
     try {
         $pdo->exec("ALTER TABLE users ADD UNIQUE (university_id)");
+        $pdo->exec("ALTER TABLE users ADD COLUMN profile_pic VARCHAR(255) NULL");
     } catch(Exception $e) {
         // Might already exist, ignore error safely
     }
 
     // Insert master admin
     $hash = password_hash('1265Master', PASSWORD_DEFAULT);
-    $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, role, gender, university_id, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute(['Master Admin', 'master@admin.com', $hash, 'admin', 'other', 'ADM-MASTER', 'active']);
+    $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, role, gender, university_id, status, profile_pic) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute(['Master Admin', 'master@admin.com', $hash, 'admin', 'other', 'ADM-MASTER', 'active', null]);
     
     $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
     
