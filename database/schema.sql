@@ -259,3 +259,27 @@ CREATE TABLE watchlists (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
 );
+
+-- 18. seeking_responses
+CREATE TABLE seeking_responses (
+    response_id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT,
+    responder_id INT,
+    message TEXT NULL,
+    status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES seeking_posts(post_id) ON DELETE CASCADE,
+    FOREIGN KEY (responder_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- 19. notifications
+CREATE TABLE notifications (
+    notif_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    type VARCHAR(50),
+    message TEXT,
+    is_read BOOLEAN DEFAULT FALSE,
+    link VARCHAR(255) NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);

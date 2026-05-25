@@ -296,6 +296,54 @@ async function doLogout() {
   location.href = 'index.html';
 }
 
+function toggleNotifs() {
+  const m = document.getElementById('notifMenu');
+  if (m) {
+    m.classList.toggle('open');
+    if (m.classList.contains('open')) fetchNotifications();
+  }
+}
+
+async function fetchNotifications() {
+  const list = document.getElementById('notifList');
+  const badge = document.getElementById('notifBadge');
+  if (!list) return;
+  list.innerHTML = 'Loading...';
+  try {
+    const res = await fetch('api/notifications.php');
+    const data = await res.json();
+    if (data.success) {
+      if (data.unread_count > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = data.unread_count;
+      } else {
+        badge.style.display = 'none';
+      }
+      
+      list.innerHTML = data.notifications.length === 0 ? '<div style="padding:10px 0;text-align:center">No notifications</div>' : data.notifications.map(n => 
+        `<div style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;background:${n.is_read ? 'transparent' : '#f0f9ff'}" onclick="markNotifRead(${n.notif_id}, '${n.link}')">
+           <div style="font-weight:${n.is_read ? 'normal' : 'bold'};color:var(--navy)">${n.message}</div>
+           <div style="font-size:11px;color:#888;margin-top:4px">${new Date(n.created_at).toLocaleString()}</div>
+         </div>`
+      ).join('');
+    }
+  } catch(e) {
+    list.innerHTML = 'Error loading notifications.';
+  }
+}
+
+async function markNotifRead(id, link) {
+  try {
+    await fetch('api/notifications.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id})
+    });
+    if (link) location.href = link;
+    else fetchNotifications();
+  } catch(e) {}
+}
+
 function renderFooter() {
   return `
     <footer>
@@ -336,6 +384,10 @@ function mountChrome(active) {
   
   if (ft)  ft.innerHTML  = renderFooter();
   if (window.lucide) lucide.createIcons();
+  
+  if (isLoggedIn()) {
+    setTimeout(fetchNotifications, 500); // give DOM a moment to mount
+  }
 }
 
 // ============ Listing Card ============

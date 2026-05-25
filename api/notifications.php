@@ -3,35 +3,55 @@ require 'db.php';
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user'])) {
-    echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
-$userId = $_SESSION['user']['id'];
+$method = $_SERVER['REQUEST_METHOD'];
+$user_id = $_SESSION['user_id'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Fetch notifications
-    $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 20");
-    $stmt->execute([$userId]);
-    $notifications = $stmt->fetchAll();
-    
-    $unreadCount = 0;
-    foreach($notifications as $n) {
-        if (!$n['is_read']) $unreadCount++;
+if ($method === 'GET') {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT * FROM notifications 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC 
+            LIMIT 50
+        ");
+        $stmt->execute([$user_id]);
+        $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $unread_count = 0;
+        foreach ($notifications as $n) {
+            if (!$n['is_read']) $unread_count++;
+        }
+        
+        echo json_encode([
+            'success' => true, 
+            'notifications' => $notifications,
+            'unread_count' => $unread_count
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+} elseif ($method === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+    $notif_id = $input['id'] ?? null;
     
-    echo json_encode(['success' => true, 'notifications' => $notifications, 'unreadCount' => $unreadCount]);
-} 
-elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (isset($input['action']) && $input['action'] === 'mark_read') {
-        $stmt = $pdo->prepare("UPDATE notifications SET is_read = TRUE WHERE user_id = ?");
-        $stmt->execute([$userId]);
+    try {
+        if ($notif_id === 'all') {
+            $stmt = $pdo->prepare("UPDATE notifications SET is_read = TRUE WHERE user_id = ?");
+            $stmt->execute([$user_id]);
+        } else if ($notif_id) {
+            $stmt = $pdo->prepare("UPDATE notifications SET is_read = TRUE WHERE notif_id = ? AND user_id = ?");
+            $stmt->execute([$notif_id, $user_id]);
+        }
         echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'error' => 'Invalid action']);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+} else {
+    echo json_encode(['success' => false, 'error' => 'Invalid method']);
 }
 ?>

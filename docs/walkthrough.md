@@ -112,3 +112,30 @@ This phase focused on hardening the APIs against poorly formatted input and comp
    - **Exchange API (`api/exchange.php`)**: Handled complex table joins to retrieve the `seller_email` natively, resolving "undefined email" issues in the UI.
    - **Admin Session Security Fix (`api/admin_stats.php`, etc)**: Resolved an authentication lockout bug. The admin APIs were checking for an improperly mapped `$_SESSION['role']` instead of the fully structured `$_SESSION['user']['role']`, which was artificially wiping the admin dashboard tables.
    - **Chart.js Infinite Resize Loop (`admin.html`)**: Hardened the Admin Dashboard layout by wrapping responsive Chart.js instances inside fixed-height relative containers, resolving a severe CSS bug where charts would stretch infinitely down the page.
+
+---
+
+# Phase 6: Core Interactions & Notifications Integration
+
+This phase fully decoupled the platform's social interactions from the frontend Mock Data arrays, ensuring that Listing Applications, Marketplace Bids, and Seeking Responses are permanently stored in the live MySQL database.
+
+## Core Implementations
+
+1. **Global Notification Engine (`api/notifications.php`)**
+   - Added a `notifications` table to the database.
+   - Added a dynamic Notification Bell to the main navbar (`app.js`).
+   - The bell polls the server asynchronously upon login and displays an unread badge.
+   - Users can click the bell to view a dropdown of system alerts (e.g., "John applied to your listing") and mark them as read.
+
+2. **Listing Applications (`api/applications.php`)**
+   - Re-wired the "Apply for Home" modal in `listing-detail.html` to execute a `POST` request to the backend.
+   - The API verifies the user hasn't already applied, securely logs the application to the database, and automatically triggers a notification to the listing owner.
+
+3. **Marketplace Offers (`api/offers.php`)**
+   - Re-wired the "Make Offer" modal in `item-detail.html` to securely commit bids to the `offers` table instead of local storage.
+   - Triggers an instant notification to the item seller upon a successful bid.
+
+4. **Seeking Responses (`api/seeking_responses.php`)**
+   - Added a `seeking_responses` table to the database schema.
+   - Built a brand new "Respond Modal" on the frontend (`seeking.html`) that allows users to send structured text messages to students looking for housing.
+   - Updated the Dashboard (`dashboard.html`) to natively fetch and display "Responses Sent" and "Responses Received" in the "Looking For" tab.

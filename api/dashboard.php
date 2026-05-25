@@ -24,6 +24,8 @@ try {
         'appsSent' => [],
         'appsRecv' => [],
         'mySeeking' => [],
+        'seekRespSent' => [],
+        'seekRespRecv' => [],
         'hasPreferences' => false
     ];
 
@@ -116,7 +118,7 @@ try {
     $stmt->execute([$userId]);
     $data['appsRecv'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 8. My Seeking Posts
+    // 9. My Seeking Posts
     $stmt = $pdo->prepare("
         SELECT s.*, z.zone_name as zone 
         FROM seeking_posts s 
@@ -126,6 +128,30 @@ try {
     ");
     $stmt->execute([$userId]);
     $data['mySeeking'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // 10. Seeking Responses Sent
+    $stmt = $pdo->prepare("
+        SELECT r.*, u.email as owner_email, s.requirements 
+        FROM seeking_responses r 
+        JOIN seeking_posts s ON r.post_id = s.post_id 
+        JOIN users u ON s.user_id = u.user_id 
+        WHERE r.responder_id = ?
+        ORDER BY r.created_at DESC
+    ");
+    $stmt->execute([$userId]);
+    $data['seekRespSent'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // 11. Seeking Responses Received
+    $stmt = $pdo->prepare("
+        SELECT r.*, u.name as responder_name 
+        FROM seeking_responses r 
+        JOIN seeking_posts s ON r.post_id = s.post_id 
+        JOIN users u ON r.responder_id = u.user_id 
+        WHERE s.user_id = ?
+        ORDER BY r.created_at DESC
+    ");
+    $stmt->execute([$userId]);
+    $data['seekRespRecv'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode(['success' => true, 'data' => $data]);
 } catch (PDOException $e) {

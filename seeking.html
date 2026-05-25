@@ -110,17 +110,43 @@ function renderPosts() {
         </div>
         <div style="font-size:14px;margin-top:6px;font-weight: 500;">${p.requirements}</div>
       </div>
-      ${isLoggedIn() ? `<button class="btn btn-primary btn-sm" onclick="respondToPost(${p.id}, '${p.user_gender}', '${p.user}')">Respond</button>` : ''}
+      ${isLoggedIn() ? `<button class="btn btn-primary btn-sm" onclick="openRespondModal(${p.id}, '${p.user_gender}', '${p.user}')">Respond</button>` : ''}
     </div>`}).join('') || '<p style="color:var(--gray); text-align: center; padding: 40px 0;">No active flatmate requests found. Be the first to post!</p>';
   if (window.lucide) lucide.createIcons();
 }
 
-function respondToPost(id, gender, name) {
+let currentRespondPostId = null;
+
+function openRespondModal(id, gender, name) {
   if (user && user.role !== 'admin' && gender !== user.gender) {
     showToast(`You cannot respond to requests from ${gender} users.`, 'error');
     return;
   }
-  showToast('Response sent to ' + name + '!');
+  currentRespondPostId = id;
+  document.getElementById('respondModalName').textContent = name;
+  document.getElementById('respondModal').classList.add('open');
+}
+
+async function submitResponse(e) {
+  e.preventDefault();
+  const msg = document.getElementById('rMsg').value;
+  try {
+    const res = await fetch('api/seeking_responses.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId: currentRespondPostId, message: msg })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('respondModal').classList.remove('open');
+      e.target.reset();
+      showToast('Response sent successfully!');
+    } else {
+      showToast(data.error || 'Failed to send response', 'error');
+    }
+  } catch(err) {
+    showToast('Network error', 'error');
+  }
 }
 
 function openRequestModal() {
@@ -174,5 +200,21 @@ if (user && user.role === 'student') {
 
 loadPosts();
 </script>
+
+<!-- Respond Modal -->
+<div class="modal-bg" id="respondModal">
+  <div class="modal-content" style="max-width:500px">
+    <button class="modal-close" onclick="document.getElementById('respondModal').classList.remove('open')">×</button>
+    <h3>Respond to <span id="respondModalName"></span></h3>
+    <form onsubmit="submitResponse(event)">
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="rMsg" rows="4" class="form-control" placeholder="Hi! I have a room available that matches your criteria..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Send Response</button>
+    </form>
+  </div>
+</div>
+
 </body>
 </html>

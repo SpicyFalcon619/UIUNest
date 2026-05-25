@@ -320,6 +320,49 @@ function renderDashboard() {
           </table>
         `}
       </div>
+
+      <div class="card" style="margin-top:24px">
+        <h3 style="margin-top:0;color:var(--navy)">Responses Received (For your requests)</h3>
+        ${(!dashData.seekRespRecv || dashData.seekRespRecv.length === 0) ? `
+          <p style="color:var(--gray);text-align:center;padding:12px 0">No responses yet.</p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>From</th><th>Message</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              ${dashData.seekRespRecv.map(r => `
+                <tr>
+                  <td><strong>${r.responder_name}</strong></td>
+                  <td>${r.message}</td>
+                  <td>${statusBadge(r.status)}</td>
+                  <td>${r.created_at}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+
+      <div class="card" style="margin-top:24px">
+        <h3 style="margin-top:0;color:var(--navy)">Responses Sent (To other requests)</h3>
+        ${(!dashData.seekRespSent || dashData.seekRespSent.length === 0) ? `
+          <p style="color:var(--gray);text-align:center;padding:12px 0">You haven't responded to any requests.</p>
+        ` : `
+          <table class="table">
+            <thead><tr><th>Request</th><th>Landlord Email</th><th>Your Message</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              ${dashData.seekRespSent.map(r => `
+                <tr>
+                  <td><strong>${r.requirements ? r.requirements.substring(0, 30) : ''}...</strong></td>
+                  <td>${r.owner_email}</td>
+                  <td>${r.message}</td>
+                  <td>${statusBadge(r.status)}</td>
+                  <td>${r.created_at}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
     </div>
 
     <div id="tab-watch" style="display:none">

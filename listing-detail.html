@@ -381,23 +381,27 @@ function submitApplication(e) {
     return;
   }
 
-  const newApp = {
-    id: Date.now(),
-    listingId: l.id,
-    listingTitle: l.title,
-    applicantName: mockData.currentUser.name,
-    applicantEmail: mockData.currentUser.email,
-    ownerEmail: l.ownerEmail,
-    message: msg,
-    status: 'pending',
-    date: new Date().toLocaleDateString('en-US')
-  };
-
-  mockData.applications.push(newApp);
-  saveMockData();
   document.getElementById('applyModal').classList.remove('open');
-  document.getElementById('applyForm').reset();
-  showToast('Application sent successfully!');
+
+  try {
+    const res = await fetch('api/applications.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        listingId: l.id,
+        message: msg
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('applyForm').reset();
+      showToast('Application sent successfully!');
+    } else {
+      showToast(data.error || 'Failed to submit application', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while submitting application', 'error');
+  }
 }
 </script>
 </body>

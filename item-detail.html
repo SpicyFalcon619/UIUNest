@@ -197,30 +197,31 @@ function renderOffers(offers, isSeller, user, sold) {
   }).join('');
 }
 
-function submitOffer(e) {
+async function submitOffer(e) {
   e.preventDefault();
   const price = parseInt(document.getElementById('offerPrice').value);
   const msg = document.getElementById('offerMsg').value.trim();
-  const user = mockData.currentUser;
 
-  const newOffer = {
-    id: Date.now(),
-    itemId: it.id,
-    buyerName: user.name,
-    buyerEmail: user.email,
-    sellerEmail: it.sellerEmail,
-    sellerName: it.seller,
-    price,
-    counterPrice: null,
-    message: msg,
-    status: 'pending',
-    date: new Date().toLocaleDateString()
-  };
-
-  mockData.offers.push(newOffer);
-  saveMockData();
-  showToast('Offer submitted successfully!');
-  renderPage();
+  try {
+    const res = await fetch('api/offers.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        itemId: it.item_id || it.id,
+        offerPrice: price,
+        message: msg
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Offer submitted successfully!');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast(data.error || 'Failed to submit offer', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while submitting offer', 'error');
+  }
 }
 
 function showCounterForm(offerId) {
