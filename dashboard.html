@@ -16,11 +16,13 @@
 
 <!-- Edit Listing Modal -->
 <div class="modal-bg" id="editListingModal">
-  <div class="modal" style="max-width: 600px;">
+  <div class="modal" style="max-width: 650px;">
     <button class="modal-close" onclick="document.getElementById('editListingModal').classList.remove('open')">×</button>
     <h3>Edit Listing</h3>
     <form id="editListingForm" onsubmit="saveEditedListing(event)">
       <input type="hidden" id="editLstId">
+      
+      <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px;">Basic Details</div>
       <div class="form-group"><label>Title</label><input type="text" id="editLstTitle" required></div>
       <div class="grid-2">
         <div class="form-group"><label>Zone</label><select id="editLstZone" required></select></div>
@@ -36,9 +38,48 @@
       <div class="grid-3">
         <div class="form-group"><label>Total Rooms</label><input type="number" id="editLstRooms" required min="1"></div>
         <div class="form-group"><label>Current Occupancy</label><input type="number" id="editLstOccupancy" required min="0"></div>
-
       </div>
-      <div class="form-group"><label>Base Rent (৳)</label><input type="number" id="editLstBaseRent" required min="0"></div>
+      <div class="form-group"><label>Address</label><input type="text" id="editLstAddress" required></div>
+      <div class="form-group"><label>Description</label><textarea id="editLstDescription" required></textarea></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Latitude (Optional)</label><input type="number" step="any" id="editLstLat"></div>
+        <div class="form-group"><label>Longitude (Optional)</label><input type="number" step="any" id="editLstLng"></div>
+      </div>
+
+      <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 14px;">Monthly Costs</div>
+      <div class="grid-2">
+        <div class="form-group"><label>Base Rent (৳)</label><input type="number" id="editLstBaseRent" required min="0"></div>
+        <div class="form-group"><label>Gas Bill (৳)</label><input type="number" id="editLstGas" required min="0"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Electricity Meter Type</label>
+          <select id="editLstElecType" required>
+            <option value="individual">Individual Meter</option>
+            <option value="shared">Shared Meter</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Estimated Electricity Cost (৳)</label><input type="number" id="editLstElec" required min="0"></div>
+      </div>
+      <div class="grid-3">
+        <div class="form-group"><label>Water Bill (৳)</label><input type="number" id="editLstWater" required min="0"></div>
+        <div class="form-group"><label>Internet Cost (৳)</label><input type="number" id="editLstInternet" required min="0"></div>
+        <div class="form-group"><label>Maintenance (৳)</label><input type="number" id="editLstMaint" required min="0"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label>Caretaker Fee (৳)</label><input type="number" id="editLstCaretaker" required min="0"></div>
+      </div>
+
+      <div style="font-weight: 700; color: var(--navy); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-top: 14px;">Amenities</div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;">
+        <label><input type="checkbox" id="editLstAmenBath"> Attached Bath</label>
+        <label><input type="checkbox" id="editLstAmenKitchen"> Kitchen</label>
+        <label><input type="checkbox" id="editLstAmenFurnished"> Furnished</label>
+        <label><input type="checkbox" id="editLstAmenRooftop"> Rooftop Access</label>
+        <label><input type="checkbox" id="editLstAmenPower"> Power Backup</label>
+        <label><input type="checkbox" id="editLstAmenLift"> Lift</label>
+        <label><input type="checkbox" id="editLstAmenParking"> Parking</label>
+      </div>
+
       <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
     </form>
   </div>
@@ -375,57 +416,117 @@ function switchTab(t) {
 }
 
 // Listing actions
-function editListing(id) {
-  const l = mockData.listings.find(x => x.id === id);
-  if (!l) return;
-  document.getElementById('editLstId').value = l.id;
-  document.getElementById('editLstTitle').value = l.title;
-  document.getElementById('editLstRooms').value = l.totalRooms;
-  document.getElementById('editLstOccupancy').value = l.currentOccupancy;
+async function editListing(id) {
+  try {
+    const res = await fetch('api/listings.php?id=' + id);
+    const data = await res.json();
+    if (data.success && data.listings.length > 0) {
+      const l = data.listings[0];
+      
+      document.getElementById('editLstId').value = l.id;
+      document.getElementById('editLstTitle').value = l.title;
+      document.getElementById('editLstRooms').value = l.totalRooms;
+      document.getElementById('editLstOccupancy').value = l.currentOccupancy;
+      document.getElementById('editLstAddress').value = l.address || '';
+      document.getElementById('editLstDescription').value = l.description || '';
+      document.getElementById('editLstLat').value = l.lat || '';
+      document.getElementById('editLstLng').value = l.lng || '';
+      
+      const zSelect = document.getElementById('editLstZone');
+      zSelect.innerHTML = mockData.zones.map(z => `<option value="${z.id}" ${z.id === l.zoneId ? 'selected' : ''}>${z.name}</option>`).join('');
+      document.getElementById('editLstType').value = l.propertyType;
+      
+      if (l.costs) {
+        document.getElementById('editLstBaseRent').value = l.costs.baseRent;
+        document.getElementById('editLstGas').value = l.costs.gasBill;
+        document.getElementById('editLstElecType').value = l.costs.electricityType;
+        document.getElementById('editLstElec').value = l.costs.electricityAmount;
+        document.getElementById('editLstWater').value = l.costs.waterBill;
+        document.getElementById('editLstInternet').value = l.costs.internetCost;
+        document.getElementById('editLstMaint').value = l.costs.maintenanceFee;
+        document.getElementById('editLstCaretaker').value = l.costs.caretakerFee;
+      }
+      
+      if (l.amenities) {
+        document.getElementById('editLstAmenBath').checked = l.amenities.attachedBathroom;
+        document.getElementById('editLstAmenKitchen').checked = l.amenities.attachedKitchen;
+        document.getElementById('editLstAmenFurnished').checked = l.amenities.isFurnished;
+        document.getElementById('editLstAmenRooftop').checked = l.amenities.rooftopAccess;
+        document.getElementById('editLstAmenPower').checked = l.amenities.powerBackup;
+        document.getElementById('editLstAmenLift').checked = l.amenities.liftAccess;
+        document.getElementById('editLstAmenParking').checked = l.amenities.parking;
+      }
 
-  document.getElementById('editLstBaseRent').value = l.costs.baseRent;
-
-  const zSelect = document.getElementById('editLstZone');
-  zSelect.innerHTML = mockData.zones.map(z => `<option value="${z.id}" ${z.id === l.zoneId ? 'selected' : ''}>${z.name}</option>`).join('');
-
-  document.getElementById('editListingModal').classList.add('open');
+      document.getElementById('editListingModal').classList.add('open');
+    }
+  } catch (err) {
+    showToast('Failed to load listing details', 'error');
+  }
 }
 
-function saveEditedListing(e) {
+async function saveEditedListing(e) {
   e.preventDefault();
   const id = parseInt(document.getElementById('editLstId').value);
-  const l = mockData.listings.find(x => x.id === id);
-  if (l) {
-    l.title = document.getElementById('editLstTitle').value.trim();
-    l.zoneId = parseInt(document.getElementById('editLstZone').value);
-    const zoneObj = mockData.zones.find(z => z.id === l.zoneId);
-    l.zone = zoneObj ? zoneObj.name : l.zone;
-    l.propertyType = document.getElementById('editLstType').value;
-    l.totalRooms = parseInt(document.getElementById('editLstRooms').value);
-    l.currentOccupancy = parseInt(document.getElementById('editLstOccupancy').value);
+  
+  const baseRent = parseInt(document.getElementById('editLstBaseRent').value || 0);
+  const electricityAmount = parseInt(document.getElementById('editLstElec').value || 0);
+  const gasBill = parseInt(document.getElementById('editLstGas').value || 0);
+  const waterBill = parseInt(document.getElementById('editLstWater').value || 0);
+  const internetCost = parseInt(document.getElementById('editLstInternet').value || 0);
+  const maintenanceFee = parseInt(document.getElementById('editLstMaint').value || 0);
+  const caretakerFee = parseInt(document.getElementById('editLstCaretaker').value || 0);
 
-    
-    const prevBaseRent = l.costs.baseRent;
-    const baseRent = parseInt(document.getElementById('editLstBaseRent').value);
-    l.costs.baseRent = baseRent;
+  const totalMonthly = baseRent + electricityAmount + gasBill + waterBill + internetCost + maintenanceFee + caretakerFee;
 
-    // Recalculate true monthly total
-    l.costs.totalMonthly = baseRent + (l.costs.electricityAmount || 0) + (l.costs.gasBill || 0) +
-                           (l.costs.waterBill || 0) + (l.costs.internetCost || 0) + (l.costs.maintenanceFee || 0) +
-                           (l.costs.caretakerFee || 0) + (l.costs.customFees ? l.costs.customFees.reduce((sum, f) => sum + (Number(f.amount)||0), 0) : (Number(l.costs.otherFees)||0));
-
-    // If base rent changed, append to rent history
-    if (prevBaseRent !== baseRent) {
-      l.rentHistory.push({
-        date: new Date().toLocaleDateString('en-US', {month:'short', year:'2-digit'}),
-        rent: baseRent
-      });
+  const payload = {
+    id: id,
+    title: document.getElementById('editLstTitle').value.trim(),
+    zoneId: parseInt(document.getElementById('editLstZone').value),
+    propertyType: document.getElementById('editLstType').value,
+    totalRooms: parseInt(document.getElementById('editLstRooms').value),
+    currentOccupancy: parseInt(document.getElementById('editLstOccupancy').value),
+    address: document.getElementById('editLstAddress').value.trim(),
+    description: document.getElementById('editLstDescription').value.trim(),
+    lat: parseFloat(document.getElementById('editLstLat').value) || 0,
+    lng: parseFloat(document.getElementById('editLstLng').value) || 0,
+    costs: {
+      baseRent,
+      electricityType: document.getElementById('editLstElecType').value,
+      electricityAmount,
+      gasBill,
+      waterBill,
+      internetCost,
+      maintenanceFee,
+      caretakerFee,
+      totalMonthly
+    },
+    amenities: {
+      attachedBathroom: document.getElementById('editLstAmenBath').checked,
+      attachedKitchen: document.getElementById('editLstAmenKitchen').checked,
+      isFurnished: document.getElementById('editLstAmenFurnished').checked,
+      rooftopAccess: document.getElementById('editLstAmenRooftop').checked,
+      powerBackup: document.getElementById('editLstAmenPower').checked,
+      liftAccess: document.getElementById('editLstAmenLift').checked,
+      parking: document.getElementById('editLstAmenParking').checked
     }
+  };
 
-    saveMockData();
-    document.getElementById('editListingModal').classList.remove('open');
-    showToast('Listing updated successfully!');
-    renderDashboard();
+  try {
+    const res = await fetch('api/listings.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('editListingModal').classList.remove('open');
+      showToast('Listing updated successfully!');
+      loadDashboardData();
+    } else {
+      showToast(data.error || 'Failed to update listing', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
   }
 }
 

@@ -1,4 +1,5 @@
 <?php
 $_SERVER['REQUEST_METHOD'] = 'GET';
-require 'seeking.php';
+$_GET['id'] = 1;
+require 'listings.php';
 ?>

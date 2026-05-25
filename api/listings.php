@@ -162,6 +162,78 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 }
+elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    if (!isset($_SESSION['user'])) {
+        echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+        exit;
+    }
+    
+    $input = json_decode(file_get_contents('php://input'), true);
+    $userId = $_SESSION['user']['id'];
+    $role = $_SESSION['user']['role'];
+    $listingId = $input['id'] ?? null;
+    
+    if (!$listingId) {
+        echo json_encode(['success' => false, 'error' => 'Missing listing ID']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("SELECT user_id FROM listings WHERE listing_id = ?");
+    $stmt->execute([$listingId]);
+    $listing = $stmt->fetch();
+    
+    if (!$listing) {
+        echo json_encode(['success' => false, 'error' => 'Not found']);
+        exit;
+    }
+    if ($listing['user_id'] != $userId && $role !== 'admin') {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+        
+        $upd = $pdo->prepare("UPDATE listings SET zone_id=?, property_type=?, title=?, address=?, lat=?, lng=?, total_rooms=?, current_occupancy=?, description=? WHERE listing_id=?");
+        $upd->execute([
+            $input['zoneId'], 
+            $input['propertyType'], 
+            $input['title'], 
+            $input['address'], 
+            $input['lat'], 
+            $input['lng'], 
+            $input['totalRooms'], 
+            $input['currentOccupancy'], 
+            $input['description'] ?? null,
+            $listingId
+        ]);
+        
+        $c = $input['costs'];
+        $cUpd = $pdo->prepare("UPDATE utility_costs SET base_rent=?, electricity_amount=?, electricity_type=?, gas_bill=?, water_bill=?, internet_cost=?, maintenance_fee=?, caretaker_fee=?, total_monthly=? WHERE listing_id=?");
+        $cUpd->execute([
+            $c['baseRent'], $c['electricityAmount'], $c['electricityType'], $c['gasBill'], $c['waterBill'], $c['internetCost'], $c['maintenanceFee'] ?? 0, $c['caretakerFee'] ?? 0, $c['totalMonthly'], $listingId
+        ]);
+        
+        $a = $input['amenities'];
+        $aUpd = $pdo->prepare("UPDATE listing_amenities SET attached_bathroom=?, attached_kitchen=?, is_furnished=?, rooftop_access=?, parking=?, power_backup=?, lift_access=? WHERE listing_id=?");
+        $aUpd->execute([
+            !empty($a['attachedBathroom'])?1:0, 
+            !empty($a['attachedKitchen'])?1:0, 
+            !empty($a['isFurnished'])?1:0, 
+            !empty($a['rooftopAccess'])?1:0, 
+            !empty($a['parking'])?1:0, 
+            !empty($a['powerBackup'])?1:0, 
+            !empty($a['liftAccess'])?1:0,
+            $listingId
+        ]);
+        
+        $pdo->commit();
+        echo json_encode(['success' => true]);
+    } catch(Exception $e) {
+        $pdo->rollBack();
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
 elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     if (!isset($_SESSION['user'])) {
         echo json_encode(['success' => false, 'error' => 'Not authenticated']);
