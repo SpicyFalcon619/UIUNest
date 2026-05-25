@@ -197,7 +197,7 @@ input[type="radio"], input[type="checkbox"] { width: auto; margin: 0; accent-col
 .sidebar input[type=range] { width: 100%; margin: 16px 0; accent-color: var(--navy); }
 
 /* Stats Cards */
-.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; }
 .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); text-align: center; transition: transform 0.2s ease; }
 .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 .stat-card .stat-label { font-size: 13px; font-weight: 600; color: var(--gray); letter-spacing: 0.04em; text-transform: uppercase; }

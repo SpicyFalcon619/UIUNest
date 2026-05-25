@@ -127,7 +127,7 @@ const root = document.getElementById('content');
 
 let dashData = null;
 let currentUser = null;
-let currentDashboardTab = new URLSearchParams(window.location.search).get('tab') || 'listings';
+let currentDashboardTab = new URLSearchParams(window.location.search).get('tab') || localStorage.getItem('dashboard_tab') || 'listings';
 
 let confirmActionCallback = null;
 function showConfirm(title, text, callback) {
@@ -425,7 +425,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Buyer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersRecv.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}${o.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.buyer_name}" data-email="${o.buyer_email}" data-phone="${o.buyer_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}${o.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.buyer_name}" data-email="${o.buyer_email}" data-phone="${o.buyer_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><div style="display:flex;gap:4px;"><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a><button class="btn btn-danger btn-sm" onclick="deleteItem(${o.item_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete</button></div></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -441,7 +441,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Seller</th><th>Your Bid</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersSent.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}${o.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.seller_name}" data-email="${o.seller_email}" data-phone="${o.seller_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}${o.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.seller_name}" data-email="${o.seller_email}" data-phone="${o.seller_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><div style="display:flex;gap:4px;"><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a><button class="btn btn-danger btn-sm" onclick="deleteOffer(${o.offer_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete</button></div></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -505,6 +505,7 @@ function renderDashboard() {
 
 function switchTab(t) {
   currentDashboardTab = t;
+  localStorage.setItem('dashboard_tab', t);
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === t));
   ['listings', 'items', 'seeking', 'watch', 'offers', 'applications'].forEach(n => {
     const el = document.getElementById('tab-' + n);
@@ -720,6 +721,27 @@ async function deleteItem(id) {
         loadDashboardData();
       } else {
         showToast(data.error || 'Failed to delete', 'error');
+      }
+    } catch(e) {
+      showToast('Network error', 'error');
+    }
+  });
+}
+
+async function deleteOffer(id) {
+  showConfirm('Delete Offer', 'Are you sure you want to remove this offer from your history?', async () => {
+    try {
+      const res = await fetch('api/offers.php', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Offer deleted!');
+        loadDashboardData();
+      } else {
+        showToast(data.error || 'Failed to delete offer', 'error');
       }
     } catch(e) {
       showToast('Network error', 'error');

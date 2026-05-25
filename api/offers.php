@@ -140,6 +140,25 @@ if ($method === 'POST') {
         $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
+} elseif ($method === 'DELETE') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $offer_id = $input['id'] ?? null;
+    if (!$offer_id) {
+        echo json_encode(['success' => false, 'error' => 'Missing offer ID']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("DELETE FROM offers WHERE offer_id = ? AND buyer_id = ?");
+        $stmt->execute([$offer_id, $buyer_id]);
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Offer not found or unauthorized']);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
 } else {
     echo json_encode(['success' => false, 'error' => 'Invalid method']);
 }

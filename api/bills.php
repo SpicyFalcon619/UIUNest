@@ -31,6 +31,8 @@ if ($method === 'GET') {
                 ];
             }, $payments);
 
+            $customFees = json_decode($b['custom_fees'], true) ?: [];
+
             $result[] = [
                 'id' => $b['bill_id'],
                 'listingId' => $b['listing_id'],
@@ -40,6 +42,7 @@ if ($method === 'GET') {
                 'water' => (float)$b['water_amount'],
                 'internet' => (float)$b['internet_amount'],
                 'other' => (float)$b['other_amount'],
+                'customFees' => $customFees,
                 'total' => (float)$b['total_amount'],
                 'perPerson' => (float)$b['per_person_amount'],
                 'payments' => $pay_map
@@ -66,6 +69,7 @@ if ($method === 'GET') {
     $water = $input['water'] ?? 0;
     $internet = $input['internet'] ?? 0;
     $other = $input['other'] ?? 0;
+    $custom_fees_json = json_encode($input['customFees'] ?? []);
     $total = $input['total'] ?? 0;
     $perPerson = $input['perPerson'] ?? 0;
     $occupancy = $input['occupancy'] ?? 3;
@@ -84,14 +88,14 @@ if ($method === 'GET') {
 
         if ($existing) {
             // Update existing bill
-            $stmt = $pdo->prepare("UPDATE monthly_bills SET electricity_amount=?, gas_amount=?, water_amount=?, internet_amount=?, other_amount=?, total_amount=?, per_person_amount=? WHERE bill_id=?");
-            $stmt->execute([$electricity, $gas, $water, $internet, $other, $total, $perPerson, $existing['bill_id']]);
+            $stmt = $pdo->prepare("UPDATE monthly_bills SET electricity_amount=?, gas_amount=?, water_amount=?, internet_amount=?, other_amount=?, custom_fees=?, total_amount=?, per_person_amount=? WHERE bill_id=?");
+            $stmt->execute([$electricity, $gas, $water, $internet, $other, $custom_fees_json, $total, $perPerson, $existing['bill_id']]);
             echo json_encode(['success' => true, 'bill_id' => $existing['bill_id'], 'updated' => true]);
         } else {
             // Insert new bill
             $pdo->beginTransaction();
-            $stmt = $pdo->prepare("INSERT INTO monthly_bills (listing_id, bill_month, electricity_amount, gas_amount, water_amount, internet_amount, other_amount, total_amount, per_person_amount, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$listing_id, $month, $electricity, $gas, $water, $internet, $other, $total, $perPerson, $user_id]);
+            $stmt = $pdo->prepare("INSERT INTO monthly_bills (listing_id, bill_month, electricity_amount, gas_amount, water_amount, internet_amount, other_amount, custom_fees, total_amount, per_person_amount, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$listing_id, $month, $electricity, $gas, $water, $internet, $other, $custom_fees_json, $total, $perPerson, $user_id]);
             $bill_id = $pdo->lastInsertId();
 
             // Insert default bill payments
@@ -122,6 +126,40 @@ if ($method === 'GET') {
         $stmt->execute([$payment_id]);
         echo json_encode(['success' => true]);
     } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+} elseif ($method === 'DELETE') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+        exit;
+    }
+
+    $input = json_decode(file_get_contents('php://input'), true);
+    $bill_id = $input['billId'] ?? null;
+    
+    if (!$bill_id) {
+        echo json_encode(['success' => false, 'error' => 'Bill ID required']);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+        // Delete payments first (manual cascade)
+        $p_stmt = $pdo->prepare("DELETE FROM bill_payments WHERE bill_id = ?");
+        $p_stmt->execute([$bill_id]);
+        
+        $stmt = $pdo->prepare("DELETE FROM monthly_bills WHERE bill_id = ? AND created_by = ?");
+        $stmt->execute([$bill_id, $_SESSION['user_id']]);
+        
+        if ($stmt->rowCount() > 0) {
+            $pdo->commit();
+            echo json_encode(['success' => true]);
+        } else {
+            $pdo->rollBack();
+            echo json_encode(['success' => false, 'error' => 'Bill not found or unauthorized']);
+        }
+    } catch (PDOException $e) {
+        $pdo->rollBack();
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 } else {
