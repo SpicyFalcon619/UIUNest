@@ -73,7 +73,7 @@ if ($method === 'GET') {
     }
     
     $input = json_decode(file_get_contents('php://input'), true);
-    $post_id = $input['id'] ?? null;
+    $post_id = is_array($input) && isset($input['id']) ? $input['id'] : null;
     
     if (!$post_id) {
         echo json_encode(['success' => false, 'error' => 'Post ID required']);

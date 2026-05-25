@@ -107,6 +107,18 @@
   </div>
 </div>
 
+<!-- Custom Confirm Modal -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <h3 style="margin-top:0;color:var(--navy)" id="confirmTitle">Confirm Action</h3>
+    <p style="color:var(--gray)" id="confirmText">Are you sure?</p>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+      <button class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
+      <button class="btn btn-danger" id="confirmActionBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
 <div id="footer-mount"></div>
 <script src="app.js"></script>
 <script>
@@ -115,6 +127,22 @@ const root = document.getElementById('content');
 
 let dashData = null;
 let currentUser = null;
+
+let confirmActionCallback = null;
+function showConfirm(title, text, callback) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmText').textContent = text;
+  confirmActionCallback = callback;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('open');
+  confirmActionCallback = null;
+}
+document.getElementById('confirmActionBtn').addEventListener('click', () => {
+  if (confirmActionCallback) confirmActionCallback();
+  closeConfirmModal();
+});
 
 async function loadDashboardData() {
   try {
@@ -539,20 +567,20 @@ async function saveEditedListing(e) {
 }
 
 async function deleteListing(id) {
-  if (confirm('Are you sure you want to delete this listing?')) {
+  showConfirm('Delete Listing', 'Are you sure you want to delete this listing?', async () => {
     try {
       const res = await fetch('api/listings.php?id=' + id, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
-        showToast('Listing deleted', 'error');
+        showToast('Listing deleted successfully!');
         loadDashboardData();
       } else {
-        showToast(data.error || 'Failed to delete listing', 'error');
+        showToast(data.error || 'Failed to delete', 'error');
       }
-    } catch(err) {
+    } catch(e) {
       showToast('Network error', 'error');
     }
-  }
+  });
 }
 
 // Exchange Item actions
@@ -597,44 +625,45 @@ async function saveEditedItem(e) {
 }
 
 async function deleteSeeking(id) {
-  if (!confirm('Are you sure you want to delete this looking for request?')) return;
-  try {
-    const res = await fetch('api/seeking.php', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id })
-    });
-    const data = await res.json();
-    if (data.success) {
-      showToast('Request deleted!');
-      loadDashboard();
-    } else {
-      showToast(data.error || 'Failed to delete', 'error');
+  showConfirm('Delete Request', 'Are you sure you want to delete this looking for request?', async () => {
+    try {
+      const res = await fetch('api/seeking.php', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Request deleted!');
+        loadDashboardData();
+      } else {
+        showToast(data.error || 'Failed to delete', 'error');
+      }
+    } catch (err) {
+      showToast('Network error', 'error');
     }
-  } catch (err) {
-    showToast('Network error', 'error');
-  }
+  });
 }
 
 async function deleteItem(id) {
-  if (confirm('Are you sure you want to remove this item?')) {
+  showConfirm('Remove Item', 'Are you sure you want to remove this item?', async () => {
     try {
       const res = await fetch('api/exchange.php', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id })
+        body: JSON.stringify({ item_id: id })
       });
-      const result = await res.json();
-      if (result.success) {
-        showToast('Item deleted successfully!');
-        loadAdminData();
+      const data = await res.json();
+      if (data.success) {
+        showToast('Item removed!');
+        loadDashboardData();
       } else {
-        showToast(result.error || 'Failed to delete item', 'error');
+        showToast(data.error || 'Failed to delete', 'error');
       }
-    } catch(e) {
+    } catch (e) {
       showToast('Network error', 'error');
     }
-  }
+  });
 }
 
 function setAppStatus(id, status) {

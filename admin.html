@@ -81,10 +81,38 @@
   </div>
 </div>
 
+<!-- Custom Confirm Modal -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <h3 style="margin-top:0;color:var(--navy)" id="confirmTitle">Confirm Action</h3>
+    <p style="color:var(--gray)" id="confirmText">Are you sure?</p>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+      <button class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
+      <button class="btn btn-danger" id="confirmActionBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
 <div id="footer-mount"></div>
 <script src="app.js"></script>
 <script>
 mountChrome('admin');
+
+let confirmActionCallback = null;
+function showConfirm(title, text, callback) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmText').textContent = text;
+  confirmActionCallback = callback;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('open');
+  confirmActionCallback = null;
+}
+document.getElementById('confirmActionBtn').addEventListener('click', () => {
+  if (confirmActionCallback) confirmActionCallback();
+  closeConfirmModal();
+});
 
 let rentChart = null;
 let demandChart = null;
@@ -341,7 +369,7 @@ async function setComplaintStatus(id, s) {
 }
 
 async function deleteListingAdmin(id) {
-  if (confirm("Are you sure you want to completely delete this listing? This action cannot be undone.")) {
+  showConfirm("Delete Listing", "Are you sure you want to completely delete this listing? This action cannot be undone.", async () => {
     try {
       const res = await fetch('api/admin_action_listing.php', {
         method: 'POST',
@@ -358,7 +386,7 @@ async function deleteListingAdmin(id) {
     } catch (err) {
       showToast('Network error', 'error');
     }
-  }
+  });
 }
 
 async function setUserStatus(id, s) {
