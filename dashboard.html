@@ -343,7 +343,7 @@ function renderDashboard() {
             <tbody>
               ${dashData.seekRespRecv.map(r => `
                 <tr>
-                  <td><strong>${r.responder_name}</strong>${r.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${r.responder_email}</span>${r.responder_phone ? `<br><span style="font-size:12px;color:var(--gray)">${r.responder_phone}</span>` : ''}` : ''}</td>
+                  <td><strong>${r.responder_name}</strong>${r.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${r.responder_name}" data-email="${r.responder_email}" data-phone="${r.responder_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td>
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
@@ -371,7 +371,7 @@ function renderDashboard() {
               ${dashData.seekRespSent.map(r => `
                 <tr>
                   <td><strong>${r.requirements ? r.requirements.substring(0, 30) : ''}...</strong></td>
-                  <td>${r.owner_name || 'Landlord'}${r.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${r.owner_email}</span>${r.owner_phone ? `<br><span style="font-size:12px;color:var(--gray)">${r.owner_phone}</span>` : ''}` : ''}</td>
+                  <td>${r.owner_name || 'Landlord'}${r.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${r.owner_name || 'Landlord'}" data-email="${r.owner_email}" data-phone="${r.owner_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td>
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
@@ -425,7 +425,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Buyer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersRecv.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}${o.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${o.buyer_email}</span>${o.buyer_phone ? `<br><span style="font-size:12px;color:var(--gray)">${o.buyer_phone}</span>` : ''}` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}${o.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.buyer_name}" data-email="${o.buyer_email}" data-phone="${o.buyer_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -441,7 +441,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Seller</th><th>Your Bid</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersSent.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}${o.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${o.seller_email}</span>${o.seller_phone ? `<br><span style="font-size:12px;color:var(--gray)">${o.seller_phone}</span>` : ''}` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}${o.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.seller_name}" data-email="${o.seller_email}" data-phone="${o.seller_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -461,7 +461,7 @@ function renderDashboard() {
               ${appsRecv.map(a => `
                 <tr>
                   <td><strong>${a.listing_title}</strong></td>
-                  <td>${a.applicant_name}${a.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${a.applicant_email}</span>${a.applicant_phone ? `<br><span style="font-size:12px;color:var(--gray)">${a.applicant_phone}</span>` : ''}` : ''}</td>
+                  <td>${a.applicant_name}${a.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${a.applicant_name}" data-email="${a.applicant_email}" data-phone="${a.applicant_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td>
                   <td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.message}">${a.message}</div></td>
                   <td>${statusBadge(a.status)}</td>
                   <td>
@@ -488,7 +488,7 @@ function renderDashboard() {
               ${appsSent.map(a => `
                 <tr>
                   <td><strong>${a.listing_title}</strong></td>
-                  <td>${a.owner_name || 'Landlord'}${a.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${a.owner_email}</span>${a.owner_phone ? `<br><span style="font-size:12px;color:var(--gray)">${a.owner_phone}</span>` : ''}` : ''}</td>
+                  <td>${a.owner_name || 'Landlord'}${a.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${a.owner_name || 'Landlord'}" data-email="${a.owner_email}" data-phone="${a.owner_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td>
                   <td>${statusBadge(a.status)}</td>
                   <td>${a.created_at}</td>
                 </tr>
@@ -784,7 +784,49 @@ async function setSeekingResponseStatus(id, status) {
   }
 }
 
+function showContactModal(name, email, phone) {
+  document.getElementById('contactName').textContent = name || 'User';
+  document.getElementById('contactAvatar').textContent = (name || 'U').substring(0, 2).toUpperCase();
+  document.getElementById('contactEmail').textContent = email || 'N/A';
+  document.getElementById('contactPhone').textContent = phone || 'Not provided';
+  document.getElementById('contactEmailBtn').href = `mailto:${email}`;
+  document.getElementById('contactModal').classList.add('open');
+  if (window.lucide) lucide.createIcons();
+}
+
 loadDashboardData();
 </script>
+
+<!-- Contact Modal -->
+<div class="modal-bg" id="contactModal">
+  <div class="modal" style="max-width:400px;text-align:center;">
+    <button class="modal-close" onclick="document.getElementById('contactModal').classList.remove('open')">×</button>
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;margin:0 auto 16px;" id="contactAvatar">U</div>
+    <h2 id="contactName" style="margin:0 0 8px;color:var(--navy)">User</h2>
+    <p style="margin:0 0 16px;color:var(--gray)">Contact Information</p>
+    
+    <div style="text-align:left;background:var(--bg);padding:16px;border-radius:8px;border:1px solid var(--border);margin-bottom:16px;">
+      <div style="margin-bottom:12px;display:flex;align-items:center;gap:12px">
+        <i data-lucide="mail" style="color:var(--primary)"></i>
+        <div>
+          <div style="font-size:12px;color:var(--gray)">Email Address</div>
+          <div style="font-weight:500" id="contactEmail">N/A</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <i data-lucide="phone" style="color:var(--primary)"></i>
+        <div>
+          <div style="font-size:12px;color:var(--gray)">Phone Number</div>
+          <div style="font-weight:500" id="contactPhone">Not provided</div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--gray);margin-bottom:16px;line-height:1.4">
+      You can now reach out directly to finalize the details and communicate further.
+    </div>
+    <a id="contactEmailBtn" href="#" class="btn btn-primary btn-block">Send an Email</a>
+  </div>
+</div>
+
 </body>
 </html>
