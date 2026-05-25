@@ -76,25 +76,71 @@ The schema includes a `reset_db.php` utility that seeds the master admin:
 
 ```
 UIU-Nest/
-├── api/                   # All PHP backend endpoints
-│   ├── db.php             # Database connection
-│   ├── login.php          # Authentication
-│   ├── profile.php        # Profile read/update (incl. profile picture)
-│   ├── listings.php       # Listing CRUD
-│   ├── exchange.php       # Marketplace items & offers
-│   ├── bills.php          # Mess bill management
-│   ├── notifications.php  # In-app notifications
-│   ├── admin_*.php        # Admin-only action endpoints
-│   ├── upload.php         # File upload handler (images, docs)
-│   └── reset_db.php       # DB reset + master admin seeder
+├── api/                         # All PHP backend endpoints
+│   ├── db.php                   # PDO database connection
+│   ├── login.php                # Authentication + session creation
+│   ├── logout.php               # Session teardown
+│   ├── register.php             # New user registration
+│   ├── me.php                   # Fetch current session user
+│   ├── profile.php              # Profile read/update (incl. profile_pic)
+│   ├── upload.php               # Secure file upload handler (images, PDFs)
+│   ├── listings.php             # Listing CRUD
+│   ├── applications.php         # Tenancy applications
+│   ├── watchlist.php            # User watchlist (save/remove listings)
+│   ├── bills.php                # Mess bill create/read/pay
+│   ├── exchange.php             # Marketplace item CRUD
+│   ├── offers.php               # Offer/counter-offer management
+│   ├── complaint.php            # Submit complaints
+│   ├── seeking.php              # Looking-For post CRUD
+│   ├── seeking_responses.php    # Responses to seeking posts
+│   ├── verify.php               # Submit verification request
+│   ├── verif_status.php         # Check own verification status
+│   ├── notifications.php        # Fetch + mark-read notifications
+│   ├── dashboard.php            # Dashboard data aggregation
+│   ├── update_status.php        # Update listing/offer/application status
+│   ├── check.php                # Auth check helper
+│   ├── admin_stats.php          # Admin dashboard stats
+│   ├── admin_users.php          # List all users for admin
+│   ├── admin_action_user.php    # Admin suspend/activate user
+│   ├── admin_verifications.php  # List all verification requests
+│   ├── admin_action_verif.php   # Admin approve/reject verification
+│   ├── admin_revoke_verif.php   # Admin revoke verification
+│   ├── admin_complaints.php     # List all complaints for admin
+│   ├── admin_action_complaint.php # Admin resolve/escalate complaint
+│   ├── admin_action_listing.php # Admin delete listing
+│   ├── alter_db_interactions.php # One-time DB migration (seeking_responses + notifications tables)
+│   └── reset_db.php             # ⚠️ Dev only — truncates all tables + seeds master admin
 ├── database/
-│   └── schema.sql         # Full MySQL schema (19 tables)
-├── uploads/               # User-uploaded files (gitignored)
-├── docs/                  # Developer documentation
-├── *.html                 # Page files (index, listings, dashboard, etc.)
-├── app.js                 # Core JS: nav, auth, utilities, shared state
-├── style.css              # Global stylesheet
-└── data.js                # Static seed/fallback data
+│   ├── schema.sql               # Full MySQL schema (19 tables)
+│   ├── seed.sql                 # Optional sample data
+│   └── seed.php                 # PHP seeder script
+├── docs/
+│   ├── system_architecture.md   # Technical architecture overview
+│   ├── walkthrough.md           # Feature implementation log
+│   ├── changelog_vs_report.md   # Deviations from original academic ERD
+│   ├── implementation_plan.md   # Current/past dev plan
+│   └── task.md                  # Dev task checklist
+├── uploads/                     # User-uploaded files (gitignored)
+│   ├── listings/
+│   ├── items/
+│   ├── verifications/
+│   └── profiles/
+├── admin.html                   # Admin dashboard (admin-only)
+├── bills.html                   # Mess bill manager
+├── dashboard.html               # User dashboard (listings, offers, watchlist, bills)
+├── exchange.html                # Marketplace browse
+├── index.html                   # Home / landing page
+├── item-detail.html             # Single marketplace item view
+├── listing-detail.html          # Single housing listing view
+├── listings.html                # Housing listings browse
+├── login.html                   # Login page
+├── profile.html                 # Profile + preferences + verification
+├── register.html                # Registration page
+├── seeking.html                 # Looking For posts
+├── app.js                       # Core JS: nav, auth, localStorage, utilities
+├── data.js                      # Static seed/fallback data
+├── style.css                    # Global design system
+└── .gitignore
 ```
 
 ## Developer Documentation
