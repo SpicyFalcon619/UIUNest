@@ -5,11 +5,11 @@ header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
-    $email = $input['email'] ?? '';
+    $identifier = $input['email'] ?? '';
     $password = $input['password'] ?? '';
 
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
-    $stmt->execute([$email]);
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? OR university_id = ?');
+    $stmt->execute([$identifier, $identifier]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password_hash'])) {
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user'] = $user;
         echo json_encode(['success' => true, 'user' => $user]);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Invalid email or password.']);
+        echo json_encode(['success' => false, 'error' => 'Invalid email/ID or password.']);
     }
 } else {
     echo json_encode(['error' => 'Invalid request method.']);

@@ -13,6 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gender = $input['gender'] ?? 'other';
     $uid = $input['universityId'] ?? null;
     
+    if (trim($uid) === '') {
+        $uid = null;
+    }
+
+    if ($role === 'landlord') {
+        $uid = 'LND-' . strtoupper(substr(uniqid(), -6));
+    } else if ($role === 'admin') {
+        $uid = 'ADM-' . strtoupper(substr(uniqid(), -6));
+    }
+    
     // Validate
     if (empty($name) || empty($email) || empty($password)) {
         echo json_encode(['success' => false, 'error' => 'Missing required fields.']);

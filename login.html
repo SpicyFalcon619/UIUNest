@@ -1,55 +1,79 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Log In - UIUNest</title>
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="data.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body>
-<div id="nav-mount"></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Log In - UIUNest</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="data.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <div id="nav-mount"></div>
 
-<div class="auth-wrap">
-  <div class="auth-card" style="max-width:400px;width:100%">
-    <h1 style="font-size:24px"><span style="color:var(--navy)">UIU</span><span style="color:var(--gold)">Nest</span></h1>
-    <p class="subtitle">Welcome back. Log in to continue.</p>
-    <form onsubmit="doLogin(event)">
-      <div class="form-group"><label>Email</label><input type="email" id="email" value="student@uiu.ac.bd" required></div>
-      <div class="form-group"><label>Password</label><input type="password" id="password" value="password" required></div>
-      <button class="btn btn-primary btn-block">Log In</button>
-      <div style="text-align:center;margin-top:14px;font-size:14px">Don't have an account? <a href="register.html">Register</a></div>
-    </form>
-  </div>
-</div>
+    <div class="auth-wrap">
+      <div class="auth-card" style="max-width: 400px; width: 100%">
+        <h1 style="font-size: 24px">
+          <span style="color: var(--navy)">UIU</span
+          ><span style="color: var(--gold)">Nest</span>
+        </h1>
+        <p class="subtitle">Welcome back. Log in to continue.</p>
+        <form onsubmit="doLogin(event)">
+          <div class="form-group">
+            <label>Email or ID</label
+            ><input
+              type="text"
+              id="email"
+              placeholder="Enter your email or ID"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Password</label
+            ><input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <button class="btn btn-primary btn-block">Log In</button>
+          <div style="text-align: center; margin-top: 14px; font-size: 14px">
+            Don't have an account? <a href="register.html">Register</a>
+          </div>
+        </form>
+      </div>
+    </div>
 
-<div id="footer-mount"></div>
-<script src="app.js"></script>
-<script>
-mountChrome();
-async function doLogin(e) {
-  e.preventDefault();
-  const email = document.getElementById('email').value.trim();
-  const pass = document.getElementById('password').value;
-  try {
-    const res = await fetch('api/login.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: pass })
-    });
-    const data = await res.json();
-    if (data.success) {
-      setCurrentUser(data.user);
-      location.href = 'dashboard.html';
-    } else {
-      showToast(data.error || 'Login failed', 'error');
-    }
-  } catch (err) {
-    showToast('Network error connecting to database', 'error');
-  }
-}
-</script>
-</body>
+    <div id="footer-mount"></div>
+    <script src="app.js"></script>
+    <script>
+      mountChrome();
+      async function doLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const pass = document.getElementById("password").value;
+        try {
+          const res = await fetch("api/login.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password: pass }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            setCurrentUser(data.user);
+            location.href = "dashboard.html";
+          } else {
+            showToast(data.error || "Login failed", "error");
+          }
+        } catch (err) {
+          showToast("Network error connecting to database", "error");
+        }
+      }
+    </script>
+  </body>
 </html>
