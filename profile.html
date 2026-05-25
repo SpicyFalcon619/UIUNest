@@ -138,19 +138,7 @@
               I prefer no smoking in the house
             </label>
           </div>
-          <div class="form-group">
-            <label>Preferred flatmate gender</label>
-            <div class="radio-row">
-              <label
-                ><input type="radio" name="fg" value="male" checked />
-                Male</label
-              >
-              <label
-                ><input type="radio" name="fg" value="female" /> Female</label
-              >
-              <label><input type="radio" name="fg" value="any" /> Any</label>
-            </div>
-          </div>
+
           <div class="form-group">
             <label>Cleanliness Score (1-5): <span id="cleanVal">3</span></label>
             <input
@@ -307,9 +295,7 @@
             });
             document.getElementById("prefSmoking").checked =
               p.smoking_tolerance == 1;
-            document.querySelectorAll("input[name=fg]").forEach((r) => {
-              if (r.value === (p.preferred_gender || "any")) r.checked = true;
-            });
+
             document.getElementById("prefClean").value =
               p.cleanliness_score || 3;
             document.getElementById("cleanVal").textContent =
@@ -396,8 +382,7 @@
           smoking_tolerance: document.getElementById("prefSmoking").checked
             ? 1
             : 0,
-          preferred_gender: document.querySelector("input[name=fg]:checked")
-            .value,
+
           cleanliness_score: document.getElementById("prefClean").value,
           noise_tolerance: document.querySelector("input[name=noise]:checked")
             .value,

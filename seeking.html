@@ -22,7 +22,6 @@
     <div class="form-group" style="margin:0"><label>Zone</label><select id="fZone"><option value="all">All</option></select></div>
     <div class="form-group" style="margin:0"><label>Room type</label><select id="fRoom"><option value="all">Any</option><option value="single">Single</option><option value="shared">Shared</option></select></div>
     <div class="form-group" style="margin:0;min-width:200px"><label>Max budget: <span id="bVal">৳10,000</span></label><input type="range" id="fBudget" min="2000" max="10000" step="500" value="10000"></div>
-    <div class="form-group" style="margin:0"><label>Gender</label><select id="fGender"><option value="all">Any</option><option value="male">Male</option><option value="female">Female</option></select></div>
   </div>
 
   <div id="postsList"></div>
@@ -41,12 +40,6 @@
       <div class="form-group"><label>Room type</label>
         <select id="pRoom"><option value="any">Any</option><option value="single">Single</option><option value="shared">Shared</option></select>
       </div>
-      <div class="form-group"><label>Gender preference</label>
-        <div class="radio-row">
-          <label><input type="radio" name="pg" value="male" checked> Male</label>
-          <label><input type="radio" name="pg" value="female"> Female</label>
-          <label><input type="radio" name="pg" value="any"> Any</label>
-        </div>
       </div>
       <div class="form-group"><label>Move-in date</label><input type="date" id="pDate" required></div>
       <div class="form-group"><label>Requirements</label><textarea id="pReq" required placeholder="Quiet, clean, study-focused roommate needed..."></textarea></div>
@@ -84,12 +77,12 @@ function renderPosts() {
   const zone = document.getElementById('fZone').value;
   const room = document.getElementById('fRoom').value;
   const budget = parseInt(document.getElementById('fBudget').value);
-  const gender = document.getElementById('fGender').value;
+
 
   const r = window.posts.filter(p => {
     if (zone !== 'all' && p.zone !== zone) return false;
     if (room !== 'all' && p.roomType !== room) return false;
-    if (gender !== 'all' && p.preferredGender !== gender) return false;
+    if (user && p.user_gender !== user.gender) return false;
     if (p.budgetMin > budget) return false;
     return true;
   });
@@ -109,7 +102,7 @@ function renderPosts() {
           <span class="budget-badge">${fmt(p.budgetMin)}–${fmt(p.budgetMax)}</span>
           <span class="badge badge-navy">${p.zone}</span>
           <span class="badge badge-blue">${p.roomType}</span>
-          <span class="badge badge-gray">${p.genderPref}</span>
+
         </div>
         <div style="font-size:14px;margin-top:6px;font-weight: 500;">${p.requirements}</div>
       </div>
@@ -135,7 +128,7 @@ async function addPost(e) {
     budgetMin: parseInt(document.getElementById('pMin').value),
     budgetMax: parseInt(document.getElementById('pMax').value),
     roomType: document.getElementById('pRoom').value,
-    genderPref: document.querySelector('input[name=pg]:checked').value,
+
     moveInDate: document.getElementById('pDate').value,
     requirements: document.getElementById('pReq').value.trim()
   };
@@ -161,7 +154,7 @@ async function addPost(e) {
 }
 
 document.getElementById('fBudget').addEventListener('input', e => document.getElementById('bVal').textContent = fmt(e.target.value));
-document.querySelectorAll('#fZone,#fRoom,#fBudget,#fGender').forEach(el => el.addEventListener('change', renderPosts));
+document.querySelectorAll('#fZone,#fRoom,#fBudget').forEach(el => el.addEventListener('change', renderPosts));
 
 if (isLoggedIn()) {
   const user = JSON.parse(localStorage.getItem('uiunest_current_user_v4') || '{}');

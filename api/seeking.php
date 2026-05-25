@@ -49,7 +49,7 @@ if ($method === 'GET') {
     
     $zone_id = $input['zone_id'] ?? null;
     $room_type = $input['roomType'] ?? '';
-    $gender_pref = $input['genderPref'] ?? '';
+    $gender_pref = $_SESSION['user']['gender'];
     $budget_min = $input['budgetMin'] ?? 0;
     $budget_max = $input['budgetMax'] ?? 0;
     $move_in_date = $input['moveInDate'] ?? null;

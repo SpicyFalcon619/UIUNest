@@ -70,7 +70,7 @@ if ($method === 'GET') {
             $diet = $input['diet'] ?? 'non_veg';
             $guest = $input['guest_policy'] ?? 'restricted';
             $smoking = (int)($input['smoking_tolerance'] ?? 0);
-            $pref_gender = $input['preferred_gender'] ?? 'any';
+            $pref_gender = $_SESSION['user']['gender'] ?? 'any';
             $cleanliness = (int)($input['cleanliness_score'] ?? 3);
             $noise = $input['noise_tolerance'] ?? 'moderate';
 

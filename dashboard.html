@@ -36,13 +36,7 @@
       <div class="grid-3">
         <div class="form-group"><label>Total Rooms</label><input type="number" id="editLstRooms" required min="1"></div>
         <div class="form-group"><label>Current Occupancy</label><input type="number" id="editLstOccupancy" required min="0"></div>
-        <div class="form-group"><label>Gender Preference</label>
-          <select id="editLstGender" required>
-            <option value="any">Any</option>
-            <option value="male">Male Only</option>
-            <option value="female">Female Only</option>
-          </select>
-        </div>
+
       </div>
       <div class="form-group"><label>Base Rent (৳)</label><input type="number" id="editLstBaseRent" required min="0"></div>
       <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
@@ -246,7 +240,7 @@ function renderDashboard() {
               propertyType: l.property_type,
               totalRooms: l.total_rooms,
               currentOccupancy: l.current_occupancy,
-              genderPref: l.gender_pref,
+
               costs: { totalMonthly: l.total_monthly || 0 },
               photos: [l.photo_path || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600'],
               compositeScore: 4.5, // placeholder
@@ -363,7 +357,7 @@ function editListing(id) {
   document.getElementById('editLstTitle').value = l.title;
   document.getElementById('editLstRooms').value = l.totalRooms;
   document.getElementById('editLstOccupancy').value = l.currentOccupancy;
-  document.getElementById('editLstGender').value = l.genderPref;
+
   document.getElementById('editLstBaseRent').value = l.costs.baseRent;
 
   const zSelect = document.getElementById('editLstZone');
@@ -384,7 +378,7 @@ function saveEditedListing(e) {
     l.propertyType = document.getElementById('editLstType').value;
     l.totalRooms = parseInt(document.getElementById('editLstRooms').value);
     l.currentOccupancy = parseInt(document.getElementById('editLstOccupancy').value);
-    l.genderPref = document.getElementById('editLstGender').value;
+
     
     const prevBaseRent = l.costs.baseRent;
     const baseRent = parseInt(document.getElementById('editLstBaseRent').value);

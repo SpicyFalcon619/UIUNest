@@ -113,7 +113,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $input['address'], 
             $input['lat'], 
             $input['lng'], 
-            $input['genderPref'], 
+            $_SESSION['user']['gender'], 
             $input['totalRooms'], 
             $input['currentOccupancy'], 
             $isVerified
