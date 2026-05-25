@@ -63,7 +63,7 @@ if ($method === 'POST') {
     }
     try {
         $stmt = $pdo->prepare("
-            SELECT o.*, u.name as buyer_name, u.email as buyer_email 
+            SELECT o.*, u.name as buyer_name, u.email as buyer_email, u.phone as buyer_phone
             FROM offers o 
             JOIN users u ON o.buyer_id = u.user_id 
             WHERE o.item_id = ? 

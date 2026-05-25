@@ -23,9 +23,16 @@
 mountChrome('exchange');
 const id = getQueryId();
 let it = null;
+let currentUser = null;
 
 async function init() {
   try {
+    const meRes = await fetch('api/me.php');
+    const meData = await meRes.json();
+    if (meData.loggedIn) {
+      currentUser = meData.user;
+    }
+
     const res = await fetch('api/exchange.php');
     const data = await res.json();
     if (data.success) {
@@ -63,9 +70,9 @@ function renderPage(itemOffers) {
   }
 
   const linked = it.linkedListingId ? mockData.listings.find(l => l.id === it.linkedListingId) : null;
-  const user = window.mockData.currentUser;
-  const isSeller = user && user.email === it.sellerEmail;
-  const sold = it.status === 'sold';
+  const user = currentUser;
+  const isSeller = user && (user.email === it.sellerEmail || user.user_id === it.seller_id);
+  const sold = it.status === 'sold' || it.status === 'withdrawn';
 
   // Find if current user already has a pending or countered offer on this item
   const userExistingOffer = user ? itemOffers.find(o => o.buyer_email === user.email && (o.status === 'pending' || o.status === 'countered')) : null;
@@ -85,7 +92,7 @@ function renderPage(itemOffers) {
         <span class="badge badge-navy">${it.category}</span>
         ${conditionBadge(it.condition)}
         <span class="badge badge-gray">${it.zone}</span>
-        ${sold ? '<span class="badge badge-red">SOLD</span>' : '<span class="badge badge-green">AVAILABLE</span>'}
+        ${sold ? '<span class="badge badge-red">UNAVAILABLE</span>' : '<span class="badge badge-green">AVAILABLE</span>'}
       </div>
       <div class="price" style="font-size:32px;margin-bottom:14px">${fmt(it.price)}</div>
       
@@ -95,8 +102,8 @@ function renderPage(itemOffers) {
       </div>
       <div class="card" style="margin-bottom:14px">
         <h3 style="margin:0 0 10px;color:var(--navy)">Seller Details</h3>
-        <div style="font-weight:600">${it.sellerName}</div>
-        <div style="font-size:13px;color:var(--gray);margin-top:4px">Email: ${it.sellerEmail}</div>
+        <div style="font-weight:600">${it.seller || it.sellerName || 'Unknown'}</div>
+        <div style="font-size:13px;color:var(--gray);margin-top:4px">Email: ${it.sellerEmail || 'Hidden'}</div>
       </div>
 
       ${linked ? `
@@ -195,7 +202,7 @@ function renderOffers(offers, isSeller, user, sold) {
     return `
       <div style="padding:12px 0; border-bottom:1px solid var(--border); ${sold && !isAccepted ? 'opacity:0.4' : ''}">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong>${o.buyer_name || o.buyer_email}${isAccepted ? `<br><small style="font-weight:normal;color:var(--gray)">${o.buyer_email}</small>` : ''}</strong>
+          <strong>${o.buyer_name || o.buyer_email}${isAccepted ? `<br><small style="font-weight:normal;color:var(--gray)">${o.buyer_email}</small>${o.buyer_phone ? `<br><small style="font-weight:normal;color:var(--gray)">${o.buyer_phone}</small>` : ''}` : ''}</strong>
           ${stateLabel}
         </div>
         <div style="margin:6px 0; font-size:15px;">${showPrice}</div>

@@ -322,7 +322,10 @@ async function fetchNotifications() {
       
       list.innerHTML = data.notifications.length === 0 ? '<div style="padding:10px 0;text-align:center">No notifications</div>' : data.notifications.map(n => 
         `<div style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;background:${n.is_read ? 'transparent' : '#f0f9ff'}" onclick="markNotifRead(${n.notif_id}, '${n.link || 'dashboard.html'}', event)">
-           <div style="font-weight:${n.is_read ? 'normal' : 'bold'};color:var(--navy)">${n.message}</div>
+           <div style="font-weight:${n.is_read ? 'normal' : 'bold'};color:var(--navy);display:flex;justify-content:space-between;">
+             <span>${n.message}</span>
+             ${!n.is_read ? `<button class="btn btn-outline btn-sm" style="padding:2px 6px;font-size:10px;border:none;background:transparent" onclick="markNotifRead(${n.notif_id}, '', event)" title="Mark as read">✓</button>` : ''}
+           </div>
            <div style="font-size:11px;color:#888;margin-top:4px">${new Date(n.created_at).toLocaleString()}</div>
          </div>`
       ).join('');
@@ -350,6 +353,11 @@ async function markNotifRead(id, link, event) {
     console.error('Failed to mark notification as read:', e);
   }
   
+  if (link === '') {
+    fetchNotifications();
+    return;
+  }
+
   let target = 'dashboard.html';
   if (link && link !== 'null' && link !== 'undefined') {
     target = link;

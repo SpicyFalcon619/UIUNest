@@ -252,7 +252,13 @@ function renderDashboard() {
                 <tr>
                   <td><strong>${l.title}</strong></td>
                   <td>${l.zone_name}</td>
-                  <td>${statusBadge(l.status)}</td>
+                  <td>
+                    <select class="form-control" style="padding:4px 8px;font-size:13px;height:auto;width:auto;" onchange="updateEntityStatus('listing', ${l.listing_id}, this.value)">
+                      <option value="available" ${l.status === 'available' ? 'selected' : ''}>Available</option>
+                      <option value="occupied" ${l.status === 'occupied' ? 'selected' : ''}>Occupied</option>
+                      <option value="soon_vacant" ${l.status === 'soon_vacant' ? 'selected' : ''}>Soon Vacant</option>
+                    </select>
+                  </td>
                   <td>${fmt(l.total_monthly || 0)}</td>
                   <td>
                     <button class="btn btn-outline btn-sm" onclick="editListing(${l.listing_id})">Edit</button>
@@ -281,7 +287,13 @@ function renderDashboard() {
                   <td><strong>${it.title}</strong></td>
                   <td>${fmt(it.asking_price)}</td>
                   <td>${conditionBadge(it.item_condition)}</td>
-                  <td>${statusBadge(it.status || 'available')}</td>
+                  <td>
+                    <select class="form-control" style="padding:4px 8px;font-size:13px;height:auto;width:auto;" onchange="updateEntityStatus('item', ${it.item_id}, this.value)">
+                      <option value="available" ${it.status === 'available' || !it.status ? 'selected' : ''}>Available</option>
+                      <option value="sold" ${it.status === 'sold' ? 'selected' : ''}>Sold</option>
+                      <option value="withdrawn" ${it.status === 'withdrawn' ? 'selected' : ''}>Withdrawn</option>
+                    </select>
+                  </td>
                   <td>
                     <button class="btn btn-outline btn-sm" onclick="editItem(${it.item_id})">Edit</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteItem(${it.item_id})">Delete</button>
@@ -310,7 +322,12 @@ function renderDashboard() {
                   <td>${formatPropertyType(s.property_type)}</td>
                   <td>${fmt(s.budget_min)} - ${fmt(s.budget_max)}</td>
                   <td>${s.move_in_date || 'N/A'}</td>
-                  <td>${statusBadge(s.status)}</td>
+                  <td>
+                    <select class="form-control" style="padding:4px 8px;font-size:13px;height:auto;width:auto;" onchange="updateEntityStatus('seeking', ${s.post_id}, this.value)">
+                      <option value="active" ${s.status === 'active' || !s.status ? 'selected' : ''}>Active</option>
+                      <option value="fulfilled" ${s.status === 'fulfilled' ? 'selected' : ''}>Fulfilled</option>
+                    </select>
+                  </td>
                   <td>
                     <button class="btn btn-outline-danger btn-sm" onclick="deleteSeeking(${s.post_id})">Delete</button>
                   </td>
@@ -331,7 +348,7 @@ function renderDashboard() {
             <tbody>
               ${dashData.seekRespRecv.map(r => `
                 <tr>
-                  <td><strong>${r.responder_name}</strong>${r.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${r.responder_email}</span>` : ''}</td>
+                  <td><strong>${r.responder_name}</strong>${r.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${r.responder_email}</span>${r.responder_phone ? `<br><span style="font-size:12px;color:var(--gray)">${r.responder_phone}</span>` : ''}` : ''}</td>
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
@@ -359,7 +376,7 @@ function renderDashboard() {
               ${dashData.seekRespSent.map(r => `
                 <tr>
                   <td><strong>${r.requirements ? r.requirements.substring(0, 30) : ''}...</strong></td>
-                  <td>${r.owner_name || 'Landlord'}${r.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${r.owner_email}</span>` : ''}</td>
+                  <td>${r.owner_name || 'Landlord'}${r.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${r.owner_email}</span>${r.owner_phone ? `<br><span style="font-size:12px;color:var(--gray)">${r.owner_phone}</span>` : ''}` : ''}</td>
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
@@ -413,7 +430,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Buyer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersRecv.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}${o.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${o.buyer_email}</span>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}${o.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${o.buyer_email}</span>${o.buyer_phone ? `<br><span style="font-size:12px;color:var(--gray)">${o.buyer_phone}</span>` : ''}` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -429,7 +446,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Seller</th><th>Your Bid</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersSent.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}${o.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${o.seller_email}</span>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}${o.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${o.seller_email}</span>${o.seller_phone ? `<br><span style="font-size:12px;color:var(--gray)">${o.seller_phone}</span>` : ''}` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -449,16 +466,14 @@ function renderDashboard() {
               ${appsRecv.map(a => `
                 <tr>
                   <td><strong>${a.listing_title}</strong></td>
-                  <td>${a.applicant_name}${a.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${a.applicant_email}</span>` : ''}</td>
+                  <td>${a.applicant_name}${a.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${a.applicant_email}</span>${a.applicant_phone ? `<br><span style="font-size:12px;color:var(--gray)">${a.applicant_phone}</span>` : ''}` : ''}</td>
                   <td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.message}">${a.message}</div></td>
                   <td>${statusBadge(a.status)}</td>
                   <td>
                     ${a.status === 'pending' ? `
                       <button class="btn btn-success btn-sm" onclick="setAppStatus(${a.application_id}, 'accepted')">Accept</button>
                       <button class="btn btn-danger btn-sm" onclick="setAppStatus(${a.application_id}, 'rejected')">Reject</button>
-                    ` : `
-                      <button class="btn btn-outline btn-sm" disabled>Processed</button>
-                    `}
+                    ` : ''}
                   </td>
                 </tr>
               `).join('')}
@@ -478,7 +493,7 @@ function renderDashboard() {
               ${appsSent.map(a => `
                 <tr>
                   <td><strong>${a.listing_title}</strong></td>
-                  <td>${a.owner_name || 'Landlord'}${a.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${a.owner_email}</span>` : ''}</td>
+                  <td>${a.owner_name || 'Landlord'}${a.status === 'accepted' ? `<br><span style="font-size:12px;color:var(--primary)">${a.owner_email}</span>${a.owner_phone ? `<br><span style="font-size:12px;color:var(--gray)">${a.owner_phone}</span>` : ''}` : ''}</td>
                   <td>${statusBadge(a.status)}</td>
                   <td>${a.created_at}</td>
                 </tr>
@@ -700,7 +715,7 @@ async function deleteItem(id) {
       const res = await fetch('api/exchange.php', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item_id: id })
+        body: JSON.stringify({ id })
       });
       const data = await res.json();
       if (data.success) {
@@ -709,10 +724,29 @@ async function deleteItem(id) {
       } else {
         showToast(data.error || 'Failed to delete', 'error');
       }
-    } catch (e) {
+    } catch(e) {
       showToast('Network error', 'error');
     }
   });
+}
+
+async function updateEntityStatus(type, id, status) {
+  try {
+    const res = await fetch('api/update_status.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, id, status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Status updated');
+      loadDashboardData();
+    } else {
+      showToast(data.error || 'Failed to update status', 'error');
+    }
+  } catch(e) {
+    showToast('Network error', 'error');
+  }
 }
 
 async function setAppStatus(id, status) {

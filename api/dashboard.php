@@ -72,7 +72,7 @@ try {
 
     // 5. Offers Sent
     $stmt = $pdo->prepare("
-        SELECT o.*, i.title, u.name as seller_name, u.email as seller_email 
+        SELECT o.*, i.title, u.name as seller_name, u.email as seller_email, u.phone as seller_phone 
         FROM offers o 
         JOIN items i ON o.item_id = i.item_id 
         JOIN users u ON i.seller_id = u.user_id 
@@ -84,7 +84,7 @@ try {
 
     // 6. Offers Received
     $stmt = $pdo->prepare("
-        SELECT o.*, i.title, u.name as buyer_name, u.email as buyer_email 
+        SELECT o.*, i.title, u.name as buyer_name, u.email as buyer_email, u.phone as buyer_phone 
         FROM offers o 
         JOIN items i ON o.item_id = i.item_id 
         JOIN users u ON o.buyer_id = u.user_id 
@@ -96,7 +96,7 @@ try {
 
     // 7. Applications Sent
     $stmt = $pdo->prepare("
-        SELECT a.*, l.title as listing_title, u.email as owner_email, u.name as owner_name 
+        SELECT a.*, l.title as listing_title, u.email as owner_email, u.name as owner_name, u.phone as owner_phone 
         FROM applications a 
         JOIN listings l ON a.listing_id = l.listing_id 
         JOIN users u ON l.user_id = u.user_id 
@@ -108,7 +108,7 @@ try {
 
     // 8. Applications Received
     $stmt = $pdo->prepare("
-        SELECT a.*, l.title as listing_title, u.name as applicant_name, u.email as applicant_email 
+        SELECT a.*, l.title as listing_title, u.name as applicant_name, u.email as applicant_email, u.phone as applicant_phone 
         FROM applications a 
         JOIN listings l ON a.listing_id = l.listing_id 
         JOIN users u ON a.applicant_id = u.user_id 
@@ -131,7 +131,7 @@ try {
 
     // 10. Seeking Responses Sent
     $stmt = $pdo->prepare("
-        SELECT r.*, u.email as owner_email, u.name as owner_name, s.requirements 
+        SELECT r.*, u.email as owner_email, u.name as owner_name, u.phone as owner_phone, s.requirements 
         FROM seeking_responses r 
         JOIN seeking_posts s ON r.post_id = s.post_id 
         JOIN users u ON s.user_id = u.user_id 
@@ -143,7 +143,7 @@ try {
 
     // 11. Seeking Responses Received
     $stmt = $pdo->prepare("
-        SELECT r.*, u.name as responder_name, u.email as responder_email 
+        SELECT r.*, u.name as responder_name, u.email as responder_email, u.phone as responder_phone 
         FROM seeking_responses r 
         JOIN seeking_posts s ON r.post_id = s.post_id 
         JOIN users u ON r.responder_id = u.user_id 

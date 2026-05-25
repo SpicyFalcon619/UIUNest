@@ -96,9 +96,16 @@
 <script>
 mountChrome('listings');
 let l;
+let currentUser = null;
 async function renderDetail() {
   const id = getQueryId();
   try {
+    const meRes = await fetch('api/me.php');
+    const meData = await meRes.json();
+    if (meData.loggedIn) {
+      currentUser = meData.user;
+    }
+
     const res = await fetch('api/listings.php?id=' + id);
     const data = await res.json();
     if (data.success && data.listings && data.listings.length > 0) {
@@ -229,10 +236,10 @@ async function renderDetail() {
           <div id="map-detail"></div>
           <div class="card" style="margin-top:14px">
             <h3 style="margin:0 0 8px;color:var(--navy)">${l.listingType === 'Landlord Listed' ? 'Landlord Contact' : 'Student Contact'}</h3>
-            <div style="font-weight:600" id="ownerName">Owner</div>
-            <div style="font-size:13px;color:var(--gray);margin:6px 0" id="ownerEmailText">Email: </div>
-            ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `<button class="btn btn-primary btn-block" onclick="applyForListing(${l.id}, '${l.genderPref}')">Apply for Home</button>` : ''}
-            ${(!isLoggedIn() || (window.mockData.currentUser && window.mockData.currentUser.role !== 'admin')) ? `<button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" style="margin-top:10px;width:100%;text-align:center"><i data-lucide="heart" class="lucide-sm"></i> ${wl ? 'Saved' : 'Save to watchlist'}</button>` : ''}
+            <div style="font-weight:600" id="ownerName">${l.ownerName || 'Owner'}</div>
+            <div style="font-size:13px;color:var(--gray);margin:6px 0" id="ownerEmailText">Email: ${l.ownerEmail || 'Hidden'}</div>
+            ${isLoggedIn() && currentUser && currentUser.role === 'student' && currentUser.email !== l.ownerEmail && l.status === 'available' ? `<button class="btn btn-primary btn-block" onclick="applyForListing(${l.id}, '${l.genderPref}')">Apply for Home</button>` : ''}
+            ${(!isLoggedIn() || (currentUser && currentUser.role !== 'admin')) ? `<button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" style="margin-top:10px;width:100%;text-align:center"><i data-lucide="heart" class="lucide-sm"></i> ${wl ? 'Saved' : 'Save to watchlist'}</button>` : ''}
           </div>
 
           ${linkedItems.length ? `
