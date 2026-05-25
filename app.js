@@ -259,10 +259,11 @@ function renderNav(active) {
 
   const rightHTML = logged
     ? `<div style="position:relative;display:inline-block">
-         <button class="icon-btn" title="Notifications" onclick="toggleNotifs()"><i data-lucide="bell" class="lucide-sm"></i><span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center"></span></button>
+         <button id="notifBtn" class="icon-btn" title="Notifications" onclick="toggleNotifs()"><i data-lucide="bell" class="lucide-sm"></i><span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center"></span></button>
          <div class="avatar-menu" id="notifMenu" style="width:280px;right:-10px;padding:12px;z-index:2000">
            <div style="font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">Notifications</div>
-           <div id="notifList" style="max-height:300px;overflow-y:auto;font-size:13px;color:var(--gray)">Loading...</div>
+           <div id="notifList" style="max-height:300px;overflow-y:auto;font-size:13px;color:var(--gray);margin-bottom:8px;">Loading...</div>
+           <button class="btn btn-outline btn-block btn-sm" onclick="markNotifRead('all', '', event)">Mark all as read</button>
          </div>
        </div>
        <a class="icon-btn" href="dashboard.html?tab=watch" title="Watchlist"><i data-lucide="heart" class="lucide-sm"></i></a>
@@ -558,6 +559,15 @@ window.addEventListener('click', e => {
   if (notifMenu && notifMenu.classList.contains('open')) {
     if (!notifMenu.contains(e.target) && (!notifBtn || !notifBtn.contains(e.target))) {
       notifMenu.classList.remove('open');
+    }
+  }
+
+  // Close avatar dropdown when clicking outside
+  const avatarMenu = document.getElementById('avatarMenu');
+  const avatarBtn = document.getElementById('avatarBtn');
+  if (avatarMenu && avatarMenu.classList.contains('open')) {
+    if (!avatarMenu.contains(e.target) && (!avatarBtn || !avatarBtn.contains(e.target))) {
+      avatarMenu.classList.remove('open');
     }
   }
 });
