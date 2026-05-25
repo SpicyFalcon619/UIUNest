@@ -1,343 +1,513 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Profile - UIUNest</title>
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="data.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body>
-<div id="nav-mount"></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Profile - UIUNest</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="data.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <div id="nav-mount"></div>
 
-<div class="container">
-  <h1 class="page-title">Profile & Preferences</h1>
+    <div class="container">
+      <h1 class="page-title">Profile & Preferences</h1>
 
-  <div class="card" style="margin-bottom:20px">
-    <h3 style="margin:0 0 14px;color:var(--navy)">Personal Info</h3>
-    <form onsubmit="saveProfile(event)">
-      <div class="grid-2">
-        <div class="form-group"><label>Name</label><input id="pfName" required></div>
-        <div class="form-group"><label>Email</label><input type="email" id="pfEmail" required></div>
-        <div class="form-group"><label>Phone</label><input id="pfPhone" placeholder="+880 1XXX-XXXXXX"></div>
-        <div class="form-group"><label id="pfIdLabel">UIU ID</label><input id="pfId" placeholder="011XXXXXXXX"></div>
-      </div>
-      <div class="form-group"><label>Gender (read-only)</label>
-        <div class="radio-row">
-          <label><input type="radio" name="pfgender" id="pfGenM" disabled> Male</label>
-          <label><input type="radio" name="pfgender" id="pfGenF" disabled> Female</label>
-        </div>
-      </div>
-      <button class="btn btn-primary">Save Changes</button>
-    </form>
-  </div>
-
-  <div class="card" id="housingPrefsCard" style="margin-bottom:20px">
-    <h3 style="margin:0 0 4px;color:var(--navy)">Housing Preferences</h3>
-    <p style="color:var(--gray);font-size:13px;margin:0 0 14px">Your preference profile is used to calculate compatibility scores when you browse shared messes.</p>
-    <form id="prefForm" onsubmit="savePrefs(event)">
-      <div class="form-group"><label>Sleep schedule</label>
-        <div class="radio-row">
-          <label><input type="radio" name="sleep" value="early"> Early Bird (before 11pm)</label>
-          <label><input type="radio" name="sleep" value="late"> Night Owl (after 12am)</label>
-          <label><input type="radio" name="sleep" value="flexible" checked> Flexible</label>
-        </div>
-      </div>
-      <div class="form-group"><label>Study hours per day: <span id="hrVal">4</span></label>
-        <input type="range" id="prefStudy" min="0" max="16" value="4" oninput="hrVal.textContent=this.value">
-      </div>
-      <div class="form-group"><label>Diet</label>
-        <div class="radio-row">
-          <label><input type="radio" name="diet" value="vegetarian"> Vegetarian</label>
-          <label><input type="radio" name="diet" value="non_veg" checked> Non-Vegetarian</label>
-          <label><input type="radio" name="diet" value="halal_strict"> Strictly Halal</label>
-        </div>
-      </div>
-      <div class="form-group"><label>Guest policy</label>
-        <div class="radio-row">
-          <label><input type="radio" name="guest" value="allowed"> Allowed</label>
-          <label><input type="radio" name="guest" value="restricted" checked> Restricted (weekends only)</label>
-          <label><input type="radio" name="guest" value="not_allowed"> Not Allowed</label>
-        </div>
-      </div>
-      <div class="form-group"><label>Smoking tolerance</label>
-        <label class="checkbox-label" style="font-size:14px;color:var(--gray) !important;font-weight:400 !important;margin-top:8px">
-          <input type="checkbox" id="prefSmoking" checked>
-          I prefer no smoking in the house
-        </label>
-      </div>
-      <div class="form-group"><label>Preferred flatmate gender</label>
-        <div class="radio-row">
-          <label><input type="radio" name="fg" value="male" checked> Male</label>
-          <label><input type="radio" name="fg" value="female"> Female</label>
-          <label><input type="radio" name="fg" value="any"> Any</label>
-        </div>
-      </div>
-      <div class="form-group"><label>Cleanliness Score (1-5): <span id="cleanVal">3</span></label>
-        <input type="range" id="prefClean" min="1" max="5" value="3" oninput="cleanVal.textContent=this.value">
-        <span style="font-size:13px;color:var(--gray);display:block;margin-top:4px">1 = Messy, 5 = OCD Clean</span>
+      <div class="card" style="margin-bottom: 20px">
+        <h3 style="margin: 0 0 14px; color: var(--navy)">Personal Info</h3>
+        <form onsubmit="saveProfile(event)">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Name</label><input id="pfName" required />
+            </div>
+            <div class="form-group">
+              <label>Email</label><input type="email" id="pfEmail" required />
+            </div>
+            <div class="form-group">
+              <label>Phone</label
+              ><input id="pfPhone" placeholder="+880 1XXX-XXXXXX" />
+            </div>
+            <div class="form-group">
+              <label id="pfIdLabel">UIU ID</label
+              ><input id="pfId" placeholder="011XXXXXXXX" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Gender (read-only)</label>
+            <div class="radio-row">
+              <label
+                ><input type="radio" name="pfgender" id="pfGenM" disabled />
+                Male</label
+              >
+              <label
+                ><input type="radio" name="pfgender" id="pfGenF" disabled />
+                Female</label
+              >
+            </div>
+          </div>
+          <button class="btn btn-primary">Save Changes</button>
+        </form>
       </div>
 
-      <div class="form-group"><label>Noise tolerance</label>
-        <div class="radio-row">
-          <label><input type="radio" name="noise" value="quiet" checked> Quiet</label>
-          <label><input type="radio" name="noise" value="moderate"> Moderate</label>
-          <label><input type="radio" name="noise" value="noisy"> Lively is fine</label>
-        </div>
+      <div class="card" id="housingPrefsCard" style="margin-bottom: 20px">
+        <h3 style="margin: 0 0 4px; color: var(--navy)">Housing Preferences</h3>
+        <p style="color: var(--gray); font-size: 13px; margin: 0 0 14px">
+          Your preference profile is used to calculate compatibility scores when
+          you browse shared messes.
+        </p>
+        <form id="prefForm" onsubmit="savePrefs(event)">
+          <div class="form-group">
+            <label>Sleep schedule</label>
+            <div class="radio-row">
+              <label
+                ><input type="radio" name="sleep" value="early" /> Early Bird
+                (before 11pm)</label
+              >
+              <label
+                ><input type="radio" name="sleep" value="late" /> Night Owl
+                (after 12am)</label
+              >
+              <label
+                ><input type="radio" name="sleep" value="flexible" checked />
+                Flexible</label
+              >
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Study hours per day: <span id="hrVal">4</span></label>
+            <input
+              type="range"
+              id="prefStudy"
+              min="0"
+              max="16"
+              value="4"
+              oninput="hrVal.textContent = this.value"
+            />
+          </div>
+          <div class="form-group">
+            <label>Diet</label>
+            <div class="radio-row">
+              <label
+                ><input type="radio" name="diet" value="vegetarian" />
+                Vegetarian</label
+              >
+              <label
+                ><input type="radio" name="diet" value="non_veg" checked />
+                Non-Vegetarian</label
+              >
+              <label
+                ><input type="radio" name="diet" value="halal_strict" />
+                Strictly Halal</label
+              >
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Guest policy</label>
+            <div class="radio-row">
+              <label
+                ><input type="radio" name="guest" value="allowed" />
+                Allowed</label
+              >
+              <label
+                ><input type="radio" name="guest" value="restricted" checked />
+                Restricted (weekends only)</label
+              >
+              <label
+                ><input type="radio" name="guest" value="not_allowed" /> Not
+                Allowed</label
+              >
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Smoking tolerance</label>
+            <label
+              class="checkbox-label"
+              style="
+                font-size: 14px;
+                color: var(--gray) !important;
+                font-weight: 400 !important;
+                margin-top: 8px;
+              "
+            >
+              <input type="checkbox" id="prefSmoking" checked />
+              I prefer no smoking in the house
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Preferred flatmate gender</label>
+            <div class="radio-row">
+              <label
+                ><input type="radio" name="fg" value="male" checked />
+                Male</label
+              >
+              <label
+                ><input type="radio" name="fg" value="female" /> Female</label
+              >
+              <label><input type="radio" name="fg" value="any" /> Any</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Cleanliness Score (1-5): <span id="cleanVal">3</span></label>
+            <input
+              type="range"
+              id="prefClean"
+              min="1"
+              max="5"
+              value="3"
+              oninput="cleanVal.textContent = this.value"
+            />
+            <span
+              style="
+                font-size: 13px;
+                color: var(--gray);
+                display: block;
+                margin-top: 4px;
+              "
+              >1 = Messy, 5 = OCD Clean</span
+            >
+          </div>
+
+          <div class="form-group">
+            <label>Noise tolerance</label>
+            <div class="radio-row">
+              <label
+                ><input type="radio" name="noise" value="quiet" checked />
+                Quiet</label
+              >
+              <label
+                ><input type="radio" name="noise" value="moderate" />
+                Moderate</label
+              >
+              <label
+                ><input type="radio" name="noise" value="noisy" /> Lively is
+                fine</label
+              >
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top: 24px">
+            Save Preferences
+          </button>
+        </form>
       </div>
-      <button class="btn btn-primary" style="margin-top:24px">Save Preferences</button>
-    </form>
-  </div>
 
-  <div class="card" id="verifCard">
-    <h3 style="margin:0 0 4px;color:var(--navy)">Property Verification</h3>
-    <p style="color:var(--gray);font-size:13px;margin:0 0 14px">(For landlords or students subletting)</p>
-    <form id="verifForm" onsubmit="submitVerification(event)">
-      <div class="form-group"><label>Document type</label><select id="vType"><option value="National ID">National ID</option><option value="Passport">Passport</option><option value="Driving License">Driving License</option></select></div>
-      <div class="form-group">
-        <label>Upload Document(s) (Image/PDF)</label>
-        <input type="file" id="vDoc" accept="image/*,.pdf" multiple required style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; width: 100%;" onchange="updateFileList(this)">
-        <div id="fileListDisplay" style="font-size:13px;color:var(--gray);margin-top:6px;"></div>
+      <div class="card" id="verifCard">
+        <h3 style="margin: 0 0 4px; color: var(--navy)">
+          Property Verification
+        </h3>
+        <p style="color: var(--gray); font-size: 13px; margin: 0 0 14px">
+          (For landlords or students subletting)
+        </p>
+        <form id="verifForm" onsubmit="submitVerification(event)">
+          <div class="form-group">
+            <label>Document type</label
+            ><select id="vType">
+              <option value="National ID">National ID</option>
+              <option value="Passport">Passport</option>
+              <option value="Driving License">Driving License</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Upload Document(s) (Image/PDF)</label>
+            <input
+              type="file"
+              id="vDoc"
+              accept="image/*,.pdf"
+              multiple
+              required
+              style="
+                padding: 8px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                width: 100%;
+              "
+              onchange="updateFileList(this)"
+            />
+            <div
+              id="fileListDisplay"
+              style="font-size: 13px; color: var(--gray); margin-top: 6px"
+            ></div>
+          </div>
+          <div class="form-group">
+            <label>Document description</label
+            ><textarea id="vDesc" required></textarea>
+          </div>
+          <button class="btn btn-primary" id="btnSubmitVerif">
+            Submit Verification Request
+          </button>
+          <span
+            id="verifBadge"
+            class="badge badge-amber"
+            style="display: none; margin-left: 10px"
+            ><i data-lucide="clock" class="lucide-sm"></i> Pending Review</span
+          >
+        </form>
       </div>
-      <div class="form-group"><label>Document description</label><textarea id="vDesc" placeholder="Identity document + property deed submitted" required></textarea></div>
-      <button class="btn btn-primary" id="btnSubmitVerif">Submit Verification Request</button>
-      <span id="verifBadge" class="badge badge-amber" style="display:none;margin-left:10px"><i data-lucide="clock" class="lucide-sm"></i> Pending Review</span>
-    </form>
-  </div>
-</div>
+    </div>
 
-<div id="footer-mount"></div>
-<script src="app.js"></script>
-<script>
-mountChrome('profile');
+    <div id="footer-mount"></div>
+    <script src="app.js"></script>
+    <script>
+      mountChrome("profile");
 
-let user = null;
+      let user = null;
 
-async function loadProfileData() {
-  try {
-    const res = await fetch('api/profile.php');
-    const data = await res.json();
-    if (data.success) {
-      const u = data.user;
-      document.getElementById('pfName').value = u.name || '';
-      document.getElementById('pfEmail').value = u.email || '';
-      document.getElementById('pfPhone').value = u.phone || '';
-      document.getElementById('pfId').value = u.university_id || '';
-      if (u.gender === 'female') {
-        document.getElementById('pfGenF').checked = true;
-      } else {
-        document.getElementById('pfGenM').checked = true;
+      async function loadProfileData() {
+        try {
+          const res = await fetch("api/profile.php");
+          const data = await res.json();
+          if (data.success) {
+            const u = data.user;
+            document.getElementById("pfName").value = u.name || "";
+            document.getElementById("pfEmail").value = u.email || "";
+            document.getElementById("pfPhone").value = u.phone || "";
+            document.getElementById("pfId").value = u.university_id || "";
+            if (u.gender === "female") {
+              document.getElementById("pfGenF").checked = true;
+            } else {
+              document.getElementById("pfGenM").checked = true;
+            }
+
+            if (u.role === "landlord") {
+              document.getElementById("pfIdLabel").textContent = "Landlord ID";
+              document.getElementById("pfId").readOnly = true;
+              document.getElementById("housingPrefsCard").style.display =
+                "none";
+            } else if (u.role === "admin") {
+              document.getElementById("pfIdLabel").textContent = "Admin ID";
+              document.getElementById("pfId").readOnly = true;
+              document.getElementById("housingPrefsCard").style.display =
+                "none";
+            } else {
+              document.getElementById("pfIdLabel").textContent =
+                "UIU Student ID";
+            }
+
+            if (u.role === "admin") {
+              document.getElementById("verifCard").style.display = "none";
+            }
+
+            const p = data.preferences || {};
+            document.querySelectorAll("input[name=sleep]").forEach((r) => {
+              if (r.value === (p.sleep_schedule || "flexible"))
+                r.checked = true;
+            });
+            document.getElementById("prefStudy").value = p.study_hours || 4;
+            document.getElementById("hrVal").textContent = p.study_hours || 4;
+            document.querySelectorAll("input[name=diet]").forEach((r) => {
+              if (r.value === (p.diet || "non_veg")) r.checked = true;
+            });
+            document.querySelectorAll("input[name=guest]").forEach((r) => {
+              if (r.value === (p.guest_policy || "restricted"))
+                r.checked = true;
+            });
+            document.getElementById("prefSmoking").checked =
+              p.smoking_tolerance == 1;
+            document.querySelectorAll("input[name=fg]").forEach((r) => {
+              if (r.value === (p.preferred_gender || "any")) r.checked = true;
+            });
+            document.getElementById("prefClean").value =
+              p.cleanliness_score || 3;
+            document.getElementById("cleanVal").textContent =
+              p.cleanliness_score || 3;
+            document.querySelectorAll("input[name=noise]").forEach((r) => {
+              if (r.value === (p.noise_tolerance || "moderate"))
+                r.checked = true;
+            });
+
+            checkVerifStatus();
+          } else {
+            location.href = "login.html";
+          }
+        } catch (err) {
+          console.error(err);
+        }
       }
-      
-      if (u.role === 'landlord') {
-        document.getElementById('pfIdLabel').textContent = 'Landlord ID';
-        document.getElementById('pfId').readOnly = true;
-        document.getElementById('housingPrefsCard').style.display = 'none';
-      } else if (u.role === 'admin') {
-        document.getElementById('pfIdLabel').textContent = 'Admin ID';
-        document.getElementById('pfId').readOnly = true;
-        document.getElementById('housingPrefsCard').style.display = 'none';
-      } else {
-        document.getElementById('pfIdLabel').textContent = 'UIU Student ID';
+
+      async function checkVerifStatus() {
+        try {
+          const res = await fetch("api/verif_status.php");
+          const data = await res.json();
+          if (data.success && data.status !== "none") {
+            const badge = document.getElementById("verifBadge");
+            badge.style.display = "inline-flex";
+            if (data.status === "approved") {
+              badge.className = "badge badge-green";
+              badge.innerHTML =
+                '<i data-lucide="check" class="lucide-sm"></i> Approved';
+              document.getElementById("btnSubmitVerif").style.display = "none";
+            } else if (data.status === "pending") {
+              badge.className = "badge badge-amber";
+              badge.innerHTML =
+                '<i data-lucide="clock" class="lucide-sm"></i> Pending Review';
+              document.getElementById("btnSubmitVerif").style.display = "none";
+            } else if (data.status === "rejected") {
+              badge.className = "badge badge-red";
+              badge.innerHTML =
+                '<i data-lucide="x" class="lucide-sm"></i> Rejected. Try again.';
+            }
+            if (window.lucide) lucide.createIcons();
+          }
+        } catch (err) {
+          console.error(err);
+        }
       }
-      
-      if (u.role === 'admin') {
-        document.getElementById('verifCard').style.display = 'none';
+
+      async function saveProfile(e) {
+        e.preventDefault();
+        const payload = {
+          type: "basic",
+          name: document.getElementById("pfName").value,
+          email: document.getElementById("pfEmail").value,
+          phone: document.getElementById("pfPhone").value,
+          university_id: document.getElementById("pfId").value,
+        };
+        try {
+          const res = await fetch("api/profile.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("Profile updated successfully!");
+          } else {
+            showToast(data.error || "Failed to update profile", "error");
+          }
+        } catch (err) {
+          showToast("Network error", "error");
+        }
       }
-      
-      const p = data.preferences || {};
-      document.querySelectorAll('input[name=sleep]').forEach(r => { if (r.value === (p.sleep_schedule || 'flexible')) r.checked = true; });
-      document.getElementById('prefStudy').value = p.study_hours || 4;
-      document.getElementById('hrVal').textContent = p.study_hours || 4;
-      document.querySelectorAll('input[name=diet]').forEach(r => { if (r.value === (p.diet || 'non_veg')) r.checked = true; });
-      document.querySelectorAll('input[name=guest]').forEach(r => { if (r.value === (p.guest_policy || 'restricted')) r.checked = true; });
-      document.getElementById('prefSmoking').checked = p.smoking_tolerance == 1;
-      document.querySelectorAll('input[name=fg]').forEach(r => { if (r.value === (p.preferred_gender || 'any')) r.checked = true; });
-      document.getElementById('prefClean').value = p.cleanliness_score || 3;
-      document.getElementById('cleanVal').textContent = p.cleanliness_score || 3;
-      document.querySelectorAll('input[name=noise]').forEach(r => { if (r.value === (p.noise_tolerance || 'moderate')) r.checked = true; });
 
-      checkVerifStatus();
-    } else {
-      location.href = 'login.html';
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-async function checkVerifStatus() {
-  try {
-    const res = await fetch('api/verif_status.php');
-    const data = await res.json();
-    if (data.success && data.status !== 'none') {
-      const badge = document.getElementById('verifBadge');
-      badge.style.display = 'inline-flex';
-      if (data.status === 'approved') {
-        badge.className = 'badge badge-green';
-        badge.innerHTML = '<i data-lucide="check" class="lucide-sm"></i> Approved';
-        document.getElementById('btnSubmitVerif').style.display = 'none';
-      } else if (data.status === 'pending') {
-        badge.className = 'badge badge-amber';
-        badge.innerHTML = '<i data-lucide="clock" class="lucide-sm"></i> Pending Review';
-        document.getElementById('btnSubmitVerif').style.display = 'none';
-      } else if (data.status === 'rejected') {
-        badge.className = 'badge badge-red';
-        badge.innerHTML = '<i data-lucide="x" class="lucide-sm"></i> Rejected. Try again.';
+      async function savePrefs(e) {
+        e.preventDefault();
+        const payload = {
+          type: "prefs",
+          sleep_schedule: document.querySelector("input[name=sleep]:checked")
+            .value,
+          study_hours: document.getElementById("prefStudy").value,
+          diet: document.querySelector("input[name=diet]:checked").value,
+          guest_policy: document.querySelector("input[name=guest]:checked")
+            .value,
+          smoking_tolerance: document.getElementById("prefSmoking").checked
+            ? 1
+            : 0,
+          preferred_gender: document.querySelector("input[name=fg]:checked")
+            .value,
+          cleanliness_score: document.getElementById("prefClean").value,
+          noise_tolerance: document.querySelector("input[name=noise]:checked")
+            .value,
+        };
+        try {
+          const res = await fetch("api/profile.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("Preferences updated!");
+          } else {
+            showToast(data.error || "Failed to update preferences", "error");
+          }
+        } catch (err) {
+          showToast("Network error", "error");
+        }
       }
-      if (window.lucide) lucide.createIcons();
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
 
-async function saveProfile(e) {
-  e.preventDefault();
-  const payload = {
-    type: 'basic',
-    name: document.getElementById('pfName').value,
-    email: document.getElementById('pfEmail').value,
-    phone: document.getElementById('pfPhone').value,
-    university_id: document.getElementById('pfId').value
-  };
-  try {
-    const res = await fetch('api/profile.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.success) {
-      showToast('Profile updated successfully!');
-    } else {
-      showToast(data.error || 'Failed to update profile', 'error');
-    }
-  } catch (err) {
-    showToast('Network error', 'error');
-  }
-}
-
-async function savePrefs(e) {
-  e.preventDefault();
-  const payload = {
-    type: 'prefs',
-    sleep_schedule: document.querySelector('input[name=sleep]:checked').value,
-    study_hours: document.getElementById('prefStudy').value,
-    diet: document.querySelector('input[name=diet]:checked').value,
-    guest_policy: document.querySelector('input[name=guest]:checked').value,
-    smoking_tolerance: document.getElementById('prefSmoking').checked ? 1 : 0,
-    preferred_gender: document.querySelector('input[name=fg]:checked').value,
-    cleanliness_score: document.getElementById('prefClean').value,
-    noise_tolerance: document.querySelector('input[name=noise]:checked').value
-  };
-  try {
-    const res = await fetch('api/profile.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.success) {
-      showToast('Preferences updated!');
-    } else {
-      showToast(data.error || 'Failed to update preferences', 'error');
-    }
-  } catch (err) {
-    showToast('Network error', 'error');
-  }
-}
-
-function updateFileList(input) {
-  const display = document.getElementById('fileListDisplay');
-  if (input.files.length === 0) {
-    display.innerHTML = '';
-    return;
-  }
-  let items = [];
-  for (let i = 0; i < input.files.length; i++) {
-    items.push(
-      `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px;background:var(--bg);border-radius:4px;margin-bottom:4px;">
+      function updateFileList(input) {
+        const display = document.getElementById("fileListDisplay");
+        if (input.files.length === 0) {
+          display.innerHTML = "";
+          return;
+        }
+        let items = [];
+        for (let i = 0; i < input.files.length; i++) {
+          items.push(
+            `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px;background:var(--bg);border-radius:4px;margin-bottom:4px;">
         <span><i data-lucide="file" class="lucide-sm"></i> ${input.files[i].name}</span>
         <button type="button" onclick="removeFile(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0;display:flex;align-items:center;" title="Remove file"><i data-lucide="x" class="lucide-sm"></i></button>
-      </div>`
-    );
-  }
-  display.innerHTML = `<strong>Selected ${input.files.length} file(s):</strong><div style="margin-top:8px">${items.join('')}</div>`;
-  if (window.lucide) lucide.createIcons();
-}
-
-function removeFile(index) {
-  const input = document.getElementById('vDoc');
-  const dt = new DataTransfer();
-  for (let i = 0; i < input.files.length; i++) {
-    if (i !== index) {
-      dt.items.add(input.files[i]);
-    }
-  }
-  input.files = dt.files;
-  updateFileList(input);
-}
-
-async function submitVerification(e) {
-  e.preventDefault();
-  
-  const fileInput = document.getElementById('vDoc');
-  if (!fileInput.files.length) {
-    showToast('Please select a document to upload.', 'error');
-    return;
-  }
-
-  try {
-    const uploadedPaths = [];
-    for (let i = 0; i < fileInput.files.length; i++) {
-      const formData = new FormData();
-      formData.append('file', fileInput.files[i]);
-      formData.append('type', 'verification');
-
-      const uploadRes = await fetch('api/upload.php', {
-        method: 'POST',
-        body: formData
-      });
-      const uploadData = await uploadRes.json();
-
-      if (!uploadData.success) {
-        showToast(uploadData.error || ('File ' + (i+1) + ' upload failed.'), 'error');
-        return;
+      </div>`,
+          );
+        }
+        display.innerHTML = `<strong>Selected ${input.files.length} file(s):</strong><div style="margin-top:8px">${items.join("")}</div>`;
+        if (window.lucide) lucide.createIcons();
       }
-      uploadedPaths.push(uploadData.path);
-    }
 
-    // 2. Submit the verification request
-    const verifRes = await fetch('api/verify.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nidType: document.getElementById('vType').value,
-        desc: document.getElementById('vDesc').value,
-        documentPath: uploadedPaths.join(',')
-      })
-    });
-    const verifData = await verifRes.json();
+      function removeFile(index) {
+        const input = document.getElementById("vDoc");
+        const dt = new DataTransfer();
+        for (let i = 0; i < input.files.length; i++) {
+          if (i !== index) {
+            dt.items.add(input.files[i]);
+          }
+        }
+        input.files = dt.files;
+        updateFileList(input);
+      }
 
-    if (verifData.success) {
-      showToast('Verification request submitted');
-      document.getElementById('verifForm').reset();
-      checkVerifStatus();
-    } else {
-      showToast(verifData.error || 'Submission failed.', 'error');
-    }
+      async function submitVerification(e) {
+        e.preventDefault();
 
-  } catch (err) {
-    showToast('Network error during upload.', 'error');
-  }
-}
+        const fileInput = document.getElementById("vDoc");
+        if (!fileInput.files.length) {
+          showToast("Please select a document to upload.", "error");
+          return;
+        }
 
-// Initial Load
-loadProfileData();
+        try {
+          const uploadedPaths = [];
+          for (let i = 0; i < fileInput.files.length; i++) {
+            const formData = new FormData();
+            formData.append("file", fileInput.files[i]);
+            formData.append("type", "verification");
 
-</script>
-</body>
+            const uploadRes = await fetch("api/upload.php", {
+              method: "POST",
+              body: formData,
+            });
+            const uploadData = await uploadRes.json();
+
+            if (!uploadData.success) {
+              showToast(
+                uploadData.error || "File " + (i + 1) + " upload failed.",
+                "error",
+              );
+              return;
+            }
+            uploadedPaths.push(uploadData.path);
+          }
+
+          // 2. Submit the verification request
+          const verifRes = await fetch("api/verify.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              nidType: document.getElementById("vType").value,
+              desc: document.getElementById("vDesc").value,
+              documentPath: uploadedPaths.join(","),
+            }),
+          });
+          const verifData = await verifRes.json();
+
+          if (verifData.success) {
+            showToast("Verification request submitted");
+            document.getElementById("verifForm").reset();
+            checkVerifStatus();
+          } else {
+            showToast(verifData.error || "Submission failed.", "error");
+          }
+        } catch (err) {
+          showToast("Network error during upload.", "error");
+        }
+      }
+
+      // Initial Load
+      loadProfileData();
+    </script>
+  </body>
 </html>
