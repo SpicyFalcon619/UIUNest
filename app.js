@@ -272,7 +272,7 @@ function renderNav(active) {
          <div class="avatar-menu" id="avatarMenu">
            <a href="dashboard.html">Dashboard</a>
            <a href="profile.html">Profile</a>
-           <a href="bills.html">Bills</a>
+           ${user.role === 'admin' ? '' : '<a href="bills.html">Bills</a>'}
            ${user.role === 'admin' ? '<a href="admin.html">Admin Panel</a>' : ''}
            <a href="#" onclick="event.preventDefault();doLogout()">Logout</a>
          </div>
