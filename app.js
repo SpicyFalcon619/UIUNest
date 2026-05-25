@@ -245,11 +245,14 @@ function renderNav(active) {
   const logged = isLoggedIn();
   const user = window.mockData.currentUser;
   
-  const links = [
+  let links = [
     { href: 'listings.html', label: 'Listings', key: 'listings' },
     { href: 'exchange.html', label: 'Exchange', key: 'exchange' },
     { href: 'seeking.html',  label: 'Looking For', key: 'seeking' }
   ];
+  if (user && user.role === 'landlord') {
+    links = links.filter(l => l.key !== 'seeking');
+  }
   const linkHTML = links.map(l =>
     `<a href="${l.href}" class="${active === l.key ? 'active' : ''}">${l.label}</a>`).join('');
 
