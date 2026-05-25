@@ -224,6 +224,10 @@ function renderAllUsers(users) {
           ? `<button class="btn btn-success btn-sm" onclick="setUserStatus(${u.id}, 'active')">Activate</button>`
           : `<button class="btn btn-outline btn-sm" onclick="setUserStatus(${u.id}, 'suspended')">Suspend</button>`
         }
+        ${u.verifStatus === 'approved'
+          ? `<button class="btn btn-danger btn-sm" style="margin-left:8px" onclick="revokeVerification(${u.id})">Revoke</button>`
+          : ''
+        }
       </td>
     </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
   if (window.lucide) lucide.createIcons();
@@ -421,6 +425,27 @@ async function deleteListingAdmin(id) {
         loadAdminData(); // Refresh UI
       } else {
         showToast(data.error || 'Failed to delete listing', 'error');
+      }
+    } catch (err) {
+      showToast('Network error', 'error');
+    }
+  });
+}
+
+function revokeVerification(userId) {
+  showConfirm("Revoke Verification", "Are you sure you want to revoke this user's verification? Their listings will be marked unverified.", async () => {
+    try {
+      const res = await fetch('api/admin_revoke_verif.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Verification revoked successfully');
+        loadAdminData(); // Refresh UI
+      } else {
+        showToast(data.error || 'Failed to revoke verification', 'error');
       }
     } catch (err) {
       showToast('Network error', 'error');

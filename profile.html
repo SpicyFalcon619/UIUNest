@@ -337,6 +337,10 @@
               badge.className = "badge badge-red";
               badge.innerHTML =
                 '<i data-lucide="x" class="lucide-sm"></i> Rejected. Try again.';
+            } else if (data.status === "revoked") {
+              badge.className = "badge badge-red";
+              badge.innerHTML =
+                '<i data-lucide="alert-circle" class="lucide-sm"></i> Revoked. Please re-apply.';
             }
             if (window.lucide) lucide.createIcons();
           }
