@@ -101,8 +101,9 @@ function renderCharts() {
     },
     options: { 
       responsive: true, 
+      maintainAspectRatio: false,
       plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true, suggestedMax: 5000 } }
+      scales: { y: { beginAtZero: true, max: 5000 } }
     }
   });
 
@@ -117,7 +118,8 @@ function renderCharts() {
     },
     options: { 
       responsive: true,
-      scales: { y: { beginAtZero: true, suggestedMax: 5, ticks: { stepSize: 1 } } }
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } } }
     }
   });
 }
@@ -187,6 +189,7 @@ function renderAllUsers(users) {
         }
       </td>
     </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray);">No users found.</td></tr>';
+  if (window.lucide) lucide.createIcons();
 }
 
 function renderVerifications(verifs) {
