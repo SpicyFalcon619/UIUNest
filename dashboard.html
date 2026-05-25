@@ -131,7 +131,7 @@ function renderDashboard() {
   const activeOffersCount = offersSent.filter(o => o.status === 'pending' || o.status === 'countered').length +
                             offersRecv.filter(o => o.status === 'pending' || o.status === 'countered').length;
 
-  const compatStatus = (currentUser.role === 'student' && hasPreferences) ? 'Complete <i data-lucide="check" class="lucide-sm"></i>' : 'Setup Required';
+  const compatStatus = (currentUser.role === 'student' && hasPreferences) ? 'Complete <i data-lucide="check-circle" class="lucide-sm"></i>' : 'Setup Required';
   const compatColor = (currentUser.role === 'student' && hasPreferences) ? 'var(--success)' : 'var(--warning)';
 
   let verifText = 'N/A';

@@ -249,7 +249,7 @@ function loadTrackerMonth(billId, listingId) {
     <tr>
       <td>${p.resident}</td>
       <td>${fmt(bill.perPerson)}</td>
-      <td>${p.status === 'paid' ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Paid</span>' : '<span class="badge badge-amber"><i data-lucide="clock" class="lucide-sm"></i> Unpaid</span>'}</td>
+      <td>${p.status === 'paid' ? '<span class="badge badge-green"><i data-lucide="check-circle" class="lucide-sm"></i> Paid</span>' : '<span class="badge badge-amber"><i data-lucide="clock" class="lucide-sm"></i> Unpaid</span>'}</td>
       <td>${p.status === 'unpaid' ? `<button class="btn btn-success btn-sm" onclick="markPaidLocal(${bill.id}, ${p.id}, ${listingId})">Mark Paid</button>` : '-'}</td>
     </tr>`).join('');
 

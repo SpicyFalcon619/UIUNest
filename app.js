@@ -341,7 +341,7 @@ function mountChrome(active) {
 // ============ Listing Card ============
 function renderListingCard(l) {
   const wl = getWatchlist().includes(l.id);
-  const verifBadge = l.isVerified ? `<span class="badge badge-gold"><i data-lucide="check" class="lucide-sm"></i> Verified</span>` : '';
+  const verifBadge = l.isVerified ? `<span class="badge badge-gold"><i data-lucide="check-circle" class="lucide-sm"></i> Verified</span>` : '';
   
   // Calculate dynamic compatibility
   const compat = calculateCompatibility(l);

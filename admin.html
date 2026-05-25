@@ -178,7 +178,7 @@ function renderAllUsers(users) {
       <td><span class="badge ${u.role === 'admin' ? 'badge-navy' : (u.role === 'landlord' ? 'badge-amber' : 'badge-light-blue')}">${u.role}</span></td>
       <td>${u.status === 'suspended' ? '<span class="badge badge-red">Suspended</span>' : '<span class="badge badge-green">Active</span>'}</td>
       <td>
-        ${u.verifStatus === 'approved' ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Verified</span>' : 
+        ${u.verifStatus === 'approved' ? '<span class="badge badge-green"><i data-lucide="check-circle" class="lucide-sm"></i> Verified</span>' : 
           (u.verifStatus === 'pending' ? '<span class="badge badge-amber"><i data-lucide="clock" class="lucide-sm"></i> Pending</span>' : 
           (u.verifStatus === 'rejected' ? '<span class="badge badge-red"><i data-lucide="x" class="lucide-sm"></i> Rejected</span>' : '<span class="badge badge-gray">N/A</span>'))}
       </td>
@@ -206,7 +206,7 @@ function renderVerifications(verifs) {
         <td>${v.submitted_at}</td>
         <td>
           ${v.status === 'approved'
-            ? '<span class="badge badge-green"><i data-lucide="check" class="lucide-sm"></i> Approved</span>'
+            ? '<span class="badge badge-green"><i data-lucide="check-circle" class="lucide-sm"></i> Approved</span>'
             : (v.status === 'rejected' ? '<span class="badge badge-red"><i data-lucide="x" class="lucide-sm"></i> Rejected</span>' : 
             `<div style="display:flex;gap:6px;"><button class="btn btn-success btn-sm" onclick="actionVerif(${v.verification_id}, 'approve')">Approve</button>
              <button class="btn btn-danger btn-sm" onclick="actionVerif(${v.verification_id}, 'reject')">Reject</button></div>`)

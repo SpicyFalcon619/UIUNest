@@ -170,7 +170,7 @@ function renderOffers(offers, isSeller, user, sold) {
         <div style="margin:6px 0; font-size:15px;">${showPrice}</div>
         <div style="font-size:13px; color:var(--gray); font-style:italic;">"${o.message}"</div>
         ${actionButtons}
-        ${isAccepted ? '<div style="color:var(--success); font-weight:600; font-size:13px; margin-top:6px;"><i data-lucide="check" class="lucide-sm"></i> Deal made! Seller is contacting you.</div>' : ''}
+        ${isAccepted ? '<div style="color:var(--success); font-weight:600; font-size:13px; margin-top:6px;"><i data-lucide="check-circle" class="lucide-sm"></i> Deal made! Seller is contacting you.</div>' : ''}
       </div>`;
   }).join('');
 }
