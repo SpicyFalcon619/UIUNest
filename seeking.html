@@ -15,7 +15,7 @@
 <div class="container">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:16px">
     <h1 class="page-title" style="margin:0">Looking For - roommate requests</h1>
-    <button class="btn btn-gold" onclick="openRequestModal()">+ Post a Request</button>
+    <div id="requestBtnMount"></div>
   </div>
 
   <div class="card" style="margin-bottom:18px;display:flex;flex-wrap:wrap;gap:12px;align-items:end">
@@ -162,6 +162,13 @@ async function addPost(e) {
 
 document.getElementById('fBudget').addEventListener('input', e => document.getElementById('bVal').textContent = fmt(e.target.value));
 document.querySelectorAll('#fZone,#fRoom,#fBudget,#fGender').forEach(el => el.addEventListener('change', renderPosts));
+
+if (isLoggedIn()) {
+  const user = JSON.parse(localStorage.getItem('uiunest_current_user_v4') || '{}');
+  if (user.role === 'student') {
+    document.getElementById('requestBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openRequestModal()">+ Post a Request</button>`;
+  }
+}
 
 loadPosts();
 </script>
