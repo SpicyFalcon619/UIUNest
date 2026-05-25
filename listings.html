@@ -214,7 +214,7 @@ async function checkUserAndLoad() {
     const data = await res.json();
     if (data.loggedIn) {
       user = data.user;
-      if (user.role === 'student' || user.role === 'landlord' || user.role === 'admin') {
+      if (user.role === 'student' || user.role === 'landlord') {
         document.getElementById('listBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openCreateListingModal()">+ List Property</button>`;
       }
     }

@@ -112,7 +112,7 @@ mountChrome('exchange');
 
 const user = window.mockData.currentUser;
 
-if (isLoggedIn() && user) {
+if (isLoggedIn() && user && user.role === 'student') {
   document.getElementById('sellBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openSellItemModal()">+ Sell Item</button>`;
 }
 

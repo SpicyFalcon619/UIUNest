@@ -97,6 +97,10 @@ async function loadDashboardData() {
         </div>`;
       return;
     }
+    if (meData.user.role === 'admin') {
+      window.location.href = 'admin.html';
+      return;
+    }
     currentUser = meData.user;
 
     const dashRes = await fetch('api/dashboard.php');
@@ -134,6 +138,7 @@ function renderDashboard() {
     <h1 class="page-title">Welcome back, ${currentUser.name}</h1>
     <div class="stats-row" style="margin-bottom:20px">
       <div class="stat-card"><div class="stat-label">Active Listings</div><div class="stat-value">${myListings.length}</div></div>
+      ${currentUser.role !== 'landlord' ? `
       <div class="stat-card"><div class="stat-label">Watchlisted</div><div class="stat-value">${watched.length}</div></div>
       <div class="stat-card"><div class="stat-label">Active Offers</div><div class="stat-value">${activeOffersCount}</div></div>
       <div class="stat-card">
@@ -142,13 +147,16 @@ function renderDashboard() {
           ${compatStatus}
         </div>
       </div>
+      ` : ''}
     </div>
 
     <div class="tabs">
       <div class="tab active" data-tab="listings" onclick="switchTab('listings')">My Listings</div>
+      ${currentUser.role !== 'landlord' ? `
       <div class="tab" data-tab="items" onclick="switchTab('items')">My Exchange Items</div>
       <div class="tab" data-tab="watch" onclick="switchTab('watch')">Watchlist</div>
       <div class="tab" data-tab="offers" onclick="switchTab('offers')">Offers</div>
+      ` : ''}
       <div class="tab" data-tab="applications" onclick="switchTab('applications')">Housing Applications</div>
     </div>
 

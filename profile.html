@@ -22,7 +22,7 @@
         <div class="form-group"><label>Name</label><input id="pfName" required></div>
         <div class="form-group"><label>Email</label><input type="email" id="pfEmail" required></div>
         <div class="form-group"><label>Phone</label><input id="pfPhone" placeholder="+880 1XXX-XXXXXX"></div>
-        <div class="form-group"><label>UIU ID</label><input id="pfId" placeholder="011XXXXXXXX"></div>
+        <div class="form-group"><label id="pfIdLabel">UIU ID</label><input id="pfId" placeholder="011XXXXXXXX"></div>
       </div>
       <div class="form-group"><label>Gender (read-only)</label>
         <div class="radio-row">
@@ -34,7 +34,7 @@
     </form>
   </div>
 
-  <div class="card" style="margin-bottom:20px">
+  <div class="card" id="housingPrefsCard" style="margin-bottom:20px">
     <h3 style="margin:0 0 4px;color:var(--navy)">Housing Preferences</h3>
     <p style="color:var(--gray);font-size:13px;margin:0 0 14px">Your preference profile is used to calculate compatibility scores when you browse shared messes.</p>
     <form id="prefForm" onsubmit="savePrefs(event)">
@@ -128,6 +128,18 @@ async function loadProfileData() {
         document.getElementById('pfGenF').checked = true;
       } else {
         document.getElementById('pfGenM').checked = true;
+      }
+      
+      if (u.role === 'landlord') {
+        document.getElementById('pfIdLabel').textContent = 'Landlord ID';
+        document.getElementById('pfId').readOnly = true;
+        document.getElementById('housingPrefsCard').style.display = 'none';
+      } else if (u.role === 'admin') {
+        document.getElementById('pfIdLabel').textContent = 'Admin ID';
+        document.getElementById('pfId').readOnly = true;
+        document.getElementById('housingPrefsCard').style.display = 'none';
+      } else {
+        document.getElementById('pfIdLabel').textContent = 'UIU Student ID';
       }
       
       const p = data.preferences || {};

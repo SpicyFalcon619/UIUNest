@@ -82,7 +82,7 @@
               >
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" id="uidFormGroup">
             <label>UIU Student ID (optional)</label><input id="regId" />
           </div>
           <div class="form-group">
@@ -103,6 +103,13 @@
     <script src="app.js"></script>
     <script>
       mountChrome();
+      
+      document.querySelectorAll('input[name="role"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          document.getElementById('uidFormGroup').style.display = e.target.value === 'landlord' ? 'none' : 'block';
+        });
+      });
+
       async function doRegister(e) {
         e.preventDefault();
         const name = document.getElementById("regName").value.trim();

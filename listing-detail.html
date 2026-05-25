@@ -211,7 +211,7 @@ function renderDetail() {
           <div style="font-weight:600" id="ownerName">Owner</div>
           <div style="font-size:13px;color:var(--gray);margin:6px 0" id="ownerEmailText">Email: </div>
           ${isLoggedIn() && window.mockData.currentUser.role === 'student' ? `<button class="btn btn-primary btn-block" onclick="document.getElementById('applyModal').classList.add('open')">Apply for Home</button>` : ''}
-          <button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" style="margin-top:10px;width:100%;text-align:center"><i data-lucide="heart" class="lucide-sm"></i> ${wl ? 'Saved' : 'Save to watchlist'}</button>
+          ${(!isLoggedIn() || (window.mockData.currentUser && window.mockData.currentUser.role !== 'admin')) ? `<button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" style="margin-top:10px;width:100%;text-align:center"><i data-lucide="heart" class="lucide-sm"></i> ${wl ? 'Saved' : 'Save to watchlist'}</button>` : ''}
         </div>
 
         ${linkedItems.length ? `
