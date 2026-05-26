@@ -608,8 +608,10 @@ function initCustomSelects() {
     function renderOptions() {
       optionsContainer.innerHTML = '';
       let selectedText = '';
+      let longestText = '';
       Array.from(select.options).forEach((option, index) => {
         if (option.selected) selectedText = option.text;
+        if (option.text.length > longestText.length) longestText = option.text;
         const optEl = document.createElement('div');
         optEl.className = 'custom-option';
         if (option.selected) optEl.classList.add('selected');
@@ -628,6 +630,7 @@ function initCustomSelects() {
         });
         optionsContainer.appendChild(optEl);
       });
+      wrapper.setAttribute('data-longest', longestText);
       trigger.innerHTML = `<span>${selectedText}</span>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
     }

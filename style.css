@@ -462,9 +462,18 @@ select.custom-select-hidden {
   position: absolute; opacity: 0; pointer-events: none; height: 1px; width: 1px; border: none; padding: 0; margin: 0; z-index: -1;
 }
 .custom-select-wrapper {
-  position: relative; width: 100%;
+  position: relative; width: 100%; display: grid; align-items: center;
+}
+.custom-select-wrapper::after {
+  content: attr(data-longest);
+  visibility: hidden; height: 0; overflow: hidden;
+  font-size: 14px; font-weight: 500;
+  padding: 0 40px 0 14px; /* match trigger padding + space for svg icon */
+  grid-area: 1 / 1;
+  pointer-events: none; white-space: nowrap;
 }
 .custom-select-trigger {
+  grid-area: 1 / 1;
   width: 100%; padding: 12px 14px;
   background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
   font-size: 14px; color: var(--ink); font-family: inherit; font-weight: 500;
@@ -480,9 +489,9 @@ select.custom-select-hidden {
 }
 .custom-select-trigger.open svg { transform: rotate(180deg); }
 .custom-select-options {
-  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  position: absolute; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl); z-index: 9999; max-height: 240px; overflow-y: auto;
+  box-shadow: var(--shadow-xl); z-index: 99999; max-height: 240px; overflow-y: auto;
   opacity: 0; pointer-events: none; transform: translateY(-4px); transition: all 0.2s ease;
 }
 .custom-select-options.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
@@ -494,9 +503,12 @@ select.custom-select-hidden {
 .hero-search-field .custom-select-trigger {
   padding: 0; border: none; background: transparent; font-size: 15px; font-weight: 600; box-shadow: none; height: 24px; margin: 0;
 }
+.hero-search-field .custom-select-wrapper::after {
+  font-size: 15px; font-weight: 600; padding: 0 24px 0 0;
+}
 .hero-search-field .custom-select-trigger.open { box-shadow: none; border: none; }
 .hero-search-field .custom-select-trigger svg { width: 18px; height: 18px; stroke: var(--ink); }
-.hero-search-field .custom-select-options { top: calc(100% + 14px); width: 220px; }
+.hero-search-field .custom-select-options { top: calc(100% + 14px); min-width: 100%; width: max-content; }
 
 input::placeholder, textarea::placeholder { color: var(--ink-muted); }
 input:hover, select:hover, textarea:hover { border-color: var(--border-mid); }
@@ -1048,14 +1060,15 @@ body.landing-page .hero { padding-top: 88px; }
 
 /* Hero search — label+input stacked inside pill slots */
 .hero-search {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
   display: flex; align-items: center;
-  padding: 8px 8px 8px 16px;
-  width: 100%; max-width: 820px; margin: 0 auto;
-  box-shadow: var(--shadow-lg);
-  text-align: left;
+  padding: 8px 8px 8px 0;
+  width: 100%; max-width: 820px;
+  background: var(--surface);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xl);
+  margin-top: 40px;
+  position: relative;
+  z-index: 99; /* Prevent dropdowns from being hidden by sections below */
 }
 .hero-search-field {
   flex: 1; min-width: 0;
