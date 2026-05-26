@@ -662,13 +662,13 @@ function initCustomSelects() {
         optEl.textContent = option.text;
         optEl.addEventListener('click', (e) => {
           e.stopPropagation();
-          select.selectedIndex = index;
-          trigger.querySelector('span').textContent = option.text;
-          
-          optionsContainer.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
-          optEl.classList.add('selected');
-          
-          select.dispatchEvent(new Event('change', { bubbles: true }));
+          if (select.selectedIndex !== index) {
+            Array.from(optionsContainer.children).forEach(c => c.classList.remove('selected'));
+            optEl.classList.add('selected');
+            trigger.querySelector('span').textContent = option.text;
+            select.selectedIndex = index;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+          }
           optionsContainer.classList.remove('open');
           trigger.classList.remove('open');
         });
