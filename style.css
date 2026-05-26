@@ -1021,7 +1021,7 @@ footer a:hover { color: #fff; text-decoration: underline; }
     width: 52px !important; height: 52px !important;
     flex: 0 0 52px !important;
     padding: 0 !important;
-    margin: -14px 0 0 0; /* Pop out at the top only */
+    margin: 0; /* Aligned with other logos */
     display: flex !important; justify-content: center; align-items: center;
     box-shadow: 0 4px 12px rgba(26, 92, 69, 0.4);
   }
@@ -1034,7 +1034,7 @@ footer a:hover { color: #fff; text-decoration: underline; }
   /* Account mini-sheet */
   .mobile-account-sheet {
     display: none; flex-direction: column;
-    position: fixed; bottom: 90px; right: 16px;
+    position: fixed; bottom: 90px; left: 0; right: 0; margin: 0 auto;
     width: 220px;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1042,7 +1042,6 @@ footer a:hover { color: #fff; text-decoration: underline; }
     padding: 12px 0 8px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.12);
     z-index: 4000;
-    overflow: hidden;
   }
   .mobile-account-sheet.open { display: flex; animation: sheetFadeIn 0.18s ease; }
   @keyframes sheetFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -1134,7 +1133,6 @@ footer a:hover { color: #fff; text-decoration: underline; }
 
 @media (max-width: 560px) {
   .container { padding: 24px 16px; }
-  .listing-card { border-radius: 0; border: none; border-bottom: 1px solid var(--border); box-shadow: none; margin: 0 -16px; width: calc(100% + 32px); }
   .card { padding: 24px 16px; }
   .features, .steps, .grid-3, .stats-row { grid-template-columns: 1fr; }
   .hero { padding: 72px 4%; }
