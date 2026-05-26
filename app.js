@@ -161,10 +161,9 @@ function calculateCompatibility(listing) {
 }
 
 function getCompatibilityColor(score) {
-  if (score >= 80) return { color: '#1A7A4A', label: 'High Match',    bg: '#D1FAE5' };
-  if (score >= 60) return { color: '#0055AA', label: 'Good Match',    bg: '#DBEAFE' };
-  if (score >= 40) return { color: '#B45309', label: 'Partial Match', bg: '#FEF3C7' };
-  return { color: '#6B7280', label: 'Low Match', bg: '#F3F4F6' };
+  if (score >= 80) return { dot: '#059669', label: 'High Match' };   // Emerald Green
+  if (score >= 50) return { dot: '#3B82F6', label: 'Good Match' };   // Blue
+  return { dot: '#F59E0B', label: 'Low Match' };                     // Amber/Orange
 }
 function getQueryId() {
   const p = new URLSearchParams(window.location.search);
@@ -423,7 +422,7 @@ function renderListingCard(l) {
   
   // Calculate dynamic compatibility
   const compat = calculateCompatibility(l);
-  const compatColor = compat.score !== null ? getCompatibilityColor(compat.score) : {bg:'transparent', color:'transparent', label:''};
+  const compatColor = compat.score !== null ? getCompatibilityColor(compat.score) : {dot:'transparent', label:''};
   
   const currentUser = window.user || window.mockData.currentUser;
   const isStudent = currentUser && currentUser.role === 'student';
@@ -436,7 +435,7 @@ function renderListingCard(l) {
   
   // Render match badge if user is logged in
   const compatBadge = isStudent && compat.score !== null
-    ? `<span class="badge" style="background:${compatColor.bg};color:${compatColor.color}">${compatColor.label} (${compat.score}%)</span>`
+    ? `<span class="badge" style="background:var(--surface);color:var(--ink-mid);border:1px solid var(--border);padding:4px 8px;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,0.05);"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${compatColor.dot};margin-right:6px;"></span>${compatColor.label} ${compat.score}%</span>`
     : '';
 
   const photoSrc = l.photos && l.photos[0] ? l.photos[0] : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'600\' height=\'400\' fill=\'%23EEF7F2\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'18\' fill=\'%231A5C45\' text-anchor=\'middle\' dominant-baseline=\'middle\'>No Photo</text></svg>';
