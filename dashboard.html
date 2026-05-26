@@ -11,31 +11,10 @@
 <script src="data.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="has-sidebar">
+<body>
 <div id="nav-mount"></div>
 
-<div class="dash-shell">
-  <!-- Sidebar navigation -->
-  <aside class="dash-sidebar">
-    <div class="ds-logo"><span class="logo-uiu">UIU</span><span class="logo-nest">Nest</span></div>
-    <nav class="ds-nav">
-      <a href="index.html" class="ds-link"><i data-lucide="home" class="lucide"></i> Home</a>
-      <a href="listings.html" class="ds-link"><i data-lucide="building-2" class="lucide"></i> Listings</a>
-      <a href="exchange.html" class="ds-link"><i data-lucide="shopping-bag" class="lucide"></i> Exchange</a>
-      <a href="seeking.html" class="ds-link"><i data-lucide="search" class="lucide"></i> Looking For</a>
-      <a href="bills.html" class="ds-link"><i data-lucide="receipt" class="lucide"></i> Bills</a>
-      <a href="profile.html" class="ds-link"><i data-lucide="user" class="lucide"></i> Profile</a>
-    </nav>
-    <div class="ds-footer">
-      <a href="#" onclick="event.preventDefault();doLogout()" class="ds-link ds-link-logout"><i data-lucide="log-out" class="lucide"></i> Logout</a>
-    </div>
-  </aside>
-
-  <!-- Main scrollable content -->
-  <main class="dash-main">
-    <div id="content"></div>
-  </main>
-</div>
+<div class="container" id="content"></div>
 
 <!-- Edit Listing Modal -->
 <div class="modal-bg" id="editListingModal">
