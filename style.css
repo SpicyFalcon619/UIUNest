@@ -330,6 +330,7 @@ img { display: block; max-width: 100%; }
   /* prevent super-long titles from breaking card height */
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
