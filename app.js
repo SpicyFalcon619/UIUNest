@@ -270,7 +270,7 @@ function renderNav(active) {
       <a href="profile.html" class="mas-item"><i data-lucide="user"></i> Profile</a>
       ${user.role !== 'admin' ? '<a href="dashboard.html?tab=watch" class="mas-item"><i data-lucide="heart"></i> Watchlist</a>' : ''}
       ${user.role !== 'admin' ? '<a href="bills.html" class="mas-item"><i data-lucide="receipt"></i> Bills</a>' : ''}
-      <button class="mas-item mas-notif" onclick="toggleNotifs(); toggleMobileAccountSheet()">
+      <button class="mas-item mas-notif" onclick="event.stopPropagation(); toggleNotifs(); toggleMobileAccountSheet()">
         <i data-lucide="bell"></i> Notifications
         <span id="notifBadge" style="display:none;margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:18px;height:18px;border-radius:50%;line-height:18px;text-align:center"></span>
       </button>
