@@ -161,9 +161,9 @@ function calculateCompatibility(listing) {
 }
 
 function getCompatibilityColor(score) {
-  if (score >= 80) return { dot: '#059669', label: 'High Match' };   // Emerald Green
-  if (score >= 50) return { dot: '#3B82F6', label: 'Good Match' };   // Blue
-  return { dot: '#F59E0B', label: 'Low Match' };                     // Amber/Orange
+  if (score >= 80) return { bg: 'linear-gradient(135deg, #34d399, #059669)', color: '#ffffff', label: 'High Match' };
+  if (score >= 50) return { bg: 'linear-gradient(135deg, #60a5fa, #2563eb)', color: '#ffffff', label: 'Good Match' };
+  return { bg: 'linear-gradient(135deg, #fbbf24, #d97706)', color: '#ffffff', label: 'Low Match' };
 }
 function getQueryId() {
   const p = new URLSearchParams(window.location.search);
@@ -435,7 +435,7 @@ function renderListingCard(l) {
   
   // Render match badge if user is logged in
   const compatBadge = isStudent && compat.score !== null
-    ? `<span class="badge" style="background:var(--surface);color:var(--ink-mid);border:1px solid var(--border);padding:4px 8px;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,0.05);"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${compatColor.dot};margin-right:6px;"></span>${compatColor.label} ${compat.score}%</span>`
+    ? `<span class="badge" style="background:${compatColor.bg};color:${compatColor.color};border:none;box-shadow:0 2px 4px rgba(0,0,0,0.1);font-weight:600;">${compatColor.label} ${compat.score}%</span>`
     : '';
 
   const photoSrc = l.photos && l.photos[0] ? l.photos[0] : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'600\' height=\'400\' fill=\'%23EEF7F2\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'18\' fill=\'%231A5C45\' text-anchor=\'middle\' dominant-baseline=\'middle\'>No Photo</text></svg>';
