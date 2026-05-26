@@ -702,4 +702,25 @@ function initCustomSelects() {
     });
   });
 }
-document.addEventListener('DOMContentLoaded', initCustomSelects);
+
+document.addEventListener('DOMContentLoaded', () => {
+  initCustomSelects();
+  
+  // Bulletproof fallback: watch the entire DOM for new selects being injected dynamically
+  // so they automatically get the beautiful custom styling
+  const domObserver = new MutationObserver((mutations) => {
+    let shouldInit = false;
+    mutations.forEach(m => {
+      if (m.addedNodes.length > 0) {
+        m.addedNodes.forEach(n => {
+          if (n.nodeType === 1) { // Element node
+            if (n.tagName === 'SELECT' && !n.classList.contains('custom-select-hidden')) shouldInit = true;
+            else if (n.querySelector && n.querySelector('select:not(.custom-select-hidden)')) shouldInit = true;
+          }
+        });
+      }
+    });
+    if (shouldInit) initCustomSelects();
+  });
+  domObserver.observe(document.body, { childList: true, subtree: true });
+});

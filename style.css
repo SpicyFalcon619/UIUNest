@@ -497,16 +497,16 @@ select.custom-select-hidden {
 .custom-select-trigger.open svg { transform: rotate(180deg); }
 .custom-select-options {
   position: absolute; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; /* Less round so scrollbar doesn't clip */
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl); z-index: 99999; max-height: 240px; overflow-y: auto; overflow-x: hidden;
   opacity: 0; pointer-events: none; transform: translateY(-4px); transition: all 0.2s ease;
 }
 .custom-select-options.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 /* Custom slim scrollbar for dropdowns */
-.custom-select-options::-webkit-scrollbar { width: 4px; }
-.custom-select-options::-webkit-scrollbar-track { background: transparent; }
-.custom-select-options::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+.custom-select-options::-webkit-scrollbar { width: 6px; }
+.custom-select-options::-webkit-scrollbar-track { background: transparent; margin: 8px 0; }
+.custom-select-options::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 6px; border: 1px solid var(--surface); }
 .custom-select-options::-webkit-scrollbar-thumb:hover { background: var(--gray); }
 .custom-option {
   padding: 10px 14px; font-size: 14px; font-weight: 500; color: var(--ink); cursor: pointer; transition: background 0.15s ease;
