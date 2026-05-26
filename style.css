@@ -967,6 +967,36 @@ footer a:hover { color: #fff; text-decoration: underline; }
   .nav-links a .nav-icon { display: block; margin-bottom: 2px; }
   body { padding-bottom: 90px; }
 
+  /* Move the entire nav-mount wrapper to the bottom on mobile */
+  #nav-mount {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    padding: 0 !important;
+    z-index: 3000 !important;
+    background: transparent !important;
+    pointer-events: none;
+  }
+  /* Reset the floating pill navbar on mobile — the .nav-links pill handles everything */
+  #nav-mount .navbar {
+    pointer-events: none;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  #nav-mount .nav-inner {
+    height: auto;
+    padding: 0;
+  }
+  /* Hide logo and right-side actions from the top pill on mobile — shown only in bottom bar */
+  #nav-mount .nav-logo,
+  #nav-mount .nav-right { display: none !important; }
+  .nav-links { pointer-events: all; }
+
   /* Layouts */
   .listings-layout { flex-direction: column; }
   .sidebar { position: static; max-height: none; margin-bottom: 28px; width: 100%; }
