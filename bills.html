@@ -232,6 +232,11 @@ function renderBillManager(myProps, activeListing, activeBills) {
     loadTrackerMonth(activeBills[0].id, activeListing.id);
   }
   if (window.lucide) lucide.createIcons();
+  
+  // Initialize custom styled dropdowns for the dynamically injected selects
+  if (typeof initCustomSelects === 'function') {
+    initCustomSelects();
+  }
 }
 
 function switchProperty(id) {
