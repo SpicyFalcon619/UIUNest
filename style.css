@@ -1055,7 +1055,7 @@ body.landing-page .hero { padding-top: 88px; }
 }
 .hero-trust {
   font-size: 13px; color: var(--ink-muted);
-  margin-top: 32px; margin-bottom: 0;
+  margin-top: 64px; margin-bottom: 0;
 }
 .hero-trust strong { color: var(--ink-mid); }
 
