@@ -1,5 +1,12 @@
 # UIUNest
 
+![PHP](https://img.shields.io/badge/PHP-Backend-777BB4?style=flat-square&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-Frontend-E34F26?style=flat-square&logo=html5&logoColor=white)
+![Railway](https://img.shields.io/badge/Deployed_on-Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white)
+
+**🚀 Live Platform:** [https://uiunest-production.up.railway.app/](https://uiunest-production.up.railway.app/)
+
 UIUNest is a comprehensive platform designed for UIU (United International University) students, landlords, and administrators. It covers verified housing discovery, flatmate compatibility matching, a peer-to-peer exchange marketplace, mess bill management, and a full admin dashboard — all in a single, mobile-friendly web application.
 
 ## Features
