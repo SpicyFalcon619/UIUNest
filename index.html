@@ -136,7 +136,9 @@ document.getElementById('latestListings').innerHTML = mockData.listings.slice(0,
 attachWatchlistHandlers();
 document.getElementById('latestItems').innerHTML = mockData.exchangeItems.slice(0,4).map(it => `
   <div class="listing-card">
-    <img class="listing-photo" src="${it.photo}" alt="${it.title}" loading="lazy">
+    <div class="listing-photo-wrap">
+      <img class="listing-photo" src="${it.photo}" alt="${it.title}" loading="lazy">
+    </div>
     <div class="listing-body">
       <div class="badges">${conditionBadge(it.condition)} <span class="badge badge-navy">${it.zone}</span></div>
       <div class="listing-title">${it.title}</div>
