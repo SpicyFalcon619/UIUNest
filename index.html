@@ -11,35 +11,94 @@
 <script src="data.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
+<body class="landing-page">
 <div id="nav-mount"></div>
 
+<!-- ═══ HERO ═══ -->
 <section class="hero">
-  <h1>Find your home near UIU.<br><span class="hero-accent">Transparent costs, trusted landlords.</span></h1>
-  <p>The only platform that shows you every hidden cost before you commit.</p>
-  <form class="hero-search" onsubmit="event.preventDefault(); location.href='listings.html?zone='+document.getElementById('heroZone').value+'&type='+document.getElementById('heroRoom').value+'&budget='+(document.getElementById('heroBudget').value || 15000)">
-    <select id="heroZone"><option value="">All Zones</option></select>
-    <span class="search-divider"></span>
-    <select id="heroRoom">
-      <option value="">Any room type</option>
-      <option value="single_room">Single Room</option>
-      <option value="shared_room">Shared Room</option>
-      <option value="full_mess">Full Mess</option>
-      <option value="sublet">Sub-let</option>
-    </select>
-    <span class="search-divider"></span>
-    <input type="number" id="heroBudget" placeholder="Max budget (৳)">
-    <button type="submit" class="btn btn-primary">Search Listings</button>
-  </form>
+  <div class="hero-inner">
+    <div class="hero-badge">🏠 Built for UIU students</div>
+    <h1>Find your home near UIU.<br><span class="hero-accent">No hidden costs. Ever.</span></h1>
+    <p>The only platform that shows every bill itemised — rent, electricity, gas, internet — before you commit to a single taka.</p>
+    <form class="hero-search" onsubmit="event.preventDefault(); location.href='listings.html?zone='+document.getElementById('heroZone').value+'&type='+document.getElementById('heroRoom').value+'&budget='+(document.getElementById('heroBudget').value || 15000)">
+      <div class="hero-search-field">
+        <label class="hs-label">Zone</label>
+        <select id="heroZone"><option value="">All Zones</option></select>
+      </div>
+      <span class="search-divider"></span>
+      <div class="hero-search-field">
+        <label class="hs-label">Room Type</label>
+        <select id="heroRoom">
+          <option value="">Any type</option>
+          <option value="single_room">Single Room</option>
+          <option value="shared_room">Shared Room</option>
+          <option value="full_mess">Full Mess</option>
+          <option value="sublet">Sub-let</option>
+        </select>
+      </div>
+      <span class="search-divider"></span>
+      <div class="hero-search-field">
+        <label class="hs-label">Max Budget</label>
+        <input type="number" id="heroBudget" placeholder="৳ 15,000">
+      </div>
+      <button type="submit" class="btn btn-primary hs-btn">Search Listings</button>
+    </form>
+    <p class="hero-trust">Trusted by <strong>UIU students</strong> · Verified landlords · Transparent billing</p>
+  </div>
 </section>
 
+<!-- ═══ BENTO GRID FEATURES ═══ -->
 <div class="container">
-  <section class="features">
-    <div class="feature"><div class="feature-icon"><i data-lucide="home" class="lucide-lg"></i></div><h3>No Hidden Costs</h3><p>Every bill itemized. True monthly total always shown.</p></div>
-    <div class="feature"><div class="feature-icon"><i data-lucide="handshake" class="lucide-lg"></i></div><h3>Flatmate Matching</h3><p>8-dimension compatibility score with existing residents.</p></div>
-    <div class="feature"><div class="feature-icon"><i data-lucide="shopping-cart" class="lucide-lg"></i></div><h3>UIUNest Exchange</h3><p>Buy and sell household goods within your campus zone.</p></div>
-  </section>
+  <div class="bento-label">Everything you need. Nothing you don't.</div>
+  <div class="bento-grid">
 
+    <!-- Wide card — No Hidden Costs -->
+    <div class="bento-card bento-wide bento-emerald">
+      <div class="bento-icon"><i data-lucide="shield-check" class="lucide-lg"></i></div>
+      <h3>No Hidden Costs</h3>
+      <p>Rent, electricity (individual or shared meter), gas, water, internet, maintenance, caretaker fee — every charge is a separate database field, summed automatically into a true monthly total displayed on every card.</p>
+      <div class="bento-tag">Cost Transparency</div>
+    </div>
+
+    <!-- Tall card — Flatmate Matching -->
+    <div class="bento-card bento-tall">
+      <div class="bento-icon bento-icon-soft"><i data-lucide="users" class="lucide-lg"></i></div>
+      <h3>Flatmate Matching</h3>
+      <p>8-dimension compatibility score — sleep schedule, diet, cleanliness, noise, guests & more.</p>
+      <div class="bento-score-preview">
+        <div class="bsc-pill bsc-high">High Match 92%</div>
+        <div class="bsc-pill bsc-mid">Good Match 71%</div>
+        <div class="bsc-pill bsc-low">Low Match 38%</div>
+      </div>
+    </div>
+
+    <!-- Standard card — Exchange -->
+    <div class="bento-card">
+      <div class="bento-icon bento-icon-soft"><i data-lucide="shopping-bag" class="lucide-lg"></i></div>
+      <h3>UIUNest Exchange</h3>
+      <p>Buy and sell fans, tables, appliances — all within your campus zone. Offer & counter-offer built in.</p>
+    </div>
+
+    <!-- Standard card — Mess Bills -->
+    <div class="bento-card">
+      <div class="bento-icon bento-icon-soft"><i data-lucide="receipt" class="lucide-lg"></i></div>
+      <h3>Mess Bill Manager</h3>
+      <p>Split monthly utility bills automatically. Track who paid, who hasn't, across every resident.</p>
+    </div>
+
+    <!-- Wide card — Trust -->
+    <div class="bento-card bento-wide bento-surface">
+      <div class="bento-icon bento-icon-soft"><i data-lucide="badge-check" class="lucide-lg"></i></div>
+      <h3>Verified Landlords &amp; Reviews</h3>
+      <p>NID-verified landlord badges, multi-dimension property reviews (accuracy, cleanliness, safety, value, landlord responsiveness), and a formal complaint system with admin resolution.</p>
+      <div class="bento-tag">Trust Layer</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ LATEST LISTINGS ═══ -->
+<div class="container">
   <section class="section">
     <div class="section-head">
       <h2>Latest listings near UIU</h2>
@@ -48,16 +107,18 @@
     <div class="grid-4" id="latestListings"></div>
   </section>
 
+  <!-- ═══ EXCHANGE PREVIEW ═══ -->
   <section class="section">
     <div class="section-head">
-      <h2>UIUNest Exchange - buy and sell near campus</h2>
+      <h2>UIUNest Exchange — buy &amp; sell near campus</h2>
       <a href="exchange.html">Browse all items →</a>
     </div>
     <div class="grid-4" id="latestItems"></div>
   </section>
 
+  <!-- ═══ HOW IT WORKS ═══ -->
   <section class="section">
-    <h2 style="color:var(--navy);text-align:center">How it works</h2>
+    <h2 class="section-center-title">How it works</h2>
     <div class="steps">
       <div class="step"><div class="step-num">1</div><h3>Register</h3><p>Sign up with your UIU email address.</p></div>
       <div class="step"><div class="step-num">2</div><h3>Browse</h3><p>Browse verified listings with full cost breakdown.</p></div>

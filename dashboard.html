@@ -5,14 +5,37 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dashboard - UIUNest</title>
 <link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="data.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
+<body class="has-sidebar">
 <div id="nav-mount"></div>
 
-<div class="container" id="content"></div>
+<div class="dash-shell">
+  <!-- Sidebar navigation -->
+  <aside class="dash-sidebar">
+    <div class="ds-logo"><span class="logo-uiu">UIU</span><span class="logo-nest">Nest</span></div>
+    <nav class="ds-nav">
+      <a href="index.html" class="ds-link"><i data-lucide="home" class="lucide"></i> Home</a>
+      <a href="listings.html" class="ds-link"><i data-lucide="building-2" class="lucide"></i> Listings</a>
+      <a href="exchange.html" class="ds-link"><i data-lucide="shopping-bag" class="lucide"></i> Exchange</a>
+      <a href="seeking.html" class="ds-link"><i data-lucide="search" class="lucide"></i> Looking For</a>
+      <a href="bills.html" class="ds-link"><i data-lucide="receipt" class="lucide"></i> Bills</a>
+      <a href="profile.html" class="ds-link"><i data-lucide="user" class="lucide"></i> Profile</a>
+    </nav>
+    <div class="ds-footer">
+      <a href="#" onclick="event.preventDefault();doLogout()" class="ds-link ds-link-logout"><i data-lucide="log-out" class="lucide"></i> Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main scrollable content -->
+  <main class="dash-main">
+    <div id="content"></div>
+  </main>
+</div>
 
 <!-- Edit Listing Modal -->
 <div class="modal-bg" id="editListingModal">

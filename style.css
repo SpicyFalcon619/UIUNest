@@ -949,3 +949,345 @@ footer a:hover { color: #fff; }
   .page-title { font-size: 26px; }
   .stat-card .stat-value { font-size: 36px; }
 }
+
+/* ================================================================
+   FLOATING PILL NAVBAR  (overrides the sticky baseline navbar)
+   ================================================================ */
+#nav-mount {
+  position: sticky; top: 0; z-index: 2000;
+  padding: 14px 5% 0;
+  background: transparent;
+  pointer-events: none;
+}
+#nav-mount .navbar {
+  pointer-events: all;
+  max-width: 1020px;
+  margin: 0 auto;
+  border-radius: 50px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 4px 24px rgba(15, 30, 50, 0.08),
+              0 1px 4px rgba(15, 30, 50, 0.04);
+}
+#nav-mount .nav-inner {
+  height: 56px;
+  padding: 0 22px;
+}
+
+/* Hide the floating pill on the dashboard (it has a sidebar instead) */
+body.has-sidebar #nav-mount { display: none; }
+
+/* Landing page body — add space for the pill not to clip the hero */
+body.landing-page { padding-top: 0; }
+body.landing-page .hero { padding-top: 88px; }
+
+/* ================================================================
+   HERO ENHANCEMENTS
+   ================================================================ */
+.hero { position: relative; }
+.hero-inner {
+  position: relative; z-index: 1;
+  max-width: 740px; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+}
+
+/* Radial glow behind the headline */
+.hero-inner::before {
+  content: '';
+  position: absolute;
+  width: 800px; height: 500px;
+  top: -120px; left: 50%; transform: translateX(-50%);
+  background: radial-gradient(ellipse at center,
+    rgba(26, 92, 69, 0.12) 0%,
+    rgba(26, 92, 69, 0.04) 50%,
+    transparent 75%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--emerald-soft);
+  color: var(--emerald);
+  border: 1px solid rgba(26, 92, 69, 0.2);
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-size: 13px; font-weight: 600;
+  margin-bottom: 24px;
+  letter-spacing: 0.01em;
+}
+.hero-trust {
+  font-size: 13px; color: var(--ink-muted);
+  margin-top: 20px; margin-bottom: 0;
+}
+.hero-trust strong { color: var(--ink-mid); }
+
+/* Hero search — label+input stacked inside pill slots */
+.hero-search {
+  display: flex; align-items: center;
+  padding: 8px 8px 8px 0;
+  width: 100%; max-width: 820px;
+}
+.hero-search-field {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  padding: 6px 20px;
+}
+.hs-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  margin-bottom: 2px;
+}
+.hero-search-field select,
+.hero-search-field input {
+  border: none; background: transparent;
+  font-size: 14px; color: var(--ink);
+  padding: 0; outline: none;
+  font-family: inherit; font-weight: 500;
+}
+.hero-search-field select:focus,
+.hero-search-field input:focus { box-shadow: none; }
+.hs-btn { border-radius: 40px !important; padding: 14px 28px !important; flex-shrink: 0; margin: 4px; }
+
+.section-center-title {
+  text-align: center;
+  font-size: 24px; font-weight: 800; letter-spacing: -0.02em;
+  margin-bottom: 32px; color: var(--ink);
+}
+
+/* ================================================================
+   BENTO GRID — asymmetric feature showcase
+   ================================================================ */
+.bento-label {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  margin-bottom: 20px;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto;
+  gap: 18px;
+  margin-bottom: 64px;
+}
+
+/* Card base */
+.bento-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 32px 28px;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative; overflow: hidden;
+}
+.bento-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(15, 30, 50, 0.1),
+              0 4px 8px rgba(15, 30, 50, 0.06);
+}
+.bento-card h3 {
+  font-size: 18px; font-weight: 800;
+  color: var(--ink); margin: 0; letter-spacing: -0.02em;
+}
+.bento-card p {
+  font-size: 14px; color: var(--ink-mid);
+  line-height: 1.65; margin: 0;
+}
+
+/* Span variants */
+.bento-wide  { grid-column: span 2; }
+.bento-tall  { grid-row: span 2; }
+
+/* Color variants */
+.bento-emerald {
+  background: linear-gradient(135deg, var(--emerald) 0%, var(--emerald-mid) 100%);
+  border-color: transparent;
+  color: #fff;
+}
+.bento-emerald h3 { color: #fff; }
+.bento-emerald p  { color: rgba(255,255,255,0.82); }
+.bento-emerald .bento-icon { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.12); }
+.bento-surface { background: var(--surface-2); }
+
+/* Icon */
+.bento-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: var(--emerald);
+  color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+.bento-icon-soft {
+  background: var(--emerald-soft); color: var(--emerald);
+}
+
+/* Tag pill */
+.bento-tag {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.9);
+  border-radius: 50px; padding: 4px 12px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em; margin-top: auto;
+  width: fit-content;
+}
+.bento-surface .bento-tag {
+  background: var(--emerald-soft); color: var(--emerald);
+}
+
+/* Compatibility score preview pills */
+.bento-score-preview { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.bsc-pill {
+  padding: 8px 14px; border-radius: 10px;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
+}
+.bsc-pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.bsc-high  { background: #D1FAE5; color: #065F46; }
+.bsc-high::before  { background: #059669; }
+.bsc-mid   { background: #DBEAFE; color: #1E40AF; }
+.bsc-mid::before   { background: #3B82F6; }
+.bsc-low   { background: #FEF3C7; color: #92400E; }
+.bsc-low::before   { background: #F59E0B; }
+
+@media (max-width: 860px) {
+  .bento-grid { grid-template-columns: 1fr 1fr; }
+  .bento-wide { grid-column: span 2; }
+  .bento-tall { grid-row: span 1; }
+}
+@media (max-width: 560px) {
+  .bento-grid { grid-template-columns: 1fr; }
+  .bento-wide { grid-column: span 1; }
+  .hero-search { flex-direction: column; border-radius: var(--radius-lg); padding: 12px; }
+  .hero-search-field { padding: 8px 12px; }
+  .search-divider { width: 100%; height: 1px; }
+  .hs-btn { width: calc(100% - 8px); }
+}
+
+/* ================================================================
+   DASHBOARD — Fixed Sidebar + Scrollable Main
+   ================================================================ */
+
+/* Hide the global top navbar on the dashboard */
+.has-sidebar #nav-mount { display: none !important; }
+
+body:has(.dash-shell) {
+  background: var(--bg);
+  overflow: hidden; /* prevent body scroll — only .dash-main scrolls */
+}
+
+.dash-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+.dash-sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 28px 16px;
+  gap: 0;
+  box-shadow: 1px 0 0 var(--border);
+  overflow-y: auto;
+}
+.ds-logo {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px; font-weight: 800;
+  letter-spacing: -0.04em;
+  padding: 0 10px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.ds-nav {
+  display: flex; flex-direction: column; gap: 4px; flex: 1;
+}
+.ds-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px; font-weight: 500;
+  color: var(--ink-mid);
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+.ds-link:hover {
+  background: var(--emerald-soft);
+  color: var(--emerald);
+}
+.ds-link.active {
+  background: var(--emerald-soft);
+  color: var(--emerald);
+  font-weight: 600;
+}
+.ds-footer { padding-top: 16px; border-top: 1px solid var(--border); }
+.ds-link-logout { color: var(--danger) !important; }
+.ds-link-logout:hover { background: rgba(190, 61, 47, 0.07) !important; }
+
+/* ── Main content area ── */
+.dash-main {
+  flex: 1; min-width: 0;
+  overflow-y: auto;
+  background: var(--bg);
+  padding: 40px 44px;
+}
+
+/* Override the .container behavior inside dash-main */
+.dash-main #content {
+  max-width: 1200px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove harsh borders from cards inside dashboard, rely on shadows */
+.dash-main .card {
+  border-color: transparent;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+.dash-main .stat-card {
+  border-color: transparent;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+.dash-main .table {
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(15, 30, 50, 0.04);
+}
+
+/* Dashboard header strip */
+.dash-main .page-title {
+  font-size: 26px;
+  margin-bottom: 24px;
+}
+
+/* Responsive: collapse sidebar to top bar on mobile */
+@media (max-width: 860px) {
+  body:has(.dash-shell) { overflow: auto; }
+  .dash-shell { flex-direction: column; height: auto; overflow: visible; }
+  .dash-sidebar {
+    width: 100%; height: auto;
+    flex-direction: row; flex-wrap: wrap;
+    padding: 12px 16px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    gap: 4px;
+  }
+  .ds-logo { padding: 0 8px 0 0; border-bottom: none; margin-bottom: 0; align-self: center; }
+  .ds-nav { flex-direction: row; flex-wrap: wrap; flex: 1; }
+  .ds-footer { padding-top: 0; border-top: none; }
+  .dash-main { padding: 24px 20px; }
+}
