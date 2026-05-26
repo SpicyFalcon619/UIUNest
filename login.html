@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Log In - UIUNest</title>
     <link rel="stylesheet" href="style.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="data.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
@@ -17,10 +16,7 @@
 
     <div class="auth-wrap">
       <div class="auth-card" style="max-width: 500px; width: 100%">
-        <h1 style="font-size: 24px">
-          <span style="color: var(--navy)">UIU</span
-          ><span style="color: var(--gold)">Nest</span>
-        </h1>
+        <h1 style="font-size: 26px"><span class="logo-uiu">UIU</span><span class="logo-nest">Nest</span></h1>
         <p class="subtitle">Welcome back. Log in to continue.</p>
         <form onsubmit="doLogin(event)">
           <div class="form-group">

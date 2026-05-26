@@ -287,7 +287,7 @@ function renderNav(active) {
     <nav class="navbar">
       <div class="nav-inner" style="position:relative">
         <button class="mobile-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:8px;margin-right:8px"><i data-lucide="menu" class="lucide-lg"></i></button>
-        <a href="index.html" class="nav-logo"><span style="color:var(--navy)">UIU</span><span style="color:var(--gold)">Nest</span></a>
+        <a href="index.html" class="nav-logo"><span class="logo-uiu">UIU</span><span class="logo-nest">Nest</span></a>
         <div class="nav-links">${linkHTML}</div>
         <div class="nav-right">${rightHTML}</div>
       </div>
@@ -438,19 +438,24 @@ function renderListingCard(l) {
     ? `<span class="badge" style="background:${compatColor.bg};color:${compatColor.color}">${compatColor.label} (${compat.score}%)</span>`
     : '';
 
+  const photoSrc = l.photos && l.photos[0] ? l.photos[0] : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'600\' height=\'400\' fill=\'%23EEF7F2\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'18\' fill=\'%231A5C45\' text-anchor=\'middle\' dominant-baseline=\'middle\'>No Photo</text></svg>';
   return `
     <div class="listing-card ${compatClass}">
-      <img src="${l.photos && l.photos[0] ? l.photos[0] : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'20\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'middle\'>No Photo Available</text></svg>'}" alt="${l.title}" class="listing-photo" loading="lazy">
+      <div class="listing-photo-wrap">
+        <img src="${photoSrc}" alt="${l.title}" class="listing-photo" loading="lazy">
+        <div class="listing-photo-badges">
+          ${verifBadge}
+          ${compatBadge}
+        </div>
+      </div>
       <div class="listing-body">
         <div class="badges">
           <span class="badge badge-navy">${l.zone}</span>
           ${typeBadge}
-          ${verifBadge}
-          ${compatBadge}
         </div>
         <div class="listing-title">${l.title}</div>
-        <div class="price">${fmt(l.costs.totalMonthly)}<span style="font-size:12px;color:var(--gray);font-weight:500"> /month</span></div>
-        <div style="font-size:12px;color:var(--gray);margin-top:6px;">${gender} · ${l.currentOccupancy}/${l.totalRooms} occupied</div>
+        <div class="price">${fmt(l.costs.totalMonthly)}<span> /month</span></div>
+        <div class="listing-meta">${gender} &nbsp;·&nbsp; ${l.currentOccupancy}/${l.totalRooms} occupied</div>
         <div class="listing-footer">
           <button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" title="Save"><i data-lucide="heart" style="${wl ? 'fill: currentColor' : ''}"></i></button>
           <a class="btn btn-primary btn-sm" href="listing-detail.html?id=${l.id}">View Details</a>
@@ -467,7 +472,7 @@ function attachWatchlistHandlers(root) {
 function createNavyIcon() {
   return L.divIcon({
     className: '',
-    html: `<div style="width:32px;height:32px;background:#003366;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
+    html: `<div style="width:32px;height:32px;background:#1A5C45;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2.5px solid white;box-shadow:0 3px 10px rgba(26,92,69,0.4)"></div>`,
     iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -34]
   });
 }

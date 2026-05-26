@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>UIUNest - Find your home near UIU</title>
 <link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="data.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -13,10 +15,11 @@
 <div id="nav-mount"></div>
 
 <section class="hero">
-  <h1>Find your home near UIU. Transparent costs, compatible flatmates, trusted landlords.</h1>
+  <h1>Find your home near UIU.<br><span class="hero-accent">Transparent costs, trusted landlords.</span></h1>
   <p>The only platform that shows you every hidden cost before you commit.</p>
   <form class="hero-search" onsubmit="event.preventDefault(); location.href='listings.html?zone='+document.getElementById('heroZone').value+'&type='+document.getElementById('heroRoom').value+'&budget='+(document.getElementById('heroBudget').value || 15000)">
     <select id="heroZone"><option value="">All Zones</option></select>
+    <span class="search-divider"></span>
     <select id="heroRoom">
       <option value="">Any room type</option>
       <option value="single_room">Single Room</option>
@@ -24,8 +27,9 @@
       <option value="full_mess">Full Mess</option>
       <option value="sublet">Sub-let</option>
     </select>
+    <span class="search-divider"></span>
     <input type="number" id="heroBudget" placeholder="Max budget (৳)">
-    <button type="submit" class="btn btn-gold">Search</button>
+    <button type="submit" class="btn btn-primary">Search Listings</button>
   </form>
 </section>
 
