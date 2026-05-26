@@ -389,7 +389,7 @@ img { display: block; max-width: 100%; }
 /* Mobile filter toggle button — hidden on desktop */
 .mobile-filter-btn { display: none; }
 /* Mobile-only nav extras (Bell, Dashboard, Profile) — hidden on desktop */
-.mobile-nav-extra { display: none; }
+.mobile-nav-extra, .mobile-account-sheet { display: none; }
 .hero {
   background: linear-gradient(160deg, #EEF7F2 0%, #F7FAF8 60%, var(--bg) 100%);
   border-bottom: 1px solid var(--border);
