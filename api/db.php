@@ -29,8 +29,11 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
     header('Content-Type: application/json');
-    // Temporarily show the full error to debug the Railway connection
-    $errMsg = 'Database connection failed. ' . $e->getMessage() . ' | DSN: ' . $dsn . ' | USER: ' . $user;
+    // Hide the actual error in production, but show it if connecting locally fails
+    $errMsg = 'Database connection failed. Check your environment variables.';
+    if ($host === '127.0.0.1' || $host === 'localhost') {
+        $errMsg .= ' ' . $e->getMessage();
+    }
     echo json_encode(['error' => $errMsg]);
     exit;
 }
