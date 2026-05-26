@@ -163,6 +163,22 @@ img { display: block; max-width: 100%; }
   display: none;
   box-shadow: var(--shadow-lg);
 }
+
+/* Global Notification Menu */
+.notif-menu-global {
+  position: absolute; right: 5%; top: 70px;
+  width: 280px; padding: 12px; z-index: 2000;
+}
+@media (max-width: 768px) {
+  .notif-menu-global {
+    position: fixed !important;
+    bottom: 50% !important; left: 50% !important;
+    transform: translate(-50%, 50%) !important;
+    top: auto !important; right: auto !important;
+    width: 320px !important; max-width: 90vw !important;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.2) !important;
+  }
+}
 .avatar-menu.open { display: block; animation: menuFade 0.18s ease; }
 @keyframes menuFade {
   from { opacity: 0; transform: translateY(-6px) scale(0.98); }

@@ -102,10 +102,10 @@ function renderBillManager(myProps, activeListing, activeBills) {
   const monthOptions = months.map(m => `<option value="${m.val}">${m.label}</option>`).join('');
 
   root.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
-      <h1 class="page-title" style="margin:0">Mess Bill Manager</h1>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <label style="font-weight:600;font-size:13px;">Manage Flat:</label>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:24px">
+      <h1 style="font-size:28px;color:var(--navy);margin:0">Mess Bill Manager</h1>
+      <div style="display:flex;align-items:center;gap:8px">
+        <label style="font-size:13px;font-weight:600;color:var(--ink-dark)">Manage Flat:</label>
         <select id="propSelect" onchange="switchProperty(this.value)" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;">
           ${propOptions}
         </select>
@@ -158,8 +158,8 @@ function renderBillManager(myProps, activeListing, activeBills) {
       <!-- Payment Tracker Card -->
       <div class="card">
         <h3 style="margin:0 0 10px;color:var(--navy)">Payment Tracker</h3>
-        <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;justify-content:space-between;">
-          <div style="display:flex;align-items:center;gap:8px;">
+        <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <label style="font-size:13px;font-weight:600">Select Month to Track:</label>
             <select id="trackMonthSel" onchange="loadTrackerMonth(this.value, ${activeListing.id})" style="padding:6px;border-radius:6px;border:1px solid var(--border)">
               ${activeBills.length ? activeBills.map(b => `<option value="${b.id}">${b.month}</option>`).join('') : '<option value="">No bills logged</option>'}

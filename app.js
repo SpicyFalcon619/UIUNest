@@ -292,11 +292,7 @@ function renderNav(active) {
     ? `<div style="position:relative;display:inline-block">
          ${user.role === 'admin' ? '' : `
          <button id="notifBtn" class="icon-btn" title="Notifications" onclick="toggleNotifs()"><i data-lucide="bell" class="lucide-sm"></i><span id="notifBadgeDesk" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center"></span></button>
-         <div class="avatar-menu" id="notifMenu" style="width:280px;right:-10px;padding:12px;z-index:2000">
-           <div style="font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">Notifications</div>
-           <div id="notifList" style="max-height:300px;overflow-y:auto;font-size:13px;color:var(--gray);margin-bottom:8px;">Loading...</div>
-           <button class="btn btn-outline btn-block btn-sm" onclick="markNotifRead('all', '', event)">Mark all as read</button>
-         </div>`}
+         `}
        </div>
        ${user.role === 'admin' ? '' : `<a class="icon-btn" href="dashboard.html?tab=watch" title="Watchlist"><i data-lucide="heart" class="lucide-sm"></i></a>`}
        <div class="avatar" id="avatarBtn" onclick="document.getElementById('avatarMenu').classList.toggle('open')">${avatarDisplay}
@@ -319,7 +315,13 @@ function renderNav(active) {
         <div class="nav-links">${linkHTML}</div>
         <div class="nav-right">${rightHTML}</div>
       </div>
-    </nav>`;
+    </nav>
+    ${logged && user.role !== 'admin' ? `
+    <div class="avatar-menu notif-menu-global" id="notifMenu">
+      <div style="font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">Notifications</div>
+      <div id="notifList" style="max-height:300px;overflow-y:auto;font-size:13px;color:var(--gray);margin-bottom:8px;">Loading...</div>
+      <button class="btn btn-outline btn-block btn-sm" onclick="markNotifRead('all', '', event)">Mark all as read</button>
+    </div>` : ''}`;
 }
 
 function toggleMobileAccountSheet() {
