@@ -276,6 +276,7 @@ img { display: block; max-width: 100%; }
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 .card:hover { box-shadow: var(--shadow-md); }
+.card h3 { margin-bottom: 16px; }
 
 /* ────────────────────────────────────────
    LISTING CARD — the star of the show
@@ -592,8 +593,10 @@ input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--emerald); w
   background: var(--surface); text-align: left;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm); overflow: hidden;
+  box-shadow: var(--shadow-sm); /* overflow: hidden removed to allow dropdowns to overflow */
 }
+.table th:first-child { border-top-left-radius: calc(var(--radius-lg) - 1px); }
+.table th:last-child { border-top-right-radius: calc(var(--radius-lg) - 1px); }
 .table th {
   background: var(--surface-2);
   border-bottom: 1px solid var(--border);
