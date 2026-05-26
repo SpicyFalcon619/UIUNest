@@ -983,8 +983,9 @@ footer a:hover { color: #fff; text-decoration: underline; }
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     transition: bottom 0.3s ease, left 0.3s ease, right 0.3s ease,
                 border-radius 0.3s ease, box-shadow 0.3s ease,
-                padding 0.3s ease;
+                padding 0.3s ease, transform 0.3s ease;
   }
+  .nav-links.nav-hidden { transform: translateY(150%); }
   /* Scrolled state: expand to fill the full bottom edge */
   .nav-links.nav-scrolled {
     bottom: 0; left: 0; right: 0;
@@ -1017,11 +1018,15 @@ footer a:hover { color: #fff; text-decoration: underline; }
   .mobile-account-btn {
     background: var(--emerald) !important;
     color: white !important;
-    border-radius: 16px !important;
-    padding: 10px 8px !important;
-    margin: -8px 0; /* Slight pop-out effect */
-    box-shadow: 0 4px 12px rgba(26, 92, 69, 0.3);
+    border-radius: 50% !important;
+    width: 52px; height: 52px;
+    padding: 0 !important;
+    margin: -14px 0 -6px 0; /* Pop out effect */
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 4px 12px rgba(26, 92, 69, 0.4);
   }
+  .mobile-account-btn .nav-label { display: none; } /* hidden for clean circle */
+  .mobile-account-btn .nav-icon { margin: 0 !important; width: 24px; height: 24px; }
   .mobile-account-btn.active, .mobile-account-btn:hover {
     color: white !important;
   }

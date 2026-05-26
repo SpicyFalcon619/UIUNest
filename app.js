@@ -316,7 +316,7 @@ function renderNav(active) {
       <div class="nav-inner" style="position:relative">
         <button class="mobile-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:8px;margin-right:8px"><i data-lucide="menu" class="lucide-lg"></i></button>
         <a href="index.html" class="nav-logo"><span class="logo-uiu">UIU</span><span class="logo-nest">Nest</span></a>
-        <div class="nav-links">${linkHTML}${accountTab}</div>
+        <div class="nav-links">${linkHTML}</div>
         <div class="nav-right">${rightHTML}</div>
       </div>
     </nav>`;
@@ -455,11 +455,13 @@ function mountChrome(active) {
       // Hide navbar when scrolling down, show when scrolling up (skip on homepage)
       if (!isHomepage) {
         const navMount = document.getElementById('nav-mount');
-        if (navMount && pageIsScrollable) {
+        if (pageIsScrollable) {
           if (currentScrollY > lastScrollY && currentScrollY > 60) {
-            navMount.classList.add('nav-hidden');
+            if (navMount) navMount.classList.add('nav-hidden');
+            if (navLinks) navLinks.classList.add('nav-hidden');
           } else {
-            navMount.classList.remove('nav-hidden');
+            if (navMount) navMount.classList.remove('nav-hidden');
+            if (navLinks) navLinks.classList.remove('nav-hidden');
           }
         }
       }
