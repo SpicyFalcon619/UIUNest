@@ -950,21 +950,22 @@ footer a:hover { color: #fff; text-decoration: underline; }
   .mobile-menu-btn { display: none !important; }
   .nav-links {
     display: flex; flex-direction: row; justify-content: space-around; align-items: center;
-    position: fixed; bottom: 0; left: 0; right: 0;
+    position: fixed; bottom: 16px; left: 16px; right: 16px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
-    border-top: 1px solid var(--border);
-    padding: 8px 0 calc(env(safe-area-inset-bottom) + 8px) 0;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 16px calc(env(safe-area-inset-bottom) + 8px) 16px;
     z-index: 3000;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   }
   .nav-links a {
-    flex-direction: column; gap: 4px; padding: 4px; border-radius: 0;
+    flex-direction: column; gap: 4px; padding: 6px 12px; border-radius: 12px;
     background: transparent !important;
     font-size: 11px; font-weight: 500;
   }
   .nav-links a .nav-icon { display: block; margin-bottom: 2px; }
-  body { padding-bottom: 70px; }
+  body { padding-bottom: 90px; }
 
   /* Layouts */
   .listings-layout { flex-direction: column; }
