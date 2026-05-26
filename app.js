@@ -452,17 +452,7 @@ function mountChrome(active) {
         }
       }
 
-      // Hide top navbar when scrolling down, show when scrolling up (skip on homepage)
-      if (!isHomepage) {
-        const navMount = document.getElementById('nav-mount');
-        if (pageIsScrollable) {
-          if (currentScrollY > lastScrollY && currentScrollY > 60) {
-            if (navMount) navMount.classList.add('nav-hidden');
-          } else {
-            if (navMount) navMount.classList.remove('nav-hidden');
-          }
-        }
-      }
+      // Removed the nav-hidden hiding logic entirely so all pages behave exactly like the homepage.
       lastScrollY = currentScrollY;
     }
 
