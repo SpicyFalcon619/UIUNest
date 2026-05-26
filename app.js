@@ -586,3 +586,73 @@ window.addEventListener('click', e => {
 
 // Call on load
 loadListingsFromDB();
+
+// ============ Custom Select Engine ============
+function initCustomSelects() {
+  document.querySelectorAll('select:not(.custom-select-hidden)').forEach(select => {
+    select.classList.add('custom-select-hidden');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-select-wrapper';
+    select.parentNode.insertBefore(wrapper, select);
+    wrapper.appendChild(select);
+
+    const trigger = document.createElement('div');
+    trigger.className = 'custom-select-trigger';
+    wrapper.appendChild(trigger);
+
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'custom-select-options';
+    wrapper.appendChild(optionsContainer);
+
+    function renderOptions() {
+      optionsContainer.innerHTML = '';
+      let selectedText = '';
+      Array.from(select.options).forEach((option, index) => {
+        if (option.selected) selectedText = option.text;
+        const optEl = document.createElement('div');
+        optEl.className = 'custom-option';
+        if (option.selected) optEl.classList.add('selected');
+        optEl.textContent = option.text;
+        optEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          select.selectedIndex = index;
+          trigger.querySelector('span').textContent = option.text;
+          
+          optionsContainer.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
+          optEl.classList.add('selected');
+          
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          optionsContainer.classList.remove('open');
+          trigger.classList.remove('open');
+        });
+        optionsContainer.appendChild(optEl);
+      });
+      trigger.innerHTML = `<span>${selectedText}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+    }
+    
+    renderOptions();
+
+    const observer = new MutationObserver(renderOptions);
+    observer.observe(select, { childList: true });
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.custom-select-options.open').forEach(el => {
+        if (el !== optionsContainer) {
+          el.classList.remove('open');
+          el.previousElementSibling.classList.remove('open');
+        }
+      });
+      optionsContainer.classList.toggle('open');
+      trigger.classList.toggle('open');
+    });
+
+    document.addEventListener('click', () => {
+      optionsContainer.classList.remove('open');
+      trigger.classList.remove('open');
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', initCustomSelects);
