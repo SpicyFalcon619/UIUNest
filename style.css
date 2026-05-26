@@ -427,34 +427,7 @@ img { display: block; max-width: 100%; }
   position: relative;
 }
 
-/* Hero search bar */
-.hero-search {
-  background: var(--surface);
-  padding: 10px 10px 10px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 860px; margin: 0 auto;
-  box-shadow: var(--shadow-lg);
-  position: relative;
-}
-.hero-search select,
-.hero-search input[type="number"] {
-  border: none; background: transparent;
-  font-size: 14px; color: var(--ink);
-  flex: 1; min-width: 0;
-  padding: 10px 0;
-  outline: none;
-  font-family: inherit;
-}
-.hero-search select:focus,
-.hero-search input:focus { box-shadow: none; }
-.hero-search .search-divider {
-  width: 1px; height: 28px; background: var(--border); flex-shrink: 0;
-}
-.hero-search .btn { flex-shrink: 0; padding: 12px 28px; border-radius: 14px; font-size: 14px; }
+/* Old hero search styles moved to bottom */
 
 /* ════════════════════════════════════════
    FORMS
@@ -467,7 +440,7 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.01em;
 }
 
-input, select, textarea {
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
   width: 100%;
   padding: 12px 14px;
   border: 1.5px solid var(--border);
@@ -476,6 +449,14 @@ input, select, textarea {
   background: var(--surface); color: var(--ink);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   -webkit-appearance: none;
+  appearance: none;
+}
+select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
 }
 input::placeholder, textarea::placeholder { color: var(--ink-muted); }
 input:hover, select:hover, textarea:hover { border-color: var(--border-mid); }
@@ -1027,30 +1008,43 @@ body.landing-page .hero { padding-top: 88px; }
 
 /* Hero search — label+input stacked inside pill slots */
 .hero-search {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   display: flex; align-items: center;
-  padding: 8px 8px 8px 0;
-  width: 100%; max-width: 820px;
+  padding: 8px 8px 8px 16px;
+  width: 100%; max-width: 820px; margin: 0 auto;
+  box-shadow: var(--shadow-lg);
+  text-align: left;
 }
 .hero-search-field {
   flex: 1; min-width: 0;
-  display: flex; flex-direction: column;
-  padding: 6px 20px;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 4px 16px;
 }
 .hs-label {
   font-size: 10px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.08em;
   color: var(--ink-muted);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 .hero-search-field select,
 .hero-search-field input {
   border: none; background: transparent;
-  font-size: 14px; color: var(--ink);
-  padding: 0; outline: none;
-  font-family: inherit; font-weight: 500;
+  font-size: 15px; color: var(--ink);
+  padding: 0; margin: 0; outline: none; height: 24px;
+  font-family: inherit; font-weight: 600;
+  box-shadow: none;
+}
+.hero-search-field select {
+  background-position: right 0 center;
+  padding-right: 20px;
 }
 .hero-search-field select:focus,
 .hero-search-field input:focus { box-shadow: none; }
+.search-divider {
+  width: 1px; height: 28px; background: var(--border); flex-shrink: 0;
+}
 .hs-btn { border-radius: 40px !important; padding: 14px 28px !important; flex-shrink: 0; margin: 4px; }
 
 .section-center-title {
