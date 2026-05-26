@@ -23,7 +23,6 @@ logs/
 
 # Project specific ignores
 .antigravitycli/
-UIUNest report/
 *Context.md
 
 # Uploaded Files

@@ -1,0 +1,282 @@
+// ==========================================
+// UIUNest Full Database Schema (19 Tables)
+// ==========================================
+
+Table users {
+  user_id INT [pk, increment]
+  name VARCHAR(100) [not null]
+  email VARCHAR(150) [unique, not null]
+  password_hash VARCHAR(255) [not null]
+  role ENUM [not null, note: "student | landlord | admin"]
+  gender ENUM [not null]
+  phone VARCHAR(20)
+  university_id VARCHAR(50) [unique]
+  profile_pic VARCHAR(255)
+  status ENUM [default: 'active']
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table zones {
+  zone_id INT [pk, increment]
+  zone_name VARCHAR(100) [not null]
+  description TEXT
+  center_lat DECIMAL(9,6) [not null]
+  center_lng DECIMAL(9,6) [not null]
+  radius_km DECIMAL(4,2) [not null]
+}
+
+Table listings {
+  listing_id INT [pk, increment]
+  user_id INT
+  zone_id INT
+  listing_type ENUM [not null]
+  property_type ENUM [not null]
+  title VARCHAR(200) [not null]
+  address TEXT [not null]
+  lat DECIMAL(9,6) [not null]
+  lng DECIMAL(9,6) [not null]
+  gender_pref ENUM [not null]
+  total_rooms INT [not null]
+  current_occupancy INT [default: 0]
+  status ENUM [default: 'available']
+  expected_vacate_date DATE
+  is_verified BOOLEAN [default: FALSE]
+  description TEXT
+  photos TEXT
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+  updated_at DATETIME
+}
+
+Table utility_costs {
+  cost_id INT [pk, increment]
+  listing_id INT [unique]
+  base_rent DECIMAL(10,2) [not null]
+  electricity_amount DECIMAL(8,2) [default: 0]
+  electricity_type ENUM [not null]
+  gas_bill DECIMAL(8,2) [default: 0]
+  water_bill DECIMAL(8,2) [default: 0]
+  internet_cost DECIMAL(8,2) [default: 0]
+  maintenance_fee DECIMAL(8,2) [default: 0]
+  caretaker_fee DECIMAL(8,2) [default: 0]
+  other_fees DECIMAL(8,2) [default: 0]
+  total_monthly DECIMAL(10,2) [not null]
+  updated_at DATETIME
+}
+
+Table listing_amenities {
+  amenity_id INT [pk, increment]
+  listing_id INT [unique]
+  attached_bathroom BOOLEAN [default: FALSE]
+  attached_kitchen BOOLEAN [default: FALSE]
+  is_furnished BOOLEAN [default: FALSE]
+  rooftop_access BOOLEAN [default: FALSE]
+  parking BOOLEAN [default: FALSE]
+  power_backup BOOLEAN [default: FALSE]
+  lift_access BOOLEAN [default: FALSE]
+}
+
+Table user_preferences {
+  pref_id INT [pk, increment]
+  user_id INT [unique]
+  sleep_schedule ENUM [not null]
+  study_hours INT [default: 0]
+  diet ENUM [not null]
+  guest_policy ENUM [not null]
+  smoking_tolerance BOOLEAN [default: FALSE]
+  preferred_gender ENUM [not null]
+  cleanliness_score INT
+  noise_tolerance ENUM [not null]
+}
+
+Table reviews {
+  review_id INT [pk, increment]
+  listing_id INT
+  reviewer_id INT
+  value_for_money INT
+  listing_accuracy INT
+  landlord_response INT
+  cleanliness INT
+  safety INT
+  composite_score DECIMAL(3,2) [not null]
+  comment VARCHAR(500)
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table complaints {
+  complaint_id INT [pk, increment]
+  complainant_id INT
+  against_user_id INT
+  listing_id INT
+  category ENUM [not null]
+  description TEXT [not null]
+  status ENUM [default: 'submitted']
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+  resolved_at DATETIME
+}
+
+Table seeking_posts {
+  post_id INT [pk, increment]
+  user_id INT
+  zone_id INT
+  budget_min DECIMAL(10,2) [not null]
+  budget_max DECIMAL(10,2) [not null]
+  property_type ENUM [not null]
+  preferred_gender ENUM [not null]
+  move_in_date DATE
+  requirements TEXT
+  status ENUM [default: 'active']
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table monthly_bills {
+  bill_id INT [pk, increment]
+  listing_id INT
+  bill_month DATE [not null]
+  electricity_amount DECIMAL(8,2) [default: 0]
+  gas_amount DECIMAL(8,2) [default: 0]
+  water_amount DECIMAL(8,2) [default: 0]
+  internet_amount DECIMAL(8,2) [default: 0]
+  other_amount DECIMAL(8,2) [default: 0]
+  total_amount DECIMAL(10,2) [not null]
+  per_person_amount DECIMAL(10,2) [not null]
+  created_by INT
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table bill_payments {
+  payment_id INT [pk, increment]
+  bill_id INT
+  resident_user_id INT
+  resident_label VARCHAR(50)
+  status ENUM [default: 'unpaid']
+  paid_at DATETIME
+}
+
+Table rent_history {
+  history_id INT [pk, increment]
+  listing_id INT
+  old_rent DECIMAL(10,2) [not null]
+  new_rent DECIMAL(10,2) [not null]
+  changed_at DATETIME [default: `CURRENT_TIMESTAMP`]
+  changed_by INT
+}
+
+Table items {
+  item_id INT [pk, increment]
+  seller_id INT
+  zone_id INT
+  listing_id INT
+  category ENUM [not null]
+  title VARCHAR(200) [not null]
+  description TEXT
+  item_condition ENUM [not null]
+  asking_price DECIMAL(10,2) [not null]
+  reason_for_selling VARCHAR(300)
+  photo_url VARCHAR(255)
+  status ENUM [default: 'available']
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table offers {
+  offer_id INT [pk, increment]
+  item_id INT
+  buyer_id INT
+  offer_price DECIMAL(10,2) [not null]
+  message VARCHAR(300)
+  status ENUM [default: 'pending']
+  counter_price DECIMAL(10,2)
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+  updated_at DATETIME
+}
+
+Table applications {
+  application_id INT [pk, increment]
+  listing_id INT
+  applicant_id INT
+  message TEXT
+  status ENUM [default: 'pending']
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table verifications {
+  verification_id INT [pk, increment]
+  user_id INT
+  nid_type ENUM [not null]
+  document_path VARCHAR(255) [not null]
+  description TEXT
+  status ENUM [default: 'pending']
+  submitted_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table watchlists {
+  watchlist_id INT [pk, increment]
+  user_id INT
+  listing_id INT
+  added_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table seeking_responses {
+  response_id INT [pk, increment]
+  post_id INT
+  responder_id INT
+  message TEXT
+  status ENUM [default: 'pending']
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+Table notifications {
+  notif_id INT [pk, increment]
+  user_id INT
+  type VARCHAR(50)
+  message TEXT
+  is_read BOOLEAN [default: FALSE]
+  link VARCHAR(255)
+  created_at DATETIME [default: `CURRENT_TIMESTAMP`]
+}
+
+// ==========================================
+// Foreign Key Relationships
+// ==========================================
+
+// Core Housing
+Ref: listings.user_id > users.user_id
+Ref: listings.zone_id > zones.zone_id
+Ref: utility_costs.listing_id - listings.listing_id
+Ref: listing_amenities.listing_id - listings.listing_id
+
+// Identity & Matching
+Ref: user_preferences.user_id - users.user_id
+Ref: watchlists.user_id > users.user_id
+Ref: watchlists.listing_id > listings.listing_id
+
+// Trust & Community
+Ref: reviews.listing_id > listings.listing_id
+Ref: reviews.reviewer_id > users.user_id
+Ref: complaints.complainant_id > users.user_id
+Ref: complaints.against_user_id > users.user_id
+Ref: complaints.listing_id > listings.listing_id
+Ref: applications.listing_id > listings.listing_id
+Ref: applications.applicant_id > users.user_id
+Ref: verifications.user_id > users.user_id
+Ref: notifications.user_id > users.user_id
+
+// Seeking System
+Ref: seeking_posts.user_id > users.user_id
+Ref: seeking_posts.zone_id > zones.zone_id
+Ref: seeking_responses.post_id > seeking_posts.post_id
+Ref: seeking_responses.responder_id > users.user_id
+
+// Bill Management
+Ref: monthly_bills.listing_id > listings.listing_id
+Ref: monthly_bills.created_by > users.user_id
+Ref: bill_payments.bill_id > monthly_bills.bill_id
+Ref: bill_payments.resident_user_id > users.user_id
+Ref: rent_history.listing_id > listings.listing_id
+Ref: rent_history.changed_by > users.user_id
+
+// Exchange Marketplace
+Ref: items.seller_id > users.user_id
+Ref: items.zone_id > zones.zone_id
+Ref: items.listing_id > listings.listing_id
+Ref: offers.item_id > items.item_id
+Ref: offers.buyer_id > users.user_id

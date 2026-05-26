@@ -1,0 +1,929 @@
+UIUNest
+Smart Housing & Marketplace Portal for UIU Students
+United International University
+ 
+University
+United International University (UIU)
+Course Name
+Database Management Systems Laboratory
+Course Code
+CSE 3522 / CSI 222
+Section
+ 
+Team Members
+Report Type
+Submission Date
+GitHub Link
+Demo Video
+Department of Computer Science and Engineering
+United International University, Dhaka, Bangladesh
+Table of Contents
+1.  Introduction / Overview3
+2.  Motivation4
+3.  Similar Projects5
+4.  Benchmark Analysis6
+5.  Complete Feature List7
+6.  Database Design Approach11
+7.  Entity-Relationship Diagram (ERD)12
+8.  Schema Diagram13
+1.  Introduction / Overview
+UIUNest is a web-based housing and community marketplace portal designed exclusively for the students and faculty of United International University (UIU) and the surrounding campus community. The platform serves as a structured, database-driven ecosystem with two primary user categories — Listers and Searchers — and an integrated marketplace open to everyone. Listers include both external landlords and mess owners who advertise full properties, and students or teachers who have a spare seat or room and are looking for a flatmate to share their space. Searchers are students and faculty actively looking for a place to live or a compatible roommate. Any registered user, regardless of their primary role, can also participate in UIUNest Exchange — the platform's community marketplace for buying and selling household goods.
+The application directly addresses a problem that every UIU student living away from home has personally faced. Finding a room or mess near the UIU campus currently requires physically walking through the surrounding areas, relying on word-of-mouth from seniors, or posting on informal Facebook groups where information is unverified, unstructured, and unreliable. There is no standardized way to compare rental costs honestly, understand what monthly bills will actually total, find a compatible flatmate, post a spare seat in your own mess, or buy a second-hand study table from a fellow student who no longer needs it.
+UIUNest replaces this entire fragmented process with a single platform built around five major data categories: property listings with full cost transparency, user preference profiles for housing compatibility matching, flatmate-seeking posts, community feedback through reviews and complaints, and UIUNest Exchange — an integrated student-to-student marketplace for second-hand household items. Each of these categories demands complex relational database operations including multi-table JOINs, aggregate functions, subqueries, and transactional updates — making UIUNest an ideal project for a Database Management Systems laboratory course.
+The technology stack consists of PHP for the backend server logic, MySQL for relational data management, and a Leaflet.js interactive map for geographic property discovery. An admin panel manages verification, complaints, and platform analytics. UIUNest is designed to serve the UIU campus area as its primary zone of operation, with an architecture built to support expansion to other universities in the future.
+2.  Motivation
+The motivation for UIUNest is rooted in a problem that the team members have experienced firsthand as UIU students. Finding housing near the UIU campus is entirely informal, often stressful, and frequently more expensive than it appears until it is too late.
+The Hidden Costs Problem
+A landlord near UIU may advertise a room for 3,500 BDT per month. What they do not disclose is that the electricity bill runs on a shared sub-meter divided unequally, that there is a gas bill, a building maintenance charge, a monthly contribution to the caretaker's salary, and three months' advance rent required before moving in. By the time a student discovers the true monthly cost, they have already paid the advance. UIUNest solves this by requiring landlords to complete a structured cost breakdown form. Every charge is stored as a separate field in the database and displayed transparently to searchers, with the total true monthly cost computed automatically.
+The Compatibility Problem
+Shared messes and sub-let arrangements require social compatibility that goes far beyond rent. A student who studies until 2am cannot comfortably share a room with someone who sleeps at 10pm. Dietary requirements, guest policies, and cleanliness standards are all potential conflicts that are never discussed through a Facebook post. UIUNest introduces a housing preference profile for every registered user and computes a compatibility score between a prospective new resident and the existing members of a mess — implemented through a multi-dimensional SQL query joining preference tables across users.
+The Trust Problem
+Student housing near Bangladeshi campuses has a well-known trust deficit. Landlords misrepresent properties, charge undisclosed fees after move-in, or refuse to return security deposits. UIUNest addresses this through a multi-dimensional review system, a formal complaint mechanism with admin oversight, and a verification badge requiring document submission — creating an accountability layer that has no equivalent in the current informal market.
+The Community Goods Problem
+UIU students accumulate household items over time — fans, study tables, chairs, mattresses, mini-fridges, kitchen appliances. These need to be sold or bought for many different reasons: a student moving to a new mess, someone upgrading to a better appliance, a person clearing space in their room, or simply someone who bought something and no longer uses it. UIUNest integrates a student-to-student marketplace called UIUNest Exchange directly into the platform. Any registered UIUNest user can list any household item for sale at any time, for any reason. Because all users are already in a campus housing context, buyers and sellers are geographically close by default, and a structured offer-and-counteroffer system removes the awkwardness of open price negotiation.
+Why This Project for DBMS Lab
+UIUNest is an ideal vehicle for demonstrating advanced relational database concepts. The system requires multiple JOIN types, aggregate functions for cost totals and rating calculations, subqueries for ranking and comparison, and complete CRUD lifecycles across all entities. The Exchange marketplace adds offer-state management and price history queries. The data model is genuinely complex and directly relevant to a real-world problem faced by UIU students every day.
+3.  Similar Projects
+Several existing platforms share partial features with UIUNest, but none were designed for student housing at UIU or in Bangladesh more broadly, and none integrate the full combination of housing search, cost transparency, flatmate compatibility, and a linked household marketplace.
+CareTutors (caretutors.com)
+CareTutors is a Bangladesh-based platform connecting home tutors with students and guardians. It is the primary architectural inspiration for UIUNest — a two-sided marketplace where one party creates a structured profile and the other searches and filters to find a match. UIUNest mirrors this approach and extends it with a third marketplace layer for household items. CareTutors proves that a database-driven matching platform can replace an informal process in the Bangladeshi context.
+Bproperty (bproperty.com)
+Bproperty is Bangladesh's largest real estate platform. Its target market is professionals and families looking for mid-to-high-end properties. It does not support mess listings, shared room searches, student-specific cost transparency, or flatmate matching, and its price range is far above what UIU students typically pay. UIUNest fills the gap Bproperty leaves at the student end of the market.
+Bikroy.com (Classifieds and Rental Section)
+Bikroy is Bangladesh's largest general classifieds platform. Its rental and second-hand goods sections are widely used but both function as raw, unstructured bulletin boards with no verification, standardized pricing, or compatibility features. UIUNest competes with Bikroy on both housing and second-hand goods — but offers structure, trust, and campus context that Bikroy cannot. A UIU student selling a table on Bikroy has no way to ensure the buyer is a nearby student. On UIUNest Exchange, every buyer is already in the same campus zone.
+Facebook Groups
+A large portion of UIU student housing and item exchange activity happens through Facebook groups. These have no database structure: posts are unformatted, unverifiable, and quickly buried by new content. UIUNest is the structured, persistent, and searchable replacement for these groups — preserving the community feel while adding the organizational layer Facebook groups cannot provide.
+SpareRoom (spareroom.com) — International Reference
+SpareRoom is a UK-based flatmate and room-finding platform offering compatibility scoring, verified listings, and detailed preference matching. It serves as a technical reference for UIUNest's compatibility matching and review system, even though it operates in a different market and does not address cost transparency or second-hand goods needs specific to the UIU context.
+OLX / Daraz Second-Hand Sections — International Reference
+OLX and Daraz both have sections for second-hand household goods. Like Bikroy, they are general-purpose platforms with no campus context, no proximity filtering for student zones, and no negotiation workflow. The UIUNest Exchange differs from these by being embedded within the housing platform — a student viewing a room listing can immediately see items for sale by the vacating tenant, a contextual connection no general classifieds platform can replicate.
+4.  Benchmark Analysis
+The table below compares UIUNest against the most relevant existing platforms. A filled circle (●) indicates full support, a half circle (◑) indicates partial support, and an empty circle (○) indicates the feature is absent.
+Feature
+UIUNest
+Bproperty
+Bikroy
+Facebook
+SpareRoom
+Student-focused housing
+●
+○
+◑
+◑
+◑
+Mess / shared room support
+●
+○
+○
+◑
+●
+Itemized cost transparency
+●
+○
+○
+○
+○
+Flatmate compatibility score
+●
+○
+○
+○
+◑
+Verified landlord badge
+●
+◑
+○
+○
+◑
+Multi-dimensional reviews
+●
+◑
+○
+○
+◑
+Seeking / looking-for posts
+●
+○
+○
+●
+●
+Live interactive map
+●
+●
+○
+○
+◑
+Rent history tracker
+●
+○
+○
+○
+○
+Complaint mechanism
+●
+○
+○
+○
+○
+Neighborhood safety score
+●
+○
+○
+○
+○
+Move-in availability & notify
+●
+○
+○
+○
+◑
+Mess bill management module
+●
+○
+○
+○
+○
+Student goods marketplace
+●
+○
+●
+●
+○
+Zone-filtered item listings
+●
+○
+○
+○
+○
+Offer & negotiation system
+●
+○
+◑
+○
+○
+Housing-linked item listing
+●
+○
+○
+○
+○
+Admin moderation panel
+●
+◑
+○
+○
+◑
+UIU campus context
+●
+○
+○
+○
+○
+UIUNest is the only platform in this comparison that provides the full combination of transparent student housing, flatmate compatibility, trust infrastructure, mess bill management, and a contextually linked household marketplace. The UIUNest Exchange in particular represents a feature that no existing platform can replicate — not because it is technically complex, but because it requires the housing platform and goods marketplace to share the same user base, the same geographic zone system, and the same listing data, which is only possible when both features are built into a single integrated system.
+5.  Complete Feature List
+The following section enumerates all features planned for UIUNest, grouped by system component. This represents the full intended scope of the project, to be implemented progressively across the six-week development period.
+◆  5.1  User Account Management
+Registration and login for three user roles: Student/Teacher, Landlord/Mess Owner, and Admin. The Student/Teacher role is dual-purpose — the same account can act as a Searcher (looking for housing) and as a Lister (posting a spare seat or room to find a flatmate).
+Landlord/Mess Owner accounts are for external property owners who list full properties. Student accounts who post spare seats use a simplified peer-listing form, displayed with a 'Student Listed' badge in search results.
+Profile setup includes personal details, UIU student or faculty status, university ID, and gender — used for recommendations, listing trust, and compatibility matching.
+Password reset, profile editing, and account deactivation with soft delete. Session management with role-based access control throughout the application.
+◆  5.2  Property Listing System (Owners and Student Listers)
+Full property listings (by landlords): property type, address, GPS coordinates, room count, current occupancy, gender preference, and photos.
+Peer listings (by students): spare seat/room in their current shared mess. Simplified form with estimated cost per person, occupancy details, and preferred flatmate gender.
+Mandatory itemized cost form for landlord listings: rent, electricity (individual or shared meter), gas, water, internet, building maintenance, caretaker contribution, other fees. System auto-computes the total true monthly cost.
+Availability status: Available / Occupied / Soon-to-be-vacant with expected vacate date. Amenity tags: attached bathroom, kitchen, furnished, rooftop, parking, power backup, lift.
+◆  5.3  Property Search and Discovery
+Filter-based search by zone, rent range, room type, gender preference, amenities, and verified status. Leaflet.js interactive map with listing pins — UIU campus is the default center.
+Sort by total monthly cost, composite rating, newest, and compatibility score. Watchlist — save listings to a personal shortlist that persists across sessions.
+◆  5.4  Flatmate Compatibility Matching
+Every user completes a preference profile: sleep schedule, study hours, dietary preference, guest policy, smoking tolerance, preferred flatmate gender, cleanliness score (1–5), and noise tolerance.
+When a searcher views a shared mess, the system computes a compatibility percentage by comparing their preferences against all current residents' profiles using a weighted SQL scoring query.
+Compatibility tiers on listing cards: High Match (80%+), Good Match (60–79%), Partial Match (40–59%), Low Match (below 40%).
+◆  5.5  Seeking Posts Board
+Searchers post 'Looking For' requests specifying zone, budget, room type, preferred flatmate gender, move-in date, and special conditions.
+Others respond via the platform's internal message system. Posts marked Active or Fulfilled; fulfilled posts archived for demand trend analysis.
+◆  5.6  Multi-Dimensional Review and Rating System
+After a confirmed stay, searchers rate a property on five separate dimensions: Value for Money, Accuracy of Listing, Landlord Responsiveness, Cleanliness, and Safety — each on a 1–5 scale.
+System computes a weighted composite score per listing. One review per user per listing enforced by a UNIQUE database constraint. Optional text comment up to 500 characters.
+◆  5.7  Complaint and Moderation System
+Users file formal complaints with categories: Hidden costs charged, Harassment, Deposit not returned, Listing misrepresentation, or Other.
+Complaint statuses: Submitted → Under Review → Resolved (admin-managed). Landlords with three or more unresolved complaints receive an automatic warning flag on all listings. Admin can suspend accounts.
+◆  5.8  Landlord Verification System
+Landlords submit NID type, document description, and submission date. Admin reviews and approves or rejects. Verified landlords receive a badge on all listings. Searchers can filter for verified-only listings.
+◆  5.9  Rent History and Price Trend Tracker
+Every rent update archives the old value and date into a rent_history table — an INSERT-only audit trail. Old records are never modified.
+The listing detail page shows a price change timeline. Admin can query average rent trends across any zone for any time period.
+◆  5.10  Neighborhood Rating System
+Users rate neighborhood zones on: Safety, Transport Access, Market Proximity, Noise Level, and Overall Satisfaction (1–5 each). Stored in a dedicated neighborhood_ratings table, independent of property reviews.
+◆  5.11  Mess Committee Bill Management Module
+Designated mess managers enter monthly utility readings. System divides the total automatically among current residents and tracks each resident's Paid/Unpaid status individually.
+Full monthly bill history stored in the database for per-resident expense queries over time.
+◆  5.12  Move-In Availability and Notification System
+Each room has its own availability status and expected vacate date. Searchers can set a 'Notify Me' flag on any listing or room — when status changes to Available, the system logs notification events for all flagged users.
+◆  5.13  UIUNest Exchange — Community Household Marketplace
+UIUNest Exchange is an integrated second-hand goods marketplace open to all registered users at any time, for any reason. A user may be moving mess, upgrading an appliance, clearing space, or simply no longer using something — all are valid reasons to list. Exchange is campus-zone-filtered, keeping buyers and sellers geographically close.
+Any registered UIUNest user can list any household item for sale: fans, study tables, chairs, mattresses, mini-fridges, bookshelves, kitchen appliances. Each listing includes category, condition, asking price, description, zone, optional reason for selling, and up to 4 photos.
+Optional contextual linking: when a user marks a property as 'Soon to Vacate,' the system prompts them to list items from that property. A searcher viewing a listing sees any active Exchange items from current tenants in a dedicated section.
+Structured Offer System: a buyer submits a formal offer (stored in an offers table). The seller can Accept, Reject, or Counter. All states — Pending, Countered, Accepted, Rejected, Withdrawn — are tracked with timestamps.
+The complete offer trail is persisted, enabling queries: average negotiation rounds per category, most price-negotiated item types, average final sale price vs. asking price by zone.
+Once accepted, the item is marked Sold and archived. Post-transaction reviews on Item Accuracy and Communication Quality build a trust layer for Exchange.
+◆  5.14  Admin Dashboard and Analytics
+Centralized admin panel: manage users, listings, Exchange items, complaints, verifications. Analytics: total listings by zone, average rent by zone, complaint resolution time, most-searched zones, Exchange transaction volume, demand vs. supply ratio by zone.
+◆  5.15  Database-Level DBMS Requirements Coverage
+SELECT with multi-table JOINs: listings joined with owners, utility costs, reviews, zones, and Exchange items.
+INSERT: user registration, listing creation, item listing, offer submission, review submission, complaint filing, bill entry.
+UPDATE: listing status, rent update (triggers rent_history insert), offer state transitions, payment status.
+DELETE: listing removal, item withdrawal, account deactivation (soft delete with status flag).
+Aggregate functions: AVG() for ratings, rent, and offer prices; SUM() for utility costs; COUNT() for occupancy and complaints; MAX()/MIN() for rent and price ranges.
+Subqueries: listings cheaper than zone average rent; items with more than two offer rounds; users with unresolved complaints; zones ranked by demand.
+GROUP BY and HAVING: zone-wise rent aggregation; Exchange category transaction volume with minimum count thresholds.
+6.  Database Design Approach
+The UIUNest database is designed around a single core principle: every piece of information that a user sees on screen must be stored as a structured, typed, and queryable field in a relational table — not as free text, not as a combined string, and not as an assumption. This principle directly addresses the central problem of the platforms UIUNest replaces, where unstructured posts allow landlords to omit or obscure important information.
+Design Philosophy
+The schema follows Third Normal Form (3NF) throughout. Repeating data groups are extracted into their own tables, partial dependencies are eliminated, and transitive dependencies are resolved. The practical effect is that every update to the system touches exactly one place in the database, every query retrieves exactly the data it needs without duplication, and data can be aggregated across any dimension without inconsistency.
+A deliberate design decision was made to store the total_monthly cost in the utility_costs table as a computed-and-stored field rather than calculating it on every query. This is because total cost is the most frequently queried field (used in search filtering, sorting, and analytics) and computing it at read time across thousands of listings would be inefficient. The field is updated by the application layer whenever any component cost changes, ensuring consistency while preserving read performance. To maintain strict academic rigor and data integrity at the database level, this computed field will be managed via MySQL BEFORE INSERT and BEFORE UPDATE triggers rather than relying solely on the application layer.
+Entity Groups and Their Rationale
+The schema organizes its fourteen tables into five logical groups. The Identity Layer (users, zones, user_preferences) forms the center of the diagram as it is referenced by all other layers. A single users table handles all three roles through a role enum, avoiding the complexity of separate tables with overlapping structure. The zones table stores named neighborhood areas where UIU students actually live — Dhanmondi, Mirpur, Mohammadpur, Shyamoli, Rayer Bazar, and others — regardless of their distance from campus. Students commute from and live in many different areas, so zones are defined as named localities by admin rather than as fixed-radius circles around the campus. Each zone has a center coordinate and a reference radius used only for map display, not as a hard geographic filter. Listings, seeking_posts, and items all reference zones, ensuring area-based filtering is consistent without requiring coordinate calculations on every query.
+The Housing Core (listings, utility_costs, listing_amenities, rent_history) connects outward from the identity layer. The one-to-one relationship between listings and utility_costs is a deliberate normalization choice: utility cost data has a fundamentally different structure and update frequency from listing metadata, and separating them allows the cost form to be updated independently without touching the main listing record. The rent_history table implements the audit trail pattern — every UPDATE to the base_rent field triggers an INSERT into rent_history, preserving the complete price change timeline without modifying historical records.
+The Trust Layer (reviews, complaints, seeking_posts) connects to both users and listings. The reviews table enforces a UNIQUE constraint on the (listing_id, reviewer_id) pair. The complaints table links to both the complainant and the accused via separate foreign keys, enabling complaints about either a person or a specific property.
+The Mess Management Layer (monthly_bills, bill_payments) models the real-world split of shared expenses: one bill record per month per mess, with one payment record per resident. This structure allows aggregate queries such as total unpaid bills per resident across multiple months.
+The Exchange Layer (items, offers) has an optional foreign key from items to listings, enabling the contextual link between a vacating property and items for sale. The offers table implements the full negotiation state machine with both offer_price and counter_price stored separately, preserving the complete negotiation trail.
+Key Relationships Summary
+Relationship
+Cardinality
+Design Rationale
+users → listings
+1 : many
+One user (landlord or student) can create multiple listings
+users → user_preferences
+1 : 1
+Every user has exactly one preference profile for compatibility scoring
+listings → utility_costs
+1 : 1
+Each listing has exactly one cost breakdown; separated for independent updates
+listings → listing_amenities
+1 : 1
+Amenity flags stored separately to keep listings table lean
+listings → reviews
+1 : many
+Multiple users can review a single listing; UNIQUE(listing_id, reviewer_id) enforced
+listings → rent_history
+1 : many
+Every rent change archives a new row; original records never modified
+listings → monthly_bills
+1 : many
+One bill record per month per mess listing
+monthly_bills → bill_payments
+1 : many
+One payment record per resident per bill; tracks individual status
+listings → items
+1 : 0/many
+Optional link — Exchange items may or may not reference a property
+items → offers
+1 : many
+Multiple buyers can offer on one item; full negotiation trail preserved
+zones → listings/posts/items
+1 : many
+Geographic zone referenced by three tables for consistent area filtering
+7.  Entity-Relationship Diagram (ERD)
+The Entity-Relationship Diagram provides a visual representation of all fourteen entities in the UIUNest database and the relationships between them. Crow's-foot notation is used throughout: a single vertical bar indicates 'exactly one' and a crow's foot indicates 'zero or many.' The diagram is organized into five logical layers — Identity, Housing Core, Trust, Mess Management, and Exchange — flowing outward from the central users and zones tables.
+ERD Diagram
+ 
+8.  Schema Diagram
+The following section presents the complete relational schema for UIUNest. Each table is described with its full column list, data types, constraints, and foreign key references. This schema is the direct basis for the MySQL CREATE TABLE statements used to build the database.
+Table 1 — users
+Column
+Type
+Constraint
+Description
+user_id
+INT
+PK, AUTO_INCREMENT
+Unique identifier for each user
+name
+VARCHAR(100)
+NOT NULL
+Full name of the user
+email
+VARCHAR(150)
+UNIQUE, NOT NULL
+Login email address
+password_hash
+VARCHAR(255)
+NOT NULL
+Bcrypt hashed password
+role
+ENUM
+NOT NULL
+student | landlord | admin
+gender
+ENUM
+NOT NULL
+male | female
+phone
+VARCHAR(20)
+NULL
+Contact phone number
+university_id
+VARCHAR(50)
+NULL
+UIU student or staff ID
+status
+ENUM
+DEFAULT 'active'
+active | suspended
+created_at
+DATETIME
+DEFAULT NOW()
+Account creation timestamp
+Table 2 — zones
+Column
+Type
+Constraint
+Description
+zone_id
+INT
+PK, AUTO_INCREMENT
+Unique zone identifier
+zone_name
+VARCHAR(100)
+NOT NULL
+Human-readable zone name
+description
+TEXT
+NULL
+Additional zone details
+center_lat
+DECIMAL(9,6)
+NOT NULL
+Latitude of zone center
+center_lng
+DECIMAL(9,6)
+NOT NULL
+Longitude of zone center
+radius_km
+DECIMAL(4,2)
+NOT NULL
+Coverage radius — used for map display only; zones are not strict circles
+Table 3 — listings
+Column
+Type
+Constraint
+Description
+listing_id
+INT
+PK, AUTO_INCREMENT
+Unique listing identifier
+user_id
+INT
+FK → users
+Owner or student lister
+zone_id
+INT
+FK → zones
+Geographic zone of the property
+listing_type
+ENUM
+NOT NULL
+full_property | peer_listing
+property_type
+ENUM
+NOT NULL
+single_room | shared_room | full_mess | sublet
+title
+VARCHAR(200)
+NOT NULL
+Listing headline
+address
+TEXT
+NOT NULL
+Full street address
+lat
+DECIMAL(9,6)
+NOT NULL
+Property latitude
+lng
+DECIMAL(9,6)
+NOT NULL
+Property longitude
+gender_pref
+ENUM
+NOT NULL
+male | female
+total_rooms
+INT
+NOT NULL
+Total number of rooms
+current_occupancy
+INT
+DEFAULT 0
+Number of current residents
+status
+ENUM
+DEFAULT 'available'
+available | occupied | soon_vacant
+expected_vacate_date
+DATE
+NULL
+Populated when status = soon_vacant
+is_verified
+BOOLEAN
+DEFAULT FALSE
+Landlord verification badge
+description
+TEXT
+NULL
+Free-text listing description
+created_at
+DATETIME
+DEFAULT NOW()
+Creation timestamp
+updated_at
+DATETIME
+ON UPDATE NOW()
+Last update timestamp
+Table 4 — utility_costs
+Column
+Type
+Constraint
+Description
+cost_id
+INT
+PK, AUTO_INCREMENT
+Unique cost record
+listing_id
+INT
+FK, UNIQUE
+One-to-one link to listings
+base_rent
+DECIMAL(10,2)
+NOT NULL
+Monthly base rent in BDT
+electricity_amount
+DECIMAL(8,2)
+DEFAULT 0
+Monthly electricity cost
+electricity_type
+ENUM
+NOT NULL
+individual | shared
+gas_bill
+DECIMAL(8,2)
+DEFAULT 0
+Monthly gas bill in BDT
+water_bill
+DECIMAL(8,2)
+DEFAULT 0
+Monthly water bill in BDT
+internet_cost
+DECIMAL(8,2)
+DEFAULT 0
+Monthly internet charge
+maintenance_fee
+DECIMAL(8,2)
+DEFAULT 0
+Building maintenance contribution
+caretaker_fee
+DECIMAL(8,2)
+DEFAULT 0
+Caretaker salary share
+other_fees
+DECIMAL(8,2)
+DEFAULT 0
+Any other recurring charges
+total_monthly
+DECIMAL(10,2)
+NOT NULL
+Computed sum of all cost fields
+updated_at
+DATETIME
+ON UPDATE NOW()
+Last cost update timestamp
+Table 5 — listing_amenities
+Column
+Type
+Constraint
+Description
+amenity_id
+INT
+PK, AUTO_INCREMENT
+Unique amenity record
+listing_id
+INT
+FK, UNIQUE
+One-to-one with listings
+attached_bathroom
+BOOLEAN
+DEFAULT FALSE
+Attached bathroom
+attached_kitchen
+BOOLEAN
+DEFAULT FALSE
+Attached kitchen
+is_furnished
+BOOLEAN
+DEFAULT FALSE
+Furnished status
+rooftop_access
+BOOLEAN
+DEFAULT FALSE
+Rooftop access
+parking
+BOOLEAN
+DEFAULT FALSE
+Parking availability
+power_backup
+BOOLEAN
+DEFAULT FALSE
+Generator or IPS
+lift_access
+BOOLEAN
+DEFAULT FALSE
+Elevator access
+Table 6 — user_preferences
+Column
+Type
+Constraint
+Description
+pref_id
+INT
+PK, AUTO_INCREMENT
+Unique preference record
+user_id
+INT
+FK, UNIQUE
+One-to-one with users
+sleep_schedule
+ENUM
+NOT NULL
+early | late | flexible
+study_hours
+INT
+DEFAULT 0
+Average daily study hours
+diet
+ENUM
+NOT NULL
+vegetarian | non_veg | halal_strict
+guest_policy
+ENUM
+NOT NULL
+allowed | restricted | not_allowed
+smoking_tolerance
+BOOLEAN
+DEFAULT FALSE
+Tolerance for smoking flatmates
+preferred_gender
+ENUM
+NOT NULL
+male | female
+cleanliness_score
+INT
+CHECK (1–5)
+Self-rated cleanliness level
+noise_tolerance
+ENUM
+NOT NULL
+quiet | moderate | noisy
+Table 7 — reviews
+Column
+Type
+Constraint
+Description
+review_id
+INT
+PK, AUTO_INCREMENT
+Unique review identifier
+listing_id
+INT
+FK → listings
+Listing being reviewed
+reviewer_id
+INT
+FK → users
+User writing the review
+value_for_money
+INT
+CHECK (1–5)
+Cost vs. quality score
+listing_accuracy
+INT
+CHECK (1–5)
+How accurate the listing was
+landlord_response
+INT
+CHECK (1–5)
+Landlord responsiveness score
+cleanliness
+INT
+CHECK (1–5)
+Property cleanliness score
+safety
+INT
+CHECK (1–5)
+Perceived safety score
+composite_score
+DECIMAL(3,2)
+NOT NULL
+Weighted average of all scores
+comment
+VARCHAR(500)
+NULL
+Optional text review
+created_at
+DATETIME
+DEFAULT NOW()
+Review timestamp
+UNIQUE(listing_id, reviewer_id)
+One review per user per listing
+Table 8 — complaints
+Column
+Type
+Constraint
+Description
+complaint_id
+INT
+PK, AUTO_INCREMENT
+Unique complaint identifier
+complainant_id
+INT
+FK → users
+User filing the complaint
+against_user_id
+INT
+FK → users
+User being complained about
+listing_id
+INT
+FK → listings, NULL
+Relevant listing if applicable
+category
+ENUM
+NOT NULL
+hidden_costs | harassment | deposit | misrepresentation | other
+description
+TEXT
+NOT NULL
+Detailed complaint description
+status
+ENUM
+DEFAULT 'submitted'
+submitted | under_review | resolved
+created_at
+DATETIME
+DEFAULT NOW()
+Filing timestamp
+resolved_at
+DATETIME
+NULL
+Resolution timestamp
+Table 9 — seeking_posts
+Column
+Type
+Constraint
+Description
+post_id
+INT
+PK, AUTO_INCREMENT
+Unique seeking post identifier
+user_id
+INT
+FK → users
+User who posted the request
+zone_id
+INT
+FK → zones
+Target zone for the search
+budget_min
+DECIMAL(10,2)
+NOT NULL
+Minimum acceptable monthly cost
+budget_max
+DECIMAL(10,2)
+NOT NULL
+Maximum acceptable monthly cost
+room_type
+ENUM
+NOT NULL
+single | shared | any
+preferred_gender
+ENUM
+NOT NULL
+male | female
+move_in_date
+DATE
+NULL
+Target move-in date
+requirements
+TEXT
+NULL
+Free-text special requirements
+status
+ENUM
+DEFAULT 'active'
+active | fulfilled
+created_at
+DATETIME
+DEFAULT NOW()
+Post creation timestamp
+Table 10 — monthly_bills
+Column
+Type
+Constraint
+Description
+bill_id
+INT
+PK, AUTO_INCREMENT
+Unique bill record
+listing_id
+INT
+FK → listings
+Mess this bill belongs to
+bill_month
+DATE
+NOT NULL
+First day of the billed month
+electricity_amount
+DECIMAL(8,2)
+DEFAULT 0
+Electricity this month
+gas_amount
+DECIMAL(8,2)
+DEFAULT 0
+Gas this month
+water_amount
+DECIMAL(8,2)
+DEFAULT 0
+Water this month
+internet_amount
+DECIMAL(8,2)
+DEFAULT 0
+Internet this month
+other_amount
+DECIMAL(8,2)
+DEFAULT 0
+Other expenses
+total_amount
+DECIMAL(10,2)
+NOT NULL
+Sum of all bill components
+per_person_amount
+DECIMAL(10,2)
+NOT NULL
+Total ÷ current occupants
+created_by
+INT
+FK → users
+Mess manager who entered
+created_at
+DATETIME
+DEFAULT NOW()
+Bill entry timestamp
+Table 11 — bill_payments
+Column
+Type
+Constraint
+Description
+payment_id
+INT
+PK, AUTO_INCREMENT
+Unique payment tracking record
+bill_id
+INT
+FK → monthly_bills
+The bill this belongs to
+resident_user_id
+INT
+FK → users
+Resident being tracked
+status
+ENUM
+DEFAULT 'unpaid'
+paid | unpaid
+paid_at
+DATETIME
+NULL
+Timestamp when marked paid
+Table 12 — rent_history
+Column
+Type
+Constraint
+Description
+history_id
+INT
+PK, AUTO_INCREMENT
+Unique history record
+listing_id
+INT
+FK → listings
+Listing whose rent changed
+old_rent
+DECIMAL(10,2)
+NOT NULL
+Rent before the change
+new_rent
+DECIMAL(10,2)
+NOT NULL
+Rent after the change
+changed_at
+DATETIME
+DEFAULT NOW()
+Timestamp of change
+changed_by
+INT
+FK → users
+User who updated rent
+Table 13 — items (UIUNest Exchange)
+Column
+Type
+Constraint
+Description
+item_id
+INT
+PK, AUTO_INCREMENT
+Unique item listing identifier
+seller_id
+INT
+FK → users
+User listing for sale
+zone_id
+INT
+FK → zones
+Zone where item is located
+listing_id
+INT
+FK → listings, NULL
+Optional property link
+category
+ENUM
+NOT NULL
+furniture | appliances | electronics | kitchen | study | other
+title
+VARCHAR(200)
+NOT NULL
+Item listing headline
+description
+TEXT
+NULL
+Detailed item description
+Condition_status
+ENUM
+NOT NULL
+new | like_new | good | fair
+asking_price
+DECIMAL(10,2)
+NOT NULL
+Seller's initial asking price
+reason_for_selling
+VARCHAR(300)
+NULL
+Optional reason for listing
+status
+ENUM
+DEFAULT 'available'
+available | sold | withdrawn
+created_at
+DATETIME
+DEFAULT NOW()
+Item listing timestamp
+Table 14 — offers
+Column
+Type
+Constraint
+Description
+offer_id
+INT
+PK, AUTO_INCREMENT
+Unique offer identifier
+item_id
+INT
+FK → items
+Item this offer is for
+buyer_id
+INT
+FK → users
+User making the offer
+offer_price
+DECIMAL(10,2)
+NOT NULL
+Buyer's offered price
+message
+VARCHAR(300)
+NULL
+Optional buyer message
+status
+ENUM
+DEFAULT 'pending'
+pending | countered | accepted | rejected | withdrawn
+counter_price
+DECIMAL(10,2)
+NULL
+Seller's counter price if countered
+created_at
+DATETIME
+DEFAULT NOW()
+Offer submission timestamp
+updated_at
+DATETIME
+ON UPDATE NOW()
+Last state change timestamp
