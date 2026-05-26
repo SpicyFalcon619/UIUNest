@@ -254,6 +254,28 @@ function renderNav(active) {
   const linkHTML = links.map(l =>
     `<a href="${l.href}" class="${active === l.key ? 'active' : ''}"><i data-lucide="${l.icon}" class="nav-icon"></i><span class="nav-label">${l.label}</span></a>`).join('');
 
+  // Mobile-only extra tabs: Notifications, Dashboard, Profile (only when logged in)
+  const mobileExtras = logged ? `
+    <a href="#" class="mobile-nav-extra ${active === 'notif' ? 'active' : ''}" onclick="event.preventDefault(); toggleNotifs()">
+      <span class="mob-notif-wrap" style="position:relative">
+        <i data-lucide="bell" class="nav-icon"></i>
+        <span id="notifBadgeMob" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--danger);color:white;font-size:9px;font-weight:bold;width:14px;height:14px;border-radius:50%;line-height:14px;text-align:center"></span>
+      </span>
+      <span class="nav-label">Alerts</span>
+    </a>
+    <a href="dashboard.html" class="mobile-nav-extra ${active === 'dashboard' ? 'active' : ''}">
+      <i data-lucide="layout-dashboard" class="nav-icon"></i>
+      <span class="nav-label">Dashboard</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-extra ${active === 'profile' ? 'active' : ''}">
+      <i data-lucide="user-circle" class="nav-icon"></i>
+      <span class="nav-label">Profile</span>
+    </a>` : `
+    <a href="login.html" class="mobile-nav-extra">
+      <i data-lucide="log-in" class="nav-icon"></i>
+      <span class="nav-label">Login</span>
+    </a>`;
+
   const avatarDisplay = (user && user.profile_pic)
     ? `<img src="${user.profile_pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
     : (user && user.name ? user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) : 'US');
@@ -286,7 +308,7 @@ function renderNav(active) {
       <div class="nav-inner" style="position:relative">
         <button class="mobile-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:8px;margin-right:8px"><i data-lucide="menu" class="lucide-lg"></i></button>
         <a href="index.html" class="nav-logo"><span class="logo-uiu">UIU</span><span class="logo-nest">Nest</span></a>
-        <div class="nav-links">${linkHTML}</div>
+        <div class="nav-links">${linkHTML}${mobileExtras}</div>
         <div class="nav-right">${rightHTML}</div>
       </div>
     </nav>`;
@@ -391,20 +413,24 @@ function mountChrome(active) {
   if (nav) {
     nav.innerHTML = renderNav(active);
     
-    // Pill-to-bar transition + auto-hide on mobile
-    let lastScrollY = window.scrollY;
-    window.addEventListener('scroll', () => {
+    // Helper: check if page is scrollable and update nav state
+    function updateNavScrollState() {
       const navLinks = nav.querySelector('.nav-links');
-      // On mobile: transition pill → full bar when scrolled down
-      if (navLinks) {
-        if (window.scrollY > 60) {
-          navLinks.classList.add('nav-scrolled');
-        } else {
-          navLinks.classList.remove('nav-scrolled');
-        }
+      if (!navLinks) return;
+      const pageIsScrollable = document.documentElement.scrollHeight > window.innerHeight + 2;
+      if (!pageIsScrollable || window.scrollY > 60) {
+        navLinks.classList.add('nav-scrolled');
+      } else {
+        navLinks.classList.remove('nav-scrolled');
       }
-      lastScrollY = window.scrollY;
-    }, { passive: true });
+    }
+
+    // Run immediately on mount (catches unscrollable pages)
+    updateNavScrollState();
+    // Also run after images/content may have loaded
+    window.addEventListener('load', updateNavScrollState);
+    window.addEventListener('resize', updateNavScrollState, { passive: true });
+    window.addEventListener('scroll', updateNavScrollState, { passive: true });
   }
   
   if (ft)  ft.innerHTML  = renderFooter();
