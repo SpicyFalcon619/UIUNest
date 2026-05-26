@@ -134,22 +134,36 @@ mountChrome('home');
 document.getElementById('heroZone').innerHTML += mockData.zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
 document.getElementById('latestListings').innerHTML = mockData.listings.slice(0,4).map(renderListingCard).join('');
 attachWatchlistHandlers();
-document.getElementById('latestItems').innerHTML = mockData.exchangeItems.slice(0,4).map(it => `
-  <div class="listing-card">
-    <div class="listing-photo-wrap">
-      <img class="listing-photo" src="${it.photo}" alt="${it.title}" loading="lazy">
-    </div>
-    <div class="listing-body">
-      <div class="badges">${conditionBadge(it.condition)} <span class="badge badge-navy">${it.zone}</span></div>
-      <div class="listing-title">${it.title}</div>
-      <div class="price">${fmt(it.price)}</div>
-      <div class="listing-footer">
-        <span style="font-size:12px;color:var(--gray)">${it.seller}</span>
-        <a class="btn btn-primary btn-sm" href="item-detail.html?id=${it.id}">View</a>
-      </div>
-    </div>
-  </div>`).join('');
-if (window.lucide) lucide.createIcons();
+async function loadLatestExchangeItems() {
+  try {
+    const res = await fetch('api/exchange.php');
+    const data = await res.json();
+    let items = mockData.exchangeItems; // fallback to mock data
+    if (data.success && data.items) {
+      items = data.items.filter(it => it.status !== 'sold');
+    }
+    const html = items.slice(0,4).map(it => `
+      <div class="listing-card">
+        <div class="listing-photo-wrap">
+          <img class="listing-photo" src="${it.photo}" alt="${it.title}" loading="lazy">
+        </div>
+        <div class="listing-body">
+          <div class="badges">${conditionBadge(it.condition)} <span class="badge badge-navy">${it.zone}</span></div>
+          <div class="listing-title">${it.title}</div>
+          <div class="price">${fmt(it.price)}</div>
+          <div class="listing-footer">
+            <span style="font-size:12px;color:var(--gray)">${it.seller}</span>
+            <a class="btn btn-primary btn-sm" href="item-detail.html?id=${it.id}">View</a>
+          </div>
+        </div>
+      </div>`).join('');
+    document.getElementById('latestItems').innerHTML = html || '<p style="color:var(--gray); grid-column: 1/-1; text-align: center;">No items listed recently.</p>';
+    if (window.lucide) lucide.createIcons();
+  } catch(e) {
+    console.error('Failed to fetch exchange items', e);
+  }
+}
+loadLatestExchangeItems();
 </script>
 </body>
 </html>
