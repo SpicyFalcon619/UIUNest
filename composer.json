@@ -1,4 +1,7 @@
 {
   "name": "uiunest/uiunest",
-  "description": "UIUNest PHP Application"
+  "description": "UIUNest PHP Application",
+  "require": {
+    "ext-pdo_mysql": "*"
+  }
 }
