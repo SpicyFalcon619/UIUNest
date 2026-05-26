@@ -191,16 +191,16 @@ function renderDashboard() {
   const activeOffersCount = offersSent.filter(o => o.status === 'pending' || o.status === 'countered').length +
                             offersRecv.filter(o => o.status === 'pending' || o.status === 'countered').length;
 
-  const compatStatus = (currentUser.role === 'student' && hasPreferences) ? 'Complete <i data-lucide="check-circle" class="lucide-sm"></i>' : 'Setup Required';
+  const compatStatus = (currentUser.role === 'student' && hasPreferences) ? 'Complete <i data-lucide="check-circle" style="width:24px;height:24px;vertical-align:-4px;"></i>' : 'Setup Required';
   const compatColor = (currentUser.role === 'student' && hasPreferences) ? 'var(--success)' : 'var(--warning)';
 
   let verifText = 'N/A';
   let verifColor = 'var(--gray)';
   if (currentUser.role === 'landlord' || verifStatus !== 'none') {
     if (verifStatus === 'none') { verifText = 'Unverified'; verifColor = 'var(--gray)'; }
-    else if (verifStatus === 'pending') { verifText = 'Pending <i data-lucide="clock" class="lucide-sm"></i>'; verifColor = 'var(--amber)'; }
-    else if (verifStatus === 'approved') { verifText = 'Verified <i data-lucide="check-circle" class="lucide-sm"></i>'; verifColor = 'var(--success)'; }
-    else if (verifStatus === 'rejected') { verifText = 'Rejected <i data-lucide="x-circle" class="lucide-sm"></i>'; verifColor = 'var(--danger)'; }
+    else if (verifStatus === 'pending') { verifText = 'Pending <i data-lucide="clock" style="width:24px;height:24px;vertical-align:-4px;"></i>'; verifColor = 'var(--amber)'; }
+    else if (verifStatus === 'approved') { verifText = 'Verified <i data-lucide="check-circle" style="width:24px;height:24px;vertical-align:-4px;"></i>'; verifColor = 'var(--success)'; }
+    else if (verifStatus === 'rejected') { verifText = 'Rejected <i data-lucide="x-circle" style="width:24px;height:24px;vertical-align:-4px;"></i>'; verifColor = 'var(--danger)'; }
   }
 
   root.innerHTML = `
@@ -208,7 +208,7 @@ function renderDashboard() {
     <div class="stats-row" style="margin-bottom:20px">
       <div class="stat-card">
         <div class="stat-label">Verification</div>
-        <div class="stat-value" style="font-size:18px;color:${verifColor};padding-top:10px">
+        <div class="stat-value" style="font-size:24px;font-weight:700;color:${verifColor};padding-top:10px">
           ${verifText}
         </div>
       </div>
@@ -218,7 +218,7 @@ function renderDashboard() {
       <div class="stat-card"><div class="stat-label">Active Offers</div><div class="stat-value">${activeOffersCount}</div></div>
       <div class="stat-card">
         <div class="stat-label">Compatibility</div>
-        <div class="stat-value" style="font-size:18px;color:${compatColor};padding-top:10px">
+        <div class="stat-value" style="font-size:24px;font-weight:700;color:${compatColor};padding-top:10px">
           ${compatStatus}
         </div>
       </div>
