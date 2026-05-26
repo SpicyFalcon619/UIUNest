@@ -26,6 +26,7 @@
             <div>
               <label>Profile Picture</label>
               <input type="file" id="pfPicInput" accept="image/*" style="padding: 6px; width: auto;" onchange="previewPfPic(this)" />
+              <button type="button" class="btn btn-outline btn-sm" style="margin-top: 6px;" onclick="removePfPic()">Remove</button>
             </div>
           </div>
           <div class="grid-2">
@@ -359,8 +360,17 @@
         }
       }
 
+      let deletePfPic = false;
+
+      function removePfPic() {
+        document.getElementById('pfPicInput').value = "";
+        document.getElementById('pfPicPreview').style.backgroundImage = "none";
+        deletePfPic = true;
+      }
+
       function previewPfPic(input) {
         if (input.files && input.files[0]) {
+          deletePfPic = false;
           const reader = new FileReader();
           reader.onload = function(e) {
             document.getElementById('pfPicPreview').style.backgroundImage = `url(${e.target.result})`;
@@ -373,6 +383,10 @@
         e.preventDefault();
         
         let profilePicPath = window.mockData.currentUser ? window.mockData.currentUser.profile_pic : '';
+        if (deletePfPic) {
+          profilePicPath = "";
+        }
+
         const fileInput = document.getElementById("pfPicInput");
         if (fileInput.files.length > 0) {
           const formData = new FormData();
@@ -419,7 +433,10 @@
               // Update the preview circle too
               if (payload.profile_pic) {
                 document.getElementById('pfPicPreview').style.backgroundImage = `url(${payload.profile_pic})`;
+              } else {
+                document.getElementById('pfPicPreview').style.backgroundImage = "none";
               }
+              deletePfPic = false;
             }
           } else {
             showToast(data.error || "Failed to update profile", "error");
