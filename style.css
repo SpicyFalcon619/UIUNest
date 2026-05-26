@@ -1485,3 +1485,28 @@ body:has(.dash-shell) {
   .ds-footer { padding-top: 0; border-top: none; }
   .dash-main { padding: 24px 20px; }
 }
+
+/* ================================================================
+   MOBILE OVERRIDES (Bulletproof)
+   ================================================================ */
+@media (max-width: 900px) {
+  /* Force left-alignment and border removal on mobile search inputs */
+  .hero-search-field, .hero-search-field .custom-select-wrapper {
+    align-items: flex-start !important;
+    justify-items: stretch !important;
+    width: 100% !important;
+  }
+  .hero-search-field .custom-select-trigger,
+  .hero-search-field input {
+    width: 100% !important;
+    text-align: left !important;
+    justify-content: space-between !important; /* Space between text and arrow */
+    border: none !important;
+    box-shadow: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    background: transparent !important;
+  }
+  .hero-search-field .hs-label { text-align: left !important; width: 100%; }
+  .hero-search-field .custom-select-wrapper::after { display: none !important; }
+}
