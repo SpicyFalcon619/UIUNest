@@ -1055,7 +1055,7 @@ body.landing-page .hero { padding-top: 88px; }
 }
 .hero-trust {
   font-size: 13px; color: var(--ink-muted);
-  margin-top: 64px; margin-bottom: 0;
+  margin-top: 0; margin-bottom: 0;
 }
 .hero-trust strong { color: var(--ink-mid); }
 
@@ -1068,6 +1068,7 @@ body.landing-page .hero { padding-top: 88px; }
   border-radius: 20px;
   box-shadow: var(--shadow-xl);
   margin-top: 40px;
+  margin-bottom: 56px; /* Accounts for the huge shadow bleed */
   position: relative;
   z-index: 99; /* Prevent dropdowns from being hidden by sections below */
 }
