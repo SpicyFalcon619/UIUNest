@@ -526,6 +526,7 @@ label:has(input[type="checkbox"]:not(.switch input)) {
   display: flex !important; align-items: center; gap: 8px;
   font-weight: 500 !important; font-size: 14px; cursor: pointer;
   color: var(--ink) !important; margin-bottom: 0;
+  user-select: none;
 }
 input[type="radio"],
 input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--emerald); width: 17px; height: 17px; }
