@@ -972,13 +972,13 @@ footer a:hover { color: #fff; text-decoration: underline; }
   /* Mobile nav */
   .mobile-menu-btn { display: none !important; }
   .nav-links {
-    display: flex; flex-direction: row; justify-content: space-around; align-items: center;
+    display: flex; flex-direction: row; justify-content: space-between; align-items: center;
     position: fixed; bottom: 16px; left: 16px; right: 16px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border);
     border-radius: 100px;
-    padding: 8px 16px calc(env(safe-area-inset-bottom) + 8px) 16px;
+    padding: 8px 12px calc(env(safe-area-inset-bottom) + 8px) 12px;
     z-index: 3000;
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     transition: bottom 0.3s ease, left 0.3s ease, right 0.3s ease,
@@ -994,22 +994,37 @@ footer a:hover { color: #fff; text-decoration: underline; }
     box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
   }
   .nav-links > a {
-    flex-direction: column; gap: 4px; padding: 6px 12px; border-radius: 12px;
+    flex-direction: column; gap: 4px; padding: 6px 4px; border-radius: 12px;
     background: transparent !important;
     font-size: 11px; font-weight: 500;
+    flex: 1; text-align: center; align-items: center;
   }
   .nav-links > a .nav-icon { display: block; margin-bottom: 2px; }
   .mobile-nav-extra {
     display: flex !important;
     flex-direction: column; align-items: center; gap: 4px;
-    padding: 6px 10px; border-radius: 12px;
+    padding: 6px 4px; border-radius: 12px;
     background: transparent !important; border: none;
     font-size: 11px; font-weight: 500;
     color: var(--ink-mid); text-decoration: none; cursor: pointer;
     transition: color 0.15s;
+    flex: 1;
   }
   .mobile-nav-extra.active, .mobile-nav-extra:hover { color: var(--emerald); }
   .mobile-nav-extra .nav-icon { display: block; margin-bottom: 2px; }
+
+  /* Unique styling for central Account button */
+  .mobile-account-btn {
+    background: var(--emerald) !important;
+    color: white !important;
+    border-radius: 16px !important;
+    padding: 10px 8px !important;
+    margin: -8px 0; /* Slight pop-out effect */
+    box-shadow: 0 4px 12px rgba(26, 92, 69, 0.3);
+  }
+  .mobile-account-btn.active, .mobile-account-btn:hover {
+    color: white !important;
+  }
 
   /* Account mini-sheet */
   .mobile-account-sheet {

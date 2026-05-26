@@ -251,10 +251,7 @@ function renderNav(active) {
   if (user && user.role === 'landlord') {
     links = links.filter(l => l.key !== 'seeking');
   }
-  const linkHTML = links.map(l =>
-    `<a href="${l.href}" class="${active === l.key ? 'active' : ''}"><i data-lucide="${l.icon}" class="nav-icon"></i><span class="nav-label">${l.label}</span></a>`).join('');
-
-  // Single 'Account' tab for mobile — replaces all the clutter
+  // Create the mobile account tab (or login button)
   const accountTab = logged ? `
     <button class="mobile-nav-extra mobile-account-btn" onclick="toggleMobileAccountSheet()">
       <span style="position:relative">
@@ -279,7 +276,13 @@ function renderNav(active) {
       </button>
       <button class="mas-item mas-logout" onclick="doLogout()"><i data-lucide="log-out"></i> Logout</button>
     </div>` :
-    `<a href="login.html" class="mobile-nav-extra"><i data-lucide="log-in" class="nav-icon"></i><span class="nav-label">Login</span></a>`;
+    `<a href="login.html" class="mobile-nav-extra mobile-account-btn"><i data-lucide="log-in" class="nav-icon"></i><span class="nav-label">Login</span></a>`;
+
+  // Insert the account tab in the middle of the links (index 2)
+  const linkHTMLElements = links.map(l =>
+    `<a href="${l.href}" class="${active === l.key ? 'active' : ''}"><i data-lucide="${l.icon}" class="nav-icon"></i><span class="nav-label">${l.label}</span></a>`);
+  linkHTMLElements.splice(2, 0, accountTab);
+  const linkHTML = linkHTMLElements.join('');
 
   const avatarDisplay = (user && user.profile_pic)
     ? `<img src="${user.profile_pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
