@@ -48,8 +48,6 @@
       <label><input type="checkbox" class="amen" value="powerBackup"> Power Backup</label>
       <label><input type="checkbox" class="amen" value="liftAccess"> Lift</label>
 
-      <h4>Verified only</h4>
-      <label class="switch"><input type="checkbox" id="verifiedOnly"><span class="switch-slider"></span></label>
 
       <h4>Sort by</h4>
       <select id="sort" class="form-group" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px">
@@ -240,7 +238,6 @@ function getFiltered() {
 
   const budget = parseInt(document.getElementById('budget').value);
   const amens = [...document.querySelectorAll('.amen:checked')].map(c => c.value);
-  const verified = document.getElementById('verifiedOnly').checked;
   const sort = document.getElementById('sort').value;
 
   let r = allListings.filter(l => {
@@ -249,7 +246,6 @@ function getFiltered() {
     if (ltype !== 'all' && l.listingType !== ltype) return false;
     // Gender is no longer filtered from view
     if (l.costs.totalMonthly > budget) return false;
-    if (verified && !l.isVerified) return false;
     for (const a of amens) {
       if (Array.isArray(l.amenities)) {
         return false;

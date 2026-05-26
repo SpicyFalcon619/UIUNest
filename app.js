@@ -106,9 +106,9 @@ function showToast(msg, type = 'success') {
 }
 
 function calculateCompatibility(listing) {
-  const user = window.mockData.currentUser;
-  if (!user || !isLoggedIn() || user.role !== 'student') {
-    return { score: 100, label: 'N/A', matched: [], unmatched: [] };
+  const user = window.user || window.mockData.currentUser;
+  if (!user || user.role !== 'student') {
+    return { score: null, label: 'N/A', matched: [], unmatched: [] };
   }
 
   // If gender preference is violated (unless genderPref is 'any' or listing has no pref)
@@ -118,23 +118,21 @@ function calculateCompatibility(listing) {
 
   // Resident preferences vs current user preferences
   const up = user.preferences || {
-    sleep: "Flexible",
-    study: 4,
-    diet: "Non-Vegetarian",
-    guest: "Restricted (weekends only)",
-    smoking: true,
-    fg: "Male",
-    cleanliness: 4,
-    noise: "Quiet"
+    sleep: user.sleep || "flexible",
+    diet: user.diet || "non_veg",
+    guest: user.guest || "restricted",
+    smoking: user.smoking || 0,
+    cleanliness: user.cleanliness || 3,
+    noise: user.noise || "moderate"
   };
 
   const lp = listing.residentPreferences || {
-    sleep: "Flexible",
-    diet: "Non-Vegetarian",
-    guest: "Restricted (weekends only)",
-    smoking: true,
-    noise: "Quiet",
-    cleanliness: 4
+    sleep: listing.sleep || "flexible",
+    diet: listing.diet || "non_veg",
+    guest: listing.guest || "restricted",
+    smoking: listing.smoking || 0,
+    noise: listing.noise || "moderate",
+    cleanliness: listing.cleanliness || 3
   };
 
   let score = 0;
@@ -425,8 +423,11 @@ function renderListingCard(l) {
   
   // Calculate dynamic compatibility
   const compat = calculateCompatibility(l);
-  const compatColor = getCompatibilityColor(compat.score);
-  const compatClass = (isLoggedIn() && window.mockData.currentUser.role === 'student' && compat.score < 40) ? 'low-match' : '';
+  const compatColor = compat.score !== null ? getCompatibilityColor(compat.score) : {bg:'transparent', color:'transparent', label:''};
+  
+  const currentUser = window.user || window.mockData.currentUser;
+  const isStudent = currentUser && currentUser.role === 'student';
+  const compatClass = (isStudent && compat.score !== null && compat.score < 40) ? 'low-match' : '';
   
   const typeBadge = l.listingType === 'Student Listed'
     ? `<span class="badge badge-blue">Student Listed</span>`
@@ -434,7 +435,7 @@ function renderListingCard(l) {
   const gender = l.genderPref === 'female' ? '<i data-lucide="user" class="lucide-sm"></i> Female' : l.genderPref === 'male' ? '<i data-lucide="user" class="lucide-sm"></i> Male' : 'Any';
   
   // Render match badge if user is logged in
-  const compatBadge = isLoggedIn() && window.mockData.currentUser.role === 'student'
+  const compatBadge = isStudent && compat.score !== null
     ? `<span class="badge" style="background:${compatColor.bg};color:${compatColor.color}">${compatColor.label} (${compat.score}%)</span>`
     : '';
 
