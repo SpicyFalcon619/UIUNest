@@ -198,7 +198,7 @@
 <script>
 mountChrome('listings');
 
-let user = null;
+window.user = null;
 let allListings = [];
 
 async function checkUserAndLoad() {
@@ -206,8 +206,8 @@ async function checkUserAndLoad() {
     const res = await fetch('api/me.php');
     const data = await res.json();
     if (data.loggedIn) {
-      user = data.user;
-      if (user.role === 'student' || user.role === 'landlord') {
+      window.user = data.user;
+      if (window.user.role === 'student' || window.user.role === 'landlord') {
         document.getElementById('listBtnMount').innerHTML = `<button class="btn btn-gold" onclick="openCreateListingModal()">+ List Property</button>`;
       }
     }
