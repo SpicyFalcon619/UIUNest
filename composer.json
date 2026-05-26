@@ -1,8 +1,4 @@
 {
-  "name": "spicyfalcon619/uiunest",
-  "description": "UIUNest PHP Application",
-  "type": "project",
-  "require": {
-    "php": "^8.0"
-  }
+  "name": "uiunest/uiunest",
+  "description": "UIUNest PHP Application"
 }
