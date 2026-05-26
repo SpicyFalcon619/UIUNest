@@ -20,6 +20,12 @@
     <div id="listBtnMount"></div>
   </div>
   <div class="listings-layout">
+    <!-- Mobile filter toggle button -->
+    <button class="mobile-filter-btn" onclick="this.classList.toggle('active'); document.querySelector('.sidebar').classList.toggle('sidebar-open'); if(window.lucide) lucide.createIcons();" aria-expanded="false">
+      <i data-lucide="sliders-horizontal" style="width:16px;height:16px"></i>
+      <span>Filters &amp; Sort</span>
+      <i data-lucide="chevron-down" class="filter-chevron" style="width:16px;height:16px;margin-left:auto;transition:transform 0.3s ease"></i>
+    </button>
     <aside class="sidebar">
       <h4>Zone</h4>
       <div id="zoneFilters"></div>
