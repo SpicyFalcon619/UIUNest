@@ -1181,9 +1181,7 @@ body.landing-page .hero { padding-top: 88px; }
 .bento-icon .lucide-lg {
   width: 28px !important; height: 28px !important;
 }
-.bento-icon-soft {
-  /* Removed pastel backgrounds per instructions */
-}
+
 
 /* Tag pill */
 .bento-tag {
