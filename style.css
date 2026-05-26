@@ -1164,20 +1164,21 @@ body.landing-page .hero { padding-top: 88px; }
 }
 .bento-emerald h3 { color: #fff; }
 .bento-emerald p  { color: rgba(255,255,255,0.82); }
-.bento-emerald .bento-icon { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.12); }
+.bento-emerald .bento-icon { color: #fff; }
 .bento-surface { background: var(--surface-2); }
 
 /* Icon */
 .bento-icon {
-  width: 52px; height: 52px; border-radius: 14px;
-  background: var(--emerald);
-  color: #fff;
-  display: inline-flex; align-items: center; justify-content: center;
+  color: #0F172A;
+  display: flex; align-items: center; justify-content: flex-start;
   flex-shrink: 0;
-  margin-bottom: 4px;
+  margin-bottom: 12px;
+}
+.bento-icon .lucide-lg {
+  width: 28px !important; height: 28px !important;
 }
 .bento-icon-soft {
-  background: var(--emerald-soft); color: var(--emerald);
+  /* Removed pastel backgrounds per instructions */
 }
 
 /* Tag pill */
@@ -1195,18 +1196,21 @@ body.landing-page .hero { padding-top: 88px; }
 }
 
 /* Compatibility score preview pills */
-.bento-score-preview { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.bento-score-preview { display: flex; flex-direction: column; margin-top: 16px; }
 .bsc-pill {
-  padding: 8px 14px; border-radius: 10px;
-  font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid #E2E8F0;
+  font-size: 14px; font-weight: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  color: var(--ink);
+  background: transparent;
 }
-.bsc-pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.bsc-high  { background: #D1FAE5; color: #065F46; }
-.bsc-high::before  { background: #059669; }
-.bsc-mid   { background: #DBEAFE; color: #1E40AF; }
+.bsc-pill:last-child { border-bottom: none; }
+.bsc-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-right: 8px; }
+.bsc-pill span:first-child { flex: 1; text-align: left; }
+.bsc-pill span:last-child { font-weight: 600; }
+.bsc-high::before  { background: #10B981; }
 .bsc-mid::before   { background: #3B82F6; }
-.bsc-low   { background: #FEF3C7; color: #92400E; }
 .bsc-low::before   { background: #F59E0B; }
 
 @media (max-width: 860px) {
