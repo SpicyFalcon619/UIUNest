@@ -431,16 +431,36 @@ function mountChrome(active) {
   if (nav) {
     nav.innerHTML = renderNav(active);
     
+    let lastScrollY = window.scrollY;
+    
     // Helper: check if page is scrollable and update nav state
     function updateNavScrollState() {
+      const currentScrollY = window.scrollY;
       const navLinks = nav.querySelector('.nav-links');
-      if (!navLinks) return;
       const pageIsScrollable = document.documentElement.scrollHeight > window.innerHeight + 2;
-      if (!pageIsScrollable || window.scrollY > 60) {
-        navLinks.classList.add('nav-scrolled');
-      } else {
-        navLinks.classList.remove('nav-scrolled');
+      const isHomepage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/');
+      
+      // Bottom pill styling for mobile (full width when scrolled or unscrollable)
+      if (navLinks) {
+        if (!pageIsScrollable || currentScrollY > 60) {
+          navLinks.classList.add('nav-scrolled');
+        } else {
+          navLinks.classList.remove('nav-scrolled');
+        }
       }
+
+      // Hide navbar when scrolling down, show when scrolling up (skip on homepage)
+      if (!isHomepage) {
+        const navMount = document.getElementById('nav-mount');
+        if (navMount && pageIsScrollable) {
+          if (currentScrollY > lastScrollY && currentScrollY > 60) {
+            navMount.classList.add('nav-hidden');
+          } else {
+            navMount.classList.remove('nav-hidden');
+          }
+        }
+      }
+      lastScrollY = currentScrollY;
     }
 
     // Run immediately on mount (catches unscrollable pages)
