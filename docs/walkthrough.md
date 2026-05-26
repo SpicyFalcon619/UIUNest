@@ -140,13 +140,20 @@ This is the first stable release of UIUNest. All core features across student ho
 
 ---
 
-## v1.1.0 — UI Overhaul & Bug Fixes
+## v1.1.0 — UI Overhaul, Bug Fixes & Mobile UX Native Overhaul
 
 **Release Date:** May 2026  
 **Tag:** `v1.1.0`
 
-This update focuses on visual polish, consistency, and critical bug fixes regarding compatibility scoring.
+This update focuses on visual polish, consistency, and critical bug fixes regarding compatibility scoring. It also completely revamps the mobile experience to feel like a native application.
 
+### Mobile App-Like UX Enhancements
+- **Bottom Navigation Bar:** Removed the clunky top hamburger menu and implemented a sticky Bottom Tab Bar for all screens under 600px. Links now feature native-style icons stacked above text.
+- **Swipeable Bottom Sheets:** Re-engineered all floating modals to snap to the bottom of the screen with a drag pill indicator, perfectly mimicking iOS/Android bottom sheets.
+- **Continuous Feeds:** Eliminated heavy outer borders and radii from listing cards on mobile, creating an edge-to-edge vertical scrolling feed akin to modern social apps.
+- **Native Touch Response:** Added `-webkit-tap-highlight-color: transparent` globally to remove the default blue highlight boxes when tapping elements on touch screens.
+
+### Design Updates
 - **Compatibility Scoring Fixed**: Resolved a scoping bug in `listings.html` that caused the compatibility calculator in `app.js` to rely on stale `localStorage` user preferences. Match scores now instantly and accurately update when a user changes their profile preferences.
 - **Match Badge UI Revamped**: Replaced the previous basic text with clean, solid gradient background blocks (Emerald, Blue, Amber) and white text for High, Good, and Low matches.
 - **Dashboard Scalability**: Increased font and icon sizes for "Verification" and "Compatibility" status cards to align visually with the numerical statistic cards.

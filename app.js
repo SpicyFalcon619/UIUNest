@@ -243,15 +243,15 @@ function renderNav(active) {
   const user = window.mockData.currentUser;
   
   let links = [
-    { href: 'listings.html', label: 'Listings', key: 'listings' },
-    { href: 'exchange.html', label: 'Exchange', key: 'exchange' },
-    { href: 'seeking.html',  label: 'Looking For', key: 'seeking' }
+    { href: 'listings.html', label: 'Listings', key: 'listings', icon: 'home' },
+    { href: 'exchange.html', label: 'Market', key: 'exchange', icon: 'shopping-bag' },
+    { href: 'seeking.html',  label: 'Seeking', key: 'seeking', icon: 'search' }
   ];
   if (user && user.role === 'landlord') {
     links = links.filter(l => l.key !== 'seeking');
   }
   const linkHTML = links.map(l =>
-    `<a href="${l.href}" class="${active === l.key ? 'active' : ''}">${l.label}</a>`).join('');
+    `<a href="${l.href}" class="${active === l.key ? 'active' : ''}"><i data-lucide="${l.icon}" class="nav-icon"></i><span class="nav-label">${l.label}</span></a>`).join('');
 
   const avatarDisplay = (user && user.profile_pic)
     ? `<img src="${user.profile_pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
