@@ -243,9 +243,10 @@ function renderNav(active) {
   const user = window.mockData.currentUser;
   
   let links = [
-    { href: 'listings.html', label: 'Listings', key: 'listings', icon: 'home' },
-    { href: 'exchange.html', label: 'Market', key: 'exchange', icon: 'shopping-bag' },
-    { href: 'seeking.html',  label: 'Seeking', key: 'seeking', icon: 'search' }
+    { href: 'index.html',    label: 'Home',     key: 'home',     icon: 'home' },
+    { href: 'listings.html', label: 'Listings', key: 'listings', icon: 'building-2' },
+    { href: 'exchange.html', label: 'Market',   key: 'exchange', icon: 'shopping-bag' },
+    { href: 'seeking.html',  label: 'Seeking',  key: 'seeking',  icon: 'search' }
   ];
   if (user && user.role === 'landlord') {
     links = links.filter(l => l.key !== 'seeking');
@@ -390,21 +391,20 @@ function mountChrome(active) {
   if (nav) {
     nav.innerHTML = renderNav(active);
     
-    // Auto-hide navbar on scroll down (except on index page)
-    const p = window.location.pathname;
-    const isIndex = p.endsWith('index.html') || p.endsWith('/') || p.endsWith('/UIU-Nest');
-    
-    if (!isIndex) {
-      let lastScrollY = window.scrollY;
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > 80 && window.scrollY > lastScrollY) {
-          nav.classList.add('nav-hidden'); // scrolling down
+    // Pill-to-bar transition + auto-hide on mobile
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const navLinks = nav.querySelector('.nav-links');
+      // On mobile: transition pill → full bar when scrolled down
+      if (navLinks) {
+        if (window.scrollY > 60) {
+          navLinks.classList.add('nav-scrolled');
         } else {
-          nav.classList.remove('nav-hidden'); // scrolling up or at top
+          navLinks.classList.remove('nav-scrolled');
         }
-        lastScrollY = window.scrollY;
-      }, { passive: true });
-    }
+      }
+      lastScrollY = window.scrollY;
+    }, { passive: true });
   }
   
   if (ft)  ft.innerHTML  = renderFooter();

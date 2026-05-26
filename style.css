@@ -958,6 +958,17 @@ footer a:hover { color: #fff; text-decoration: underline; }
     padding: 8px 16px calc(env(safe-area-inset-bottom) + 8px) 16px;
     z-index: 3000;
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transition: bottom 0.3s ease, left 0.3s ease, right 0.3s ease,
+                border-radius 0.3s ease, box-shadow 0.3s ease,
+                padding 0.3s ease;
+  }
+  /* Scrolled state: expand to fill the full bottom edge */
+  .nav-links.nav-scrolled {
+    bottom: 0; left: 0; right: 0;
+    border-radius: 20px 20px 0 0;
+    border-bottom: none;
+    padding: 10px 16px calc(env(safe-area-inset-bottom) + 10px) 16px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
   }
   .nav-links a {
     flex-direction: column; gap: 4px; padding: 6px 12px; border-radius: 12px;
