@@ -140,10 +140,10 @@ This is the first stable release of UIUNest. All core features across student ho
 
 ---
 
-## v1.1.0 — UI Overhaul & Bug Fixes
+## v1.0.1 — UI Overhaul & Bug Fixes
 
 **Release Date:** May 2026  
-**Tag:** `v1.1.0`
+**Tag:** `v1.0.1`
 
 This update focuses on visual polish, consistency, and critical bug fixes regarding compatibility scoring.
 
