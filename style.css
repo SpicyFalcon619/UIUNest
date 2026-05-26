@@ -985,7 +985,6 @@ footer a:hover { color: #fff; text-decoration: underline; }
                 border-radius 0.3s ease, box-shadow 0.3s ease,
                 padding 0.3s ease, transform 0.3s ease;
   }
-  .nav-links.nav-hidden { transform: translateY(150%); }
   /* Scrolled state: expand to fill the full bottom edge */
   .nav-links.nav-scrolled {
     bottom: 0; left: 0; right: 0;

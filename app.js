@@ -452,16 +452,14 @@ function mountChrome(active) {
         }
       }
 
-      // Hide navbar when scrolling down, show when scrolling up (skip on homepage)
+      // Hide top navbar when scrolling down, show when scrolling up (skip on homepage)
       if (!isHomepage) {
         const navMount = document.getElementById('nav-mount');
         if (pageIsScrollable) {
           if (currentScrollY > lastScrollY && currentScrollY > 60) {
             if (navMount) navMount.classList.add('nav-hidden');
-            if (navLinks) navLinks.classList.add('nav-hidden');
           } else {
             if (navMount) navMount.classList.remove('nav-hidden');
-            if (navLinks) navLinks.classList.remove('nav-hidden');
           }
         }
       }
