@@ -235,7 +235,7 @@ function renderBillManager(myProps, activeListing, activeBills) {
   
   // Initialize custom styled dropdowns for the dynamically injected selects
   if (typeof initCustomSelects === 'function') {
-    initCustomSelects();
+    setTimeout(initCustomSelects, 0);
   }
 }
 

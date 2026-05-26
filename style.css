@@ -466,7 +466,7 @@ select {
   padding-right: 40px;
 }
 select.custom-select-hidden {
-  position: absolute; opacity: 0; pointer-events: none; height: 1px; width: 1px; border: none; padding: 0; margin: 0; z-index: -1;
+  position: absolute !important; opacity: 0 !important; pointer-events: none !important; height: 1px !important; width: 1px !important; border: none !important; padding: 0 !important; margin: 0 !important; z-index: -1 !important;
 }
 .custom-select-wrapper {
   position: relative; width: 100%; display: grid; align-items: center;
@@ -497,8 +497,8 @@ select.custom-select-hidden {
 .custom-select-trigger.open svg { transform: rotate(180deg); }
 .custom-select-options {
   position: absolute; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content;
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl); z-index: 99999; max-height: 240px; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; /* Less round so scrollbar doesn't clip */
+  box-shadow: var(--shadow-xl); z-index: 99999; max-height: 240px; overflow-y: auto; overflow-x: hidden;
   opacity: 0; pointer-events: none; transform: translateY(-4px); transition: all 0.2s ease;
 }
 .custom-select-options.open { opacity: 1; pointer-events: auto; transform: translateY(0); }

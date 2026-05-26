@@ -503,6 +503,10 @@ function renderDashboard() {
 
   if (window.lucide) lucide.createIcons();
   setTimeout(() => switchTab(currentDashboardTab), 0);
+  
+  if (typeof initCustomSelects === 'function') {
+    setTimeout(initCustomSelects, 0);
+  }
 }
 
 function switchTab(t) {
