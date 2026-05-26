@@ -673,11 +673,6 @@ input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--emerald); w
 #map { height: 460px; width: 100%; margin-top: 28px; display: block; }
 #map-detail { height: 340px; width: 100%; }
 
-/* Tint map tiles to match UIU-Nest Emerald accent */
-.leaflet-tile-pane {
-  filter: grayscale(100%) sepia(100%) hue-rotate(115deg) saturate(250%) brightness(0.85) contrast(0.95);
-}
-
 /* ════════════════════════════════════════
    DETAIL PAGE
    ════════════════════════════════════════ */
