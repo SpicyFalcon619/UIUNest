@@ -23,7 +23,6 @@ logs/
 
 # Project specific ignores
 .antigravitycli/
-*Context.md
 
 # Uploaded Files
 uploads/
