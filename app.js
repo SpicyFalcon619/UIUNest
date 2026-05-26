@@ -254,27 +254,32 @@ function renderNav(active) {
   const linkHTML = links.map(l =>
     `<a href="${l.href}" class="${active === l.key ? 'active' : ''}"><i data-lucide="${l.icon}" class="nav-icon"></i><span class="nav-label">${l.label}</span></a>`).join('');
 
-  // Mobile-only extra tabs: Notifications, Dashboard, Profile (only when logged in)
-  const mobileExtras = logged ? `
-    <a href="#" class="mobile-nav-extra ${active === 'notif' ? 'active' : ''}" onclick="event.preventDefault(); toggleNotifs()">
-      <span class="mob-notif-wrap" style="position:relative">
-        <i data-lucide="bell" class="nav-icon"></i>
+  // Single 'Account' tab for mobile — replaces all the clutter
+  const accountTab = logged ? `
+    <button class="mobile-nav-extra mobile-account-btn" onclick="toggleMobileAccountSheet()">
+      <span style="position:relative">
+        <i data-lucide="user-circle" class="nav-icon"></i>
         <span id="notifBadgeMob" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--danger);color:white;font-size:9px;font-weight:bold;width:14px;height:14px;border-radius:50%;line-height:14px;text-align:center"></span>
       </span>
-      <span class="nav-label">Alerts</span>
-    </a>
-    <a href="dashboard.html" class="mobile-nav-extra ${active === 'dashboard' ? 'active' : ''}">
-      <i data-lucide="layout-dashboard" class="nav-icon"></i>
-      <span class="nav-label">Dashboard</span>
-    </a>
-    <a href="profile.html" class="mobile-nav-extra ${active === 'profile' ? 'active' : ''}">
-      <i data-lucide="user-circle" class="nav-icon"></i>
-      <span class="nav-label">Profile</span>
-    </a>` : `
-    <a href="login.html" class="mobile-nav-extra">
-      <i data-lucide="log-in" class="nav-icon"></i>
-      <span class="nav-label">Login</span>
-    </a>`;
+      <span class="nav-label">Account</span>
+    </button>
+    <!-- Account mini-sheet (shown above the tab bar) -->
+    <div id="mobileAccountSheet" class="mobile-account-sheet">
+      <div class="mas-header">
+        <span class="mas-name">${user.name || 'Account'}</span>
+        <span class="mas-role">${user.role || 'student'}</span>
+      </div>
+      <a href="dashboard.html" class="mas-item"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <a href="profile.html" class="mas-item"><i data-lucide="user"></i> Profile</a>
+      ${user.role !== 'admin' ? '<a href="dashboard.html?tab=watch" class="mas-item"><i data-lucide="heart"></i> Watchlist</a>' : ''}
+      ${user.role !== 'admin' ? '<a href="bills.html" class="mas-item"><i data-lucide="receipt"></i> Bills</a>' : ''}
+      <button class="mas-item mas-notif" onclick="toggleNotifs(); toggleMobileAccountSheet()">
+        <i data-lucide="bell"></i> Notifications
+        <span id="notifBadge" style="display:none;margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:18px;height:18px;border-radius:50%;line-height:18px;text-align:center"></span>
+      </button>
+      <button class="mas-item mas-logout" onclick="doLogout()"><i data-lucide="log-out"></i> Logout</button>
+    </div>` :
+    `<a href="login.html" class="mobile-nav-extra"><i data-lucide="log-in" class="nav-icon"></i><span class="nav-label">Login</span></a>`;
 
   const avatarDisplay = (user && user.profile_pic)
     ? `<img src="${user.profile_pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
@@ -283,7 +288,7 @@ function renderNav(active) {
   const rightHTML = logged
     ? `<div style="position:relative;display:inline-block">
          ${user.role === 'admin' ? '' : `
-         <button id="notifBtn" class="icon-btn" title="Notifications" onclick="toggleNotifs()"><i data-lucide="bell" class="lucide-sm"></i><span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center"></span></button>
+         <button id="notifBtn" class="icon-btn" title="Notifications" onclick="toggleNotifs()"><i data-lucide="bell" class="lucide-sm"></i><span id="notifBadgeDesk" style="display:none;position:absolute;top:-2px;right:-2px;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center"></span></button>
          <div class="avatar-menu" id="notifMenu" style="width:280px;right:-10px;padding:12px;z-index:2000">
            <div style="font-weight:600;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">Notifications</div>
            <div id="notifList" style="max-height:300px;overflow-y:auto;font-size:13px;color:var(--gray);margin-bottom:8px;">Loading...</div>
@@ -308,11 +313,24 @@ function renderNav(active) {
       <div class="nav-inner" style="position:relative">
         <button class="mobile-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('open')" style="display:none;background:none;border:none;cursor:pointer;padding:8px;margin-right:8px"><i data-lucide="menu" class="lucide-lg"></i></button>
         <a href="index.html" class="nav-logo"><span class="logo-uiu">UIU</span><span class="logo-nest">Nest</span></a>
-        <div class="nav-links">${linkHTML}${mobileExtras}</div>
+        <div class="nav-links">${linkHTML}${accountTab}</div>
         <div class="nav-right">${rightHTML}</div>
       </div>
     </nav>`;
 }
+
+function toggleMobileAccountSheet() {
+  const sheet = document.getElementById('mobileAccountSheet');
+  if (sheet) sheet.classList.toggle('open');
+}
+// Close sheet when tapping outside
+document.addEventListener('click', (e) => {
+  const sheet = document.getElementById('mobileAccountSheet');
+  const btn = document.querySelector('.mobile-account-btn');
+  if (sheet && sheet.classList.contains('open') && !sheet.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
+    sheet.classList.remove('open');
+  }
+});
 
 async function doLogout() {
   try { await fetch('api/logout.php'); } catch(e) {}
