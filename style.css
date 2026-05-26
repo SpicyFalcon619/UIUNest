@@ -44,6 +44,7 @@
   --radius:    10px;
   --radius-lg: 18px;
   --radius-xl: 24px;
+  --radius-full: 100px;
 
   /* ── Elevation — multi-layer floating shadows ── */
   --shadow-xs:  0 1px 3px rgba(15, 30, 50, 0.04),
@@ -77,6 +78,7 @@ html, body {
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -111,7 +113,7 @@ img { display: block; max-width: 100%; }
 .nav-inner {
   max-width: 1440px; margin: 0 auto;
   padding: 0 5%;
-  height: 68px;
+  height: 76px;
   display: flex; align-items: center; gap: 40px;
   position: relative;
 }
@@ -389,7 +391,6 @@ img { display: block; max-width: 100%; }
   padding: 108px 5%;
   text-align: center;
   position: relative;
-  overflow: hidden;
 }
 /* subtle decorative orbs */
 .hero::before, .hero::after {
@@ -877,18 +878,18 @@ input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--emerald); w
    ════════════════════════════════════════ */
 #footer-mount { margin-top: auto; }
 footer {
-  background: var(--ink);
-  color: rgba(255,255,255,0.55);
-  padding: 28px 5%;
+  background: var(--emerald-dark);
+  color: rgba(255,255,255,0.7);
+  padding: 36px 5%;
   text-align: center;
   font-size: 14px;
 }
 footer a {
-  color: rgba(255,255,255,0.8);
-  margin: 0 14px; font-weight: 500;
+  color: rgba(255,255,255,0.9);
+  margin: 0 16px; font-weight: 500;
   transition: color 0.2s ease;
 }
-footer a:hover { color: #fff; }
+footer a:hover { color: #fff; text-decoration: underline; }
 
 /* ════════════════════════════════════════
    LUCIDE ICONS
