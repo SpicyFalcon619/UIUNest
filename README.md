@@ -9,6 +9,11 @@
 
 UIUNest is a comprehensive platform designed for UIU (United International University) students, landlords, and administrators. It covers verified housing discovery, flatmate compatibility matching, a peer-to-peer exchange marketplace, mess bill management, and a full admin dashboard — all in a single, mobile-friendly web application.
 
+### 🎉 What's New in v1.1.0 (Latest Release)
+- **UI Overhaul**: Cleaner gradient-based match badges, scalable dashboard statistics, and a fully responsive sticky navbar.
+- **Flawless Match Engine**: Fixed an issue where the flatmate compatibility engine read stale cache data; scores now instantly reflect live profile preference edits!
+- **Streamlined Listings**: Removed redundant layout filters to prioritize clean, high-quality, verified listings.
+
 ## Features
 
 ### For Students

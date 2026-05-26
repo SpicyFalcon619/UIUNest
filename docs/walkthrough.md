@@ -137,3 +137,18 @@ All uploads are handled by `api/upload.php`, which:
 **Tag:** `v1.0.0`
 
 This is the first stable release of UIUNest. All core features across student housing, marketplace, mess bills, notifications, admin dashboard, user verification, and profile management are fully implemented and tested.
+
+---
+
+## v1.1.0 — UI Overhaul & Bug Fixes
+
+**Release Date:** May 2026  
+**Tag:** `v1.1.0`
+
+This update focuses on visual polish, consistency, and critical bug fixes regarding compatibility scoring.
+
+- **Compatibility Scoring Fixed**: Resolved a scoping bug in `listings.html` that caused the compatibility calculator in `app.js` to rely on stale `localStorage` user preferences. Match scores now instantly and accurately update when a user changes their profile preferences.
+- **Match Badge UI Revamped**: Replaced the previous basic text with clean, solid gradient background blocks (Emerald, Blue, Amber) and white text for High, Good, and Low matches.
+- **Dashboard Scalability**: Increased font and icon sizes for "Verification" and "Compatibility" status cards to align visually with the numerical statistic cards.
+- **Navbar Width & Sticky Fix**: Removed the `1440px` max-width on `.nav-inner` (and subsequently reverted it to properly match `.container` alignment) and fixed the `position: sticky` bug on `index.html` by removing an offending `overflow-x: hidden` constraint from the global `body` tag.
+- **Verified Filter Removed**: Removed the redundant "Verified Only" filter switch from `listings.html` as the platform currently assumes all valid landlord listings to be trustworthy or verified in this scope.
