@@ -346,9 +346,25 @@ async function doLogout() {
 
 function toggleNotifs() {
   const m = document.getElementById('notifMenu');
+  const btn = document.getElementById('notifBtn');
   if (m) {
-    m.classList.toggle('open');
-    if (m.classList.contains('open')) fetchNotifications();
+    if (!m.classList.contains('open')) {
+      if (window.innerWidth > 1024 && btn) {
+        const rect = btn.getBoundingClientRect();
+        // Position directly under the bell icon
+        m.style.top = (rect.bottom + 14) + 'px';
+        m.style.left = (rect.right - 280) + 'px'; // 280 is menu width
+        m.style.right = 'auto';
+        m.style.bottom = 'auto';
+      } else {
+        // Reset inline styles on mobile so CSS handles the centering
+        m.style.top = ''; m.style.left = ''; m.style.right = ''; m.style.bottom = '';
+      }
+      m.classList.add('open');
+      fetchNotifications();
+    } else {
+      m.classList.remove('open');
+    }
   }
 }
 

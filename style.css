@@ -166,12 +166,13 @@ img { display: block; max-width: 100%; }
 
 /* Global Notification Menu */
 .notif-menu-global {
-  position: absolute; right: 5%; top: 70px;
-  width: 280px; padding: 12px; z-index: 2000;
+  position: fixed !important;
+  top: 70px; right: 5%;
+  width: 280px; padding: 12px; z-index: 9999;
+  pointer-events: auto !important;
 }
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .notif-menu-global {
-    position: fixed !important;
     bottom: 50% !important; left: 50% !important;
     transform: translate(-50%, 50%) !important;
     top: auto !important; right: auto !important;
