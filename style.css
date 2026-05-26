@@ -1055,7 +1055,7 @@ body.landing-page .hero { padding-top: 88px; }
 }
 .hero-trust {
   font-size: 13px; color: var(--ink-muted);
-  margin-top: 20px; margin-bottom: 0;
+  margin-top: 32px; margin-bottom: 0;
 }
 .hero-trust strong { color: var(--ink-mid); }
 
@@ -1065,7 +1065,7 @@ body.landing-page .hero { padding-top: 88px; }
   padding: 8px 8px 8px 0;
   width: 100%; max-width: 820px;
   background: var(--surface);
-  border-radius: var(--radius-full);
+  border-radius: 20px;
   box-shadow: var(--shadow-xl);
   margin-top: 40px;
   position: relative;
@@ -1099,7 +1099,7 @@ body.landing-page .hero { padding-top: 88px; }
 .search-divider {
   width: 1px; height: 28px; background: var(--border); flex-shrink: 0;
 }
-.hs-btn { border-radius: 40px !important; padding: 14px 28px !important; flex-shrink: 0; margin: 4px; }
+.hs-btn { border-radius: 14px !important; padding: 14px 28px !important; flex-shrink: 0; margin: 4px; }
 
 .section-center-title {
   text-align: center;
