@@ -440,7 +440,7 @@ img { display: block; max-width: 100%; }
   font-size: 54px; font-weight: 800;
   letter-spacing: -0.04em;
   color: var(--ink); line-height: 1.12;
-  margin: 0 auto 22px;
+  margin: 0 auto 32px;
   max-width: 780px;
   position: relative;
 }
@@ -1167,7 +1167,8 @@ footer a:hover { color: #fff; text-decoration: underline; }
   .card { padding: 24px 16px; }
   .features, .steps, .grid-3, .stats-row { grid-template-columns: 1fr; }
   .hero { padding: 56px 4%; }
-  .hero h1 { font-size: 32px; }
+  .hero h1 { font-size: 32px; margin-bottom: 24px; }
+  .hero-search { margin-top: 24px; margin-bottom: 48px; }
   .nav-inner { padding: 0 16px; }
   .section { padding: 40px 0; }
   .bento-grid { margin-bottom: 24px; }
@@ -1281,7 +1282,7 @@ body.landing-page .hero { padding-top: 88px; }
   border-radius: 20px;
   box-shadow: var(--shadow-xl);
   margin-top: 40px;
-  margin-bottom: 56px; /* Accounts for the huge shadow bleed */
+  margin-bottom: 72px; /* Accounts for the huge shadow bleed */
   position: relative;
   z-index: 99; /* Prevent dropdowns from being hidden by sections below */
 }
