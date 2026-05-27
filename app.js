@@ -272,7 +272,7 @@ function renderNav(active) {
       ${user.role !== 'admin' ? '<a href="bills.html" class="mas-item"><i data-lucide="receipt"></i> Bills</a>' : ''}
       <button class="mas-item mas-notif" onclick="event.stopPropagation(); toggleNotifs(); toggleMobileAccountSheet()">
         <i data-lucide="bell"></i> Notifications
-        <span id="notifBadge" style="display:none;margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:bold;width:18px;height:18px;border-radius:50%;line-height:18px;text-align:center"></span>
+        <span id="notifBadge" style="display:none;margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:bold;min-width:18px;height:18px;padding:0 4px;border-radius:9px;align-items:center;justify-content:center;"></span>
       </button>
       <button class="mas-item mas-logout" onclick="doLogout()"><i data-lucide="log-out"></i> Logout</button>
     </div>` :

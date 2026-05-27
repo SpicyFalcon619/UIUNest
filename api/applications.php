@@ -23,8 +23,8 @@ if ($method === 'POST') {
     }
     
     try {
-        // 1. Verify user hasn't already applied
-        $check = $pdo->prepare("SELECT application_id FROM applications WHERE listing_id = ? AND applicant_id = ?");
+        // 1. Verify user hasn't already applied with an active pending application
+        $check = $pdo->prepare("SELECT application_id FROM applications WHERE listing_id = ? AND applicant_id = ? AND status = 'pending'");
         $check->execute([$listing_id, $applicant_id]);
         if ($check->rowCount() > 0) {
             echo json_encode(['success' => false, 'error' => 'You have already applied to this listing.']);
