@@ -814,6 +814,7 @@ function initMobileNavSlide() {
 
   // Globally accessible reset for when the account sheet closes
   window._resetMobileNav = () => {
+    if (window._isNavigating) return; // Prevent bounce if we are already sliding to a new page
     items.forEach(i => i.classList.remove('active'));
     if (initialActiveEl) {
       initialActiveEl.classList.add('active');
@@ -842,12 +843,13 @@ function initMobileNavSlide() {
       
       const href = this.getAttribute('href');
       if (href && !href.startsWith('#')) {
+        window._isNavigating = true; // Flag to stop reset bounce
         e.preventDefault();
         items.forEach(i => i.classList.remove('active'));
         this.classList.add('active');
         updateIndicator(this);
-        // Wait for bubble to slide before navigating (snappier delay)
-        setTimeout(() => { window.location.href = href; }, 200);
+        // Wait for bubble to slide before navigating (adjusted delay for smoothness)
+        setTimeout(() => { window.location.href = href; }, 280);
       }
     });
   });
