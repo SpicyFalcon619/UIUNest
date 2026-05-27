@@ -890,10 +890,10 @@ input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--emerald); w
    ════════════════════════════════════════ */
 .features, .steps {
   display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 24px; padding: 72px 0;
+  gap: 24px; padding: 24px 0 0;
 }
 .feature, .step {
-  padding: 36px 28px;
+  padding: 24px 20px;
   background: var(--surface);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border);
@@ -918,7 +918,7 @@ input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--emerald); w
   background: var(--emerald); color: #fff;
   font-size: 18px; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 20px; box-shadow: var(--shadow-sm);
+  margin: 0 auto 16px; box-shadow: var(--shadow-sm);
 }
 
 /* ════════════════════════════════════════
