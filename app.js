@@ -469,8 +469,17 @@ function mountChrome(active) {
           navLinks.classList.remove('nav-scrolled');
         }
       }
-
-      // Removed the nav-hidden hiding logic entirely so all pages behave exactly like the homepage.
+      // Hide top navbar when scrolling down, show when scrolling up (skip on homepage and mobile)
+      if (!isHomepage && window.innerWidth > 560) {
+        if (pageIsScrollable) {
+          if (currentScrollY > lastScrollY && currentScrollY > 60) {
+            if (nav) nav.classList.add('nav-hidden');
+          } else {
+            if (nav) nav.classList.remove('nav-hidden');
+          }
+        }
+      }
+      
       lastScrollY = currentScrollY;
     }
 
