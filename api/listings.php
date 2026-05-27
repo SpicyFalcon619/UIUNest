@@ -61,6 +61,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ];
     }
     
+    // Fetch reviews
+    $revStmt = $pdo->query("
+        SELECT r.*, u.name as reviewer_name 
+        FROM reviews r
+        LEFT JOIN users u ON r.reviewer_id = u.user_id
+        ORDER BY r.created_at DESC
+    ");
+    $allReviews = $revStmt->fetchAll();
+    $revByListing = [];
+    foreach($allReviews as $r) {
+        if (!isset($revByListing[$r['listing_id']])) {
+            $revByListing[$r['listing_id']] = [];
+        }
+        $revByListing[$r['listing_id']][] = [
+            'id' => (int)$r['review_id'],
+            'reviewer' => $r['reviewer_name'] ?: 'Anonymous',
+            'date' => date('M j, Y', strtotime($r['created_at'])),
+            'composite' => (float)$r['composite_score'],
+            'comment' => $r['comment']
+        ];
+    }
+    
     // Combine
     $result = [];
     foreach($listings as $l) {
@@ -91,8 +113,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'cleanliness' => isset($l['cleanliness']) ? (int)$l['cleanliness'] : 3,
             'costs' => $costsByListing[$id] ?? null,
             'amenities' => $amenByListing[$id] ?? null,
-            'compositeScore' => 4.5, // placeholder
-            'reviewCount' => 0,
+            'reviews' => $revByListing[$id] ?? [],
+            'compositeScore' => isset($revByListing[$id]) ? round(array_sum(array_column($revByListing[$id], 'composite')) / count($revByListing[$id]), 1) : 4.5,
+            'reviewCount' => isset($revByListing[$id]) ? count($revByListing[$id]) : 0,
             'description' => $l['description'],
             'photos' => !empty($l['photos']) && $l['photos'] !== 'null' ? json_decode($l['photos'], true) : ['data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="%23e2e8f0"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="%2394a3b8" text-anchor="middle" dominant-baseline="middle">No Photo Available</text></svg>']
         ];

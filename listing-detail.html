@@ -127,7 +127,7 @@ async function renderDetail() {
       </div>`;
   } else {
     const c = l.costs || {};
-    const listingReviews = window.mockData.reviews ? window.mockData.reviews.filter(r => r.listingId === l.id) : [];
+    const listingReviews = l.reviews || [];
     l.reviewCount = listingReviews.length;
     const userCompat = calculateCompatibility(l);
     const compatColor = getCompatibilityColor(userCompat.score);
@@ -277,7 +277,7 @@ async function renderDetail() {
 
     attachWatchlistHandlers();
 
-    document.getElementById('reviewsList').innerHTML = mockData.reviews.filter(r => r.listingId === l.id).map(r => `
+    document.getElementById('reviewsList').innerHTML = (l.reviews || []).map(r => `
       <div style="padding:12px 0;border-top:1px solid var(--border)">
         <div style="display:flex;justify-content:space-between"><strong>${r.reviewer}</strong><span style="color:var(--gray);font-size:12px">${r.date}</span></div>
         <div style="margin-top:6px;font-size:14px">${r.comment}</div>
@@ -325,8 +325,14 @@ function applyForListing(id, genderPref) {
 // Initial render
 renderDetail();
 
-function submitReview(e) {
+async function submitReview(e) {
   e.preventDefault();
+  
+  if (!isLoggedIn()) {
+    showToast('Please log in to submit a review', 'error');
+    return;
+  }
+
   const val = parseInt(document.getElementById('revVal').value);
   const acc = parseInt(document.getElementById('revAcc').value);
   const resp = parseInt(document.getElementById('revResp').value);
@@ -334,30 +340,29 @@ function submitReview(e) {
   const safe = parseInt(document.getElementById('revSafe').value);
   const comment = document.getElementById('revComment').value.trim();
 
-  const composite = parseFloat(((val + acc + resp + clean + safe) / 5).toFixed(1));
-
-  const newReview = {
-    id: Date.now(),
-    listingId: l.id,
-    reviewer: mockData.currentUser ? mockData.currentUser.name : 'Anonymous',
-    date: new Date().toLocaleDateString('en-US'),
-    scores: { money: val, accuracy: acc, response: resp, cleanliness: clean, safety: safe },
-    composite,
-    comment
-  };
-
-  mockData.reviews.push(newReview);
-
-  const allReviewsForListing = mockData.reviews.filter(r => r.listingId === l.id);
-  const totalScore = allReviewsForListing.reduce((acc, curr) => acc + curr.composite, 0);
-  l.compositeScore = parseFloat((totalScore / allReviewsForListing.length).toFixed(1));
-  l.reviewCount = allReviewsForListing.length;
-
-  saveMockData();
-  document.getElementById('reviewModal').classList.remove('open');
-  document.getElementById('createReviewForm').reset();
-  showToast('Review submitted!');
-  location.reload();
+  try {
+    const res = await fetch('api/reviews.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        listingId: l.id,
+        money: val, accuracy: acc, response: resp, cleanliness: clean, safety: safe,
+        comment: comment
+      })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('reviewModal').classList.remove('open');
+      document.getElementById('createReviewForm').reset();
+      showToast('Review submitted successfully!');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast(data.error || 'Failed to submit review', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while submitting review', 'error');
+  }
 }
 
 async function submitComplaint(e) {
