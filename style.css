@@ -572,7 +572,7 @@ input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--emerald); w
 /* ════════════════════════════════════════
    GRIDS & SECTIONS
    ════════════════════════════════════════ */
-.section { padding: 72px 0; border-bottom: 1px solid var(--border); }
+.section { padding: 56px 0; border-bottom: 1px solid var(--border); }
 .section-head {
   display: flex; justify-content: space-between; align-items: baseline;
   margin-bottom: 32px;
@@ -1166,9 +1166,11 @@ footer a:hover { color: #fff; text-decoration: underline; }
   .container { padding: 24px 16px; }
   .card { padding: 24px 16px; }
   .features, .steps, .grid-3, .stats-row { grid-template-columns: 1fr; }
-  .hero { padding: 72px 4%; }
+  .hero { padding: 56px 4%; }
   .hero h1 { font-size: 32px; }
   .nav-inner { padding: 0 16px; }
+  .section { padding: 40px 0; }
+  .bento-grid { margin-bottom: 24px; }
 
   /* Prevent iOS auto-zoom by forcing 16px font-size on mobile inputs */
   input, select, textarea, .form-control, .bill-in { font-size: 16px !important; }
@@ -1333,7 +1335,7 @@ body.landing-page .hero { padding-top: 88px; }
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: auto;
   gap: 18px;
-  margin-bottom: 64px;
+  margin-bottom: 16px;
 }
 
 /* Card base */
