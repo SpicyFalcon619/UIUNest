@@ -326,7 +326,12 @@ function renderNav(active) {
 
 function toggleMobileAccountSheet() {
   const sheet = document.getElementById('mobileAccountSheet');
-  if (sheet) sheet.classList.toggle('open');
+  if (sheet) {
+    sheet.classList.toggle('open');
+    if (!sheet.classList.contains('open') && window._resetMobileNav) {
+      window._resetMobileNav();
+    }
+  }
 }
 // Close sheet when tapping outside
 document.addEventListener('click', (e) => {
@@ -334,6 +339,7 @@ document.addEventListener('click', (e) => {
   const btn = document.querySelector('.mobile-account-btn');
   if (sheet && sheet.classList.contains('open') && !sheet.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
     sheet.classList.remove('open');
+    if (window._resetMobileNav) window._resetMobileNav();
   }
 });
 
@@ -790,10 +796,23 @@ function initMobileNavSlide() {
 
   // Initial position
   let activeEl = navLinks.querySelector('.active');
+  const initialActiveEl = activeEl; // Store the real active page
+  
   if (activeEl) {
     // Small delay to ensure flex layout has settled
     setTimeout(() => updateIndicator(activeEl), 100);
   }
+
+  // Globally accessible reset for when the account sheet closes
+  window._resetMobileNav = () => {
+    items.forEach(i => i.classList.remove('active'));
+    if (initialActiveEl) {
+      initialActiveEl.classList.add('active');
+      updateIndicator(initialActiveEl);
+    } else {
+      indicator.style.width = '0px';
+    }
+  };
 
   window.addEventListener('resize', () => {
     if (window.innerWidth <= 900) {
