@@ -127,6 +127,8 @@ async function renderDetail() {
       </div>`;
   } else {
     const c = l.costs || {};
+    const listingReviews = window.mockData.reviews ? window.mockData.reviews.filter(r => r.listingId === l.id) : [];
+    l.reviewCount = listingReviews.length;
     const userCompat = calculateCompatibility(l);
     const compatColor = getCompatibilityColor(userCompat.score);
     const wl = getWatchlist().includes(l.id);
