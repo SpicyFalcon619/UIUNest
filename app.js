@@ -276,7 +276,7 @@ function renderNav(active) {
       </button>
       <button class="mas-item mas-logout" onclick="doLogout()"><i data-lucide="log-out"></i> Logout</button>
     </div>` :
-    `<a href="login.html" class="mobile-nav-extra mobile-account-btn"><i data-lucide="log-in" class="nav-icon"></i><span class="nav-label">Login</span></a>`;
+    `<a href="${active === 'register' ? 'register.html' : 'login.html'}" class="mobile-nav-extra mobile-account-btn ${['login', 'register'].includes(active) ? 'active' : ''}"><i data-lucide="${active === 'register' ? 'user-plus' : 'log-in'}" class="nav-icon"></i><span class="nav-label">${active === 'register' ? 'Register' : 'Login'}</span></a>`;
 
   // Insert the account tab in the middle of the links (index 2)
   const linkHTMLElements = links.map(l =>
