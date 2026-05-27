@@ -25,7 +25,7 @@ if ($method === 'POST') {
     
     try {
         // 1. Verify user hasn't already offered
-        $check = $pdo->prepare("SELECT offer_id FROM offers WHERE item_id = ? AND buyer_id = ?");
+        $check = $pdo->prepare("SELECT offer_id FROM offers WHERE item_id = ? AND buyer_id = ? AND status IN ('pending', 'countered', 'accepted')");
         $check->execute([$item_id, $buyer_id]);
         if ($check->rowCount() > 0) {
             echo json_encode(['success' => false, 'error' => 'You already have an active offer on this item.']);
