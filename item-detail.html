@@ -103,7 +103,8 @@ function renderPage(itemOffers) {
       <div class="card" style="margin-bottom:14px">
         <h3 style="margin:0 0 10px;color:var(--navy)">Seller Details</h3>
         <div style="font-weight:600">${it.seller || it.sellerName || 'Unknown'}</div>
-        <div style="font-size:13px;color:var(--gray);margin-top:4px">Email: ${it.sellerEmail || 'Hidden'}</div>
+        <div style="font-size:13px;color:var(--gray);margin-top:4px;margin-bottom:10px;">Email: ${it.sellerEmail || 'Hidden'}</div>
+        ${!isSeller ? `<a href="mailto:${it.sellerEmail}" class="btn btn-outline btn-sm" style="display:inline-flex;align-items:center;gap:6px"><i data-lucide="mail" class="lucide-sm"></i> Contact Seller</a>` : ''}
       </div>
 
       ${linked ? `
@@ -224,9 +225,10 @@ function renderOffers(offers, isSeller, user, sold) {
     return `
       <div style="padding:12px 0; border-bottom:1px solid var(--border); ${sold && !isAccepted ? 'opacity:0.4' : ''}">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong>${o.buyer_name || o.buyer_email}${isAccepted ? `<br><small style="font-weight:normal;color:var(--gray)">${o.buyer_email}</small>${o.buyer_phone ? `<br><small style="font-weight:normal;color:var(--gray)">${o.buyer_phone}</small>` : ''}` : ''}</strong>
+          <strong>${o.buyer_name || o.buyer_email}</strong>
           ${stateLabel}
         </div>
+        ${isSeller ? `<div style="margin-top:4px;"><a href="mailto:${o.buyer_email}" class="btn btn-outline btn-sm" style="padding:2px 8px;font-size:11px;display:inline-flex;align-items:center;gap:4px"><i data-lucide="mail" class="lucide-sm"></i> Contact Buyer</a></div>` : ''}
         <div style="margin:6px 0; font-size:15px;">${showPrice}</div>
         <div style="font-size:13px; color:var(--gray); font-style:italic;">"${o.message}"</div>
         ${actionButtons}

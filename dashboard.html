@@ -345,7 +345,7 @@ function renderDashboard() {
             <tbody>
               ${dashData.seekRespRecv.map(r => `
                 <tr>
-                  <td><strong>${r.responder_name}</strong>${r.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${r.responder_name}" data-email="${r.responder_email}" data-phone="${r.responder_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td>
+                  <td><strong>${r.responder_name}</strong><br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${r.responder_name}" data-email="${r.responder_email}" data-phone="${r.responder_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td>
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
@@ -373,7 +373,7 @@ function renderDashboard() {
               ${dashData.seekRespSent.map(r => `
                 <tr>
                   <td><strong>${r.requirements ? r.requirements.substring(0, 30) : ''}...</strong></td>
-                  <td>${r.owner_name || 'Landlord'}${r.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${r.owner_name || 'Landlord'}" data-email="${r.owner_email}" data-phone="${r.owner_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td>
+                  <td>${r.owner_name || 'Landlord'}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${r.owner_name || 'Landlord'}" data-email="${r.owner_email}" data-phone="${r.owner_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td>
                   <td>${r.message}</td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.created_at}</td>
@@ -427,7 +427,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Buyer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersRecv.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}${o.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.buyer_name}" data-email="${o.buyer_email}" data-phone="${o.buyer_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><div style="display:flex;gap:4px;"><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a><button class="btn btn-danger btn-sm" onclick="deleteItem(${o.item_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete</button></div></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.buyer_name}" data-email="${o.buyer_email}" data-phone="${o.buyer_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><div style="display:flex;gap:4px;"><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a><button class="btn btn-danger btn-sm" onclick="deleteItem(${o.item_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete</button></div></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -443,7 +443,7 @@ function renderDashboard() {
             <thead><tr><th>Item</th><th>Seller</th><th>Your Bid</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
               ${offersSent.map(o => {
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}${o.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.seller_name}" data-email="${o.seller_email}" data-phone="${o.seller_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><div style="display:flex;gap:4px;"><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a><button class="btn btn-danger btn-sm" onclick="deleteOffer(${o.offer_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete</button></div></td></tr>`;
+                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.seller_name}" data-email="${o.seller_email}" data-phone="${o.seller_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><div style="display:flex;gap:4px;"><a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open Offer</a><button class="btn btn-danger btn-sm" onclick="deleteOffer(${o.offer_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete</button></div></td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -463,7 +463,7 @@ function renderDashboard() {
               ${appsRecv.map(a => `
                 <tr>
                   <td><strong>${a.listing_title}</strong></td>
-                  <td>${a.applicant_name}${a.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${a.applicant_name}" data-email="${a.applicant_email}" data-phone="${a.applicant_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td>
+                  <td>${a.applicant_name}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${a.applicant_name}" data-email="${a.applicant_email}" data-phone="${a.applicant_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td>
                   <td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${a.message}">${a.message}</div></td>
                   <td>${statusBadge(a.status)}</td>
                   <td>
@@ -490,7 +490,7 @@ function renderDashboard() {
               ${appsSent.map(a => `
                 <tr>
                   <td><strong>${a.listing_title}</strong></td>
-                  <td>${a.owner_name || 'Landlord'}${a.status === 'accepted' ? `<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${a.owner_name || 'Landlord'}" data-email="${a.owner_email}" data-phone="${a.owner_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button>` : ''}</td>
+                  <td>${a.owner_name || 'Landlord'}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${a.owner_name || 'Landlord'}" data-email="${a.owner_email}" data-phone="${a.owner_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td>
                   <td>${statusBadge(a.status)}</td>
                   <td>${a.created_at}</td>
                 </tr>
