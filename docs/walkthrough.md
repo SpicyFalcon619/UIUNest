@@ -164,4 +164,8 @@ This update focuses on visual polish, consistency, and critical bug fixes regard
  -   R e f i n e d   n a v b a r   l o g i c :   P e r m a n e n t   s t i c k y   b e h a v i o r   o n   t h e   h o m e p a g e ,   e l e g a n t   s c r o l l - t o - h i d e   t r a n s i t i o n s   o n   s u b - p a g e s ,   a n d   p r o t e c t e d   b o t t o m - f i x e d   p o s i t i o n i n g   o n   m o b i l e   d e v i c e s .  
  -   R e w r o t e   h o m e p a g e   m a r k e t i n g   c o p y   t o   s o u n d   s i g n i f i c a n t l y   m o r e   n a t u r a l   a n d   h u m a n ,   s t r i p p i n g   o u t   A I - i s m s .  
  -   A d j u s t e d   v e r t i c a l   s p a c i n g ,   m a r g i n s ,   a n d   b o r d e r   r a d i i   a c r o s s   t h e   U I   t o   e s t a b l i s h   a   p r e m i u m ,   b a l a n c e d   a e s t h e t i c .  
+ # # #   A n i m a t e d   M o b i l e   N a v b a r   U p d a t e   ( v 1 . 2 . 1 )  
+ -   R e d e s i g n e d   t h e   m o b i l e   n a v b a r   c o n t a i n e r   i n t o   a   s l e e k   f l o a t i n g   p i l l .  
+ -   B u i l t   a   c u s t o m   J S   \  e q u e s t A n i m a t i o n F r a m e \   e n g i n e   t o   s m o o t h l y   t r a c k   a n d   a n i m a t e   t h e   a c t i v e   ' e m e r a l d   b u b b l e '   a c r o s s   n a v   i t e m s   w i t h o u t   C S S   b o u n c e   g l i t c h e s .  
+ -   U p d a t e d   t h e   c e n t r a l   A c c o u n t   b u t t o n   t o   i n t e l l i g e n t l y   d i s p l a y   d y n a m i c   ' L o g i n '   a n d   ' R e g i s t e r '   a c t i v e   s t a t e s   w h e n   t h e   u s e r   i s   u n a u t h e n t i c a t e d .  
  

@@ -9,11 +9,15 @@
 
 UIUNest is a comprehensive platform designed for UIU (United International University) students, landlords, and administrators. It covers verified housing discovery, flatmate compatibility matching, a peer-to-peer exchange marketplace, mess bill management, and a full admin dashboard — all in a single, mobile-friendly web application.
 
+### 🎉 What's New in v1.2.1 (Animated Navbar Update)
+- **Fluid Mobile Navigation**: Completely redesigned the mobile navbar into a floating pill shape. Features a dynamic, sliding emerald bubble that perfectly tracks your interactions via a custom JavaScript `requestAnimationFrame` engine for 60fps buttery-smooth transitions.
+- **Context-Aware Auth States**: The center account button now intelligently shape-shifts depending on your authentication state, turning into an animated "Login" or "Register" button based on the page you are viewing.
+
 ### What's New in v1.2.0 (Final Polish Release)
 - **Responsive Mobile Perfection**: Fixed overflow issues on the Mess Bill Manager and Profile pages, ensuring custom dropdowns and file uploads flawlessly adapt to small screens.
-- **Sleek Navbar Behavior**: Engineered a smart navbar that remains permanently pinned on the homepage, but smoothly auto-hides with a graceful transition on sub-pages to maximize vertical screen real estate. The mobile floating pill remains safely anchored to the bottom.
-- **Natural Copywriting**: Completely rewrote the homepage marketing copy to sound conversational, warm, and distinctly human (saying goodbye to robotic AI phrasing and em dashes).
-- **Refined Aesthetics**: Softened the active navigation pill radiuses to perfect the "squircle" look, and precisely balanced the white space and vertical margins across the hero section for a premium, airy feel.
+- **Sleek Navbar Behavior**: Engineered a smart navbar that remains permanently pinned on the homepage, but smoothly auto-hides with a graceful transition on sub-pages to maximize vertical screen real estate.
+- **Natural Copywriting**: Completely rewrote the homepage marketing copy to sound conversational, warm, and distinctly human.
+- **Refined Aesthetics**: Softened the active navigation pill radiuses to perfect the "squircle" look.
 
 ## Features
 
