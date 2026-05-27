@@ -485,6 +485,9 @@ function mountChrome(active) {
 
     // Run immediately on mount (catches unscrollable pages)
     updateNavScrollState();
+    if (window.innerWidth <= 900) {
+      setTimeout(() => initMobileNavSlide(), 50);
+    }
     // Also run after images/content may have loaded
     window.addEventListener('load', updateNavScrollState);
     window.addEventListener('resize', updateNavScrollState, { passive: true });
@@ -764,3 +767,60 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   domObserver.observe(document.body, { childList: true, subtree: true });
 });
+
+// ============ Mobile Nav Sliding Bubble Animation ============
+function initMobileNavSlide() {
+  const navLinks = document.querySelector('.nav-links');
+  if (!navLinks) return;
+  
+  // Create indicator bubble if it doesn't exist
+  let indicator = navLinks.querySelector('.nav-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.className = 'nav-indicator';
+    navLinks.appendChild(indicator);
+  }
+
+  const items = navLinks.querySelectorAll('a, .mobile-nav-extra');
+  function updateIndicator(el) {
+    if (!el) return;
+    indicator.style.width = el.offsetWidth + 'px';
+    indicator.style.left = el.offsetLeft + 'px';
+  }
+
+  // Initial position
+  let activeEl = navLinks.querySelector('.active');
+  if (activeEl) {
+    // Small delay to ensure flex layout has settled
+    setTimeout(() => updateIndicator(activeEl), 100);
+  }
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 900) {
+      let act = navLinks.querySelector('.active');
+      if (act) updateIndicator(act);
+    }
+  });
+
+  items.forEach(item => {
+    item.addEventListener('click', function(e) {
+      // If it's the account sheet toggle (button), don't navigate, just animate
+      if (this.tagName === 'BUTTON') {
+        items.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        updateIndicator(this);
+        return;
+      }
+      
+      const href = this.getAttribute('href');
+      if (href && !href.startsWith('#')) {
+        e.preventDefault();
+        items.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        updateIndicator(this);
+        // Wait for bubble to slide before navigating
+        setTimeout(() => { window.location.href = href; }, 350);
+      }
+    });
+  });
+}
