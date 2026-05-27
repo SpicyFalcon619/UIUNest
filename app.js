@@ -256,7 +256,7 @@ function renderNav(active) {
     <button class="mobile-nav-extra mobile-account-btn" onclick="toggleMobileAccountSheet()">
       <span style="position:relative">
         <i data-lucide="user-circle" class="nav-icon"></i>
-        <span id="notifBadgeMob" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--danger);color:white;font-size:9px;font-weight:bold;width:14px;height:14px;border-radius:50%;line-height:14px;text-align:center"></span>
+        <span id="notifBadgeMob" style="display:none;position:absolute;top:2px;right:2px;background:var(--danger);width:8px;height:8px;border-radius:50%;"></span>
       </span>
       <span class="nav-label">Account</span>
     </button>
@@ -384,10 +384,17 @@ async function fetchNotifications() {
     const data = await res.json();
     if (data.success) {
       if (data.unread_count > 0) {
-        badge.style.display = 'flex';
-        badge.textContent = data.unread_count;
+        if (badge) { badge.style.display = 'flex'; badge.textContent = data.unread_count; }
+        const bMob = document.getElementById('notifBadgeMob');
+        const bDesk = document.getElementById('notifBadgeDesk');
+        if (bMob) bMob.style.display = 'block';
+        if (bDesk) { bDesk.style.display = 'flex'; bDesk.textContent = data.unread_count; }
       } else {
-        badge.style.display = 'none';
+        if (badge) badge.style.display = 'none';
+        const bMob = document.getElementById('notifBadgeMob');
+        const bDesk = document.getElementById('notifBadgeDesk');
+        if (bMob) bMob.style.display = 'none';
+        if (bDesk) bDesk.style.display = 'none';
       }
       
       list.innerHTML = data.notifications.length === 0 ? '<div style="padding:10px 0;text-align:center">No notifications</div>' : data.notifications.map(n => 
@@ -403,6 +410,29 @@ async function fetchNotifications() {
   } catch(e) {
     list.innerHTML = 'Error loading notifications.';
   }
+}
+
+async function updateNotificationBadges() {
+  if (!isLoggedIn()) return;
+  try {
+    const res = await fetch('api/notifications.php');
+    const data = await res.json();
+    if (data.success) {
+      const bMob = document.getElementById('notifBadgeMob');
+      const bDesk = document.getElementById('notifBadgeDesk');
+      const bSheet = document.getElementById('notifBadge');
+      
+      if (data.unread_count > 0) {
+        if (bMob) bMob.style.display = 'block';
+        if (bDesk) { bDesk.style.display = 'flex'; bDesk.textContent = data.unread_count; }
+        if (bSheet) { bSheet.style.display = 'flex'; bSheet.textContent = data.unread_count; }
+      } else {
+        if (bMob) bMob.style.display = 'none';
+        if (bDesk) bDesk.style.display = 'none';
+        if (bSheet) bSheet.style.display = 'none';
+      }
+    }
+  } catch(e) {}
 }
 
 async function markNotifRead(id, link, event) {
