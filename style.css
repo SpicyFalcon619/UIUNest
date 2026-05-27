@@ -1333,7 +1333,6 @@ body.landing-page .hero { padding-top: 88px; }
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: auto;
   gap: 18px;
-  margin-bottom: 64px;
 }
 
 /* Card base */
