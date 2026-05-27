@@ -1006,12 +1006,13 @@ footer a:hover { color: #fff; text-decoration: underline; }
   .nav-links {
     display: flex; flex-direction: row; justify-content: space-between; align-items: center;
     position: fixed; bottom: 16px; left: 16px; right: 16px;
-    background: var(--navy);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
     border-radius: 40px;
     padding: 8px;
     z-index: 3000;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     transition: bottom 0.3s ease, left 0.3s ease, right 0.3s ease,
                 border-radius 0.3s ease, box-shadow 0.3s ease,
                 padding 0.3s ease, transform 0.3s ease;
@@ -1044,7 +1045,7 @@ footer a:hover { color: #fff; text-decoration: underline; }
     border-radius: 30px;
     background: transparent !important;
     font-size: 13px; font-weight: 600;
-    color: rgba(255,255,255,0.6) !important;
+    color: var(--ink-muted) !important;
     text-decoration: none; cursor: pointer; border: none;
     flex: auto; text-align: center; align-items: center; justify-content: center;
     transition: color 0.4s ease, flex 0.4s ease;
