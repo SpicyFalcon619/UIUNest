@@ -489,6 +489,7 @@ select.custom-select-hidden {
 }
 .custom-select-wrapper {
   position: relative; width: 100%; display: grid; align-items: center;
+  max-width: 100%;
 }
 .custom-select-wrapper::after {
   content: attr(data-longest);
@@ -497,6 +498,7 @@ select.custom-select-hidden {
   padding: 0 40px 0 14px; /* match trigger padding + space for svg icon */
   grid-area: 1 / 1;
   pointer-events: none; white-space: nowrap;
+  max-width: 100%;
 }
 .custom-select-trigger {
   grid-area: 1 / 1;
@@ -505,6 +507,10 @@ select.custom-select-hidden {
   font-size: 14px; color: var(--ink); font-family: inherit; font-weight: 500;
   display: flex; justify-content: space-between; align-items: center;
   cursor: pointer; transition: all 0.2s ease; user-select: none;
+  overflow: hidden;
+}
+.custom-select-trigger span {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .custom-select-trigger:hover { border-color: var(--border-mid); }
 .custom-select-trigger.open {

@@ -104,9 +104,9 @@ function renderBillManager(myProps, activeListing, activeBills) {
   root.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:24px">
       <h1 style="font-size:28px;color:var(--navy);margin:0">Mess Bill Manager</h1>
-      <div style="display:flex;align-items:center;gap:8px">
-        <label style="font-size:13px;font-weight:600;color:var(--ink-dark)">Manage Flat:</label>
-        <select id="propSelect" onchange="switchProperty(this.value)" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;">
+      <div style="display:flex;align-items:center;gap:8px;max-width:100%">
+        <label style="font-size:13px;font-weight:600;color:var(--ink-dark);white-space:nowrap">Manage Flat:</label>
+        <select id="propSelect" onchange="switchProperty(this.value)" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;max-width:100%">
           ${propOptions}
         </select>
       </div>
