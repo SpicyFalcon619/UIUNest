@@ -788,10 +788,19 @@ function initMobileNavSlide() {
   }
 
   const items = navLinks.querySelectorAll('a, .mobile-nav-extra');
+  let animFrame;
   function updateIndicator(el) {
     if (!el) return;
-    indicator.style.width = el.offsetWidth + 'px';
-    indicator.style.left = el.offsetLeft + 'px';
+    cancelAnimationFrame(animFrame);
+    const start = performance.now();
+    function step(timestamp) {
+      indicator.style.width = el.offsetWidth + 'px';
+      indicator.style.left = el.offsetLeft + 'px';
+      if (timestamp - start < 350) {
+        animFrame = requestAnimationFrame(step);
+      }
+    }
+    animFrame = requestAnimationFrame(step);
   }
 
   // Initial position
@@ -837,8 +846,8 @@ function initMobileNavSlide() {
         items.forEach(i => i.classList.remove('active'));
         this.classList.add('active');
         updateIndicator(this);
-        // Wait for bubble to slide before navigating
-        setTimeout(() => { window.location.href = href; }, 350);
+        // Wait for bubble to slide before navigating (snappier delay)
+        setTimeout(() => { window.location.href = href; }, 200);
       }
     });
   });
