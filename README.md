@@ -5,11 +5,11 @@
 ![HTML5](https://img.shields.io/badge/HTML5-Frontend-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![Railway](https://img.shields.io/badge/Deployed_on-Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white)
 
-**🚀 Live Platform:** [https://uiunest-production.up.railway.app/](https://uiunest-production.up.railway.app/)
+**Live Platform:** [https://uiunest-production.up.railway.app/](https://uiunest-production.up.railway.app/)
 
 UIUNest is a comprehensive platform designed for UIU (United International University) students, landlords, and administrators. It covers verified housing discovery, flatmate compatibility matching, a peer-to-peer exchange marketplace, mess bill management, and a full admin dashboard — all in a single, mobile-friendly web application.
 
-### 🎉 What's New in v1.2.0 (Final Polish Release)
+### What's New in v1.2.0 (Final Polish Release)
 - **Responsive Mobile Perfection**: Fixed overflow issues on the Mess Bill Manager and Profile pages, ensuring custom dropdowns and file uploads flawlessly adapt to small screens.
 - **Sleek Navbar Behavior**: Engineered a smart navbar that remains permanently pinned on the homepage, but smoothly auto-hides with a graceful transition on sub-pages to maximize vertical screen real estate. The mobile floating pill remains safely anchored to the bottom.
 - **Natural Copywriting**: Completely rewrote the homepage marketing copy to sound conversational, warm, and distinctly human (saying goodbye to robotic AI phrasing and em dashes).
@@ -83,7 +83,7 @@ The schema includes a `reset_db.php` utility that seeds the master admin:
 - **Login:** `ADM-MASTER` or `master@admin.com`
 - **Password:** `1265Master`
 
-> ⚠️ **Security Note:** Delete or password-protect `api/reset_db.php` before deploying to production.
+> **Security Note:** Delete or password-protect `api/reset_db.php` before deploying to production.
 
 ## Project Structure
 
@@ -122,7 +122,7 @@ UIU-Nest/
 │   ├── admin_action_complaint.php # Admin resolve/escalate complaint
 │   ├── admin_action_listing.php # Admin delete listing
 │   ├── alter_db_interactions.php # One-time DB migration (seeking_responses + notifications tables)
-│   └── reset_db.php             # ⚠️ Dev only — truncates all tables + seeds master admin
+│   └── reset_db.php             # Dev only — truncates all tables + seeds master admin
 ├── database/
 │   ├── schema.sql               # Full MySQL schema (19 tables)
 │   ├── seed.sql                 # Optional sample data
