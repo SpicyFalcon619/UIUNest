@@ -132,7 +132,7 @@ img { display: block; max-width: 100%; }
   color: var(--ink-mid);
   font-weight: 500; font-size: 14px;
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.15s ease;
   display: flex; align-items: center; justify-content: center;
 }
