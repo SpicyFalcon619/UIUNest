@@ -38,6 +38,8 @@ if (!localStorage.getItem('uiunest_db_v4')) {
   localStorage.setItem('uiunest_db_v4', JSON.stringify(window.mockData));
 } else {
   window.mockData = JSON.parse(localStorage.getItem('uiunest_db_v4'));
+  // Always use the latest static zones from data.js (in case polygon boundaries were updated)
+  window.mockData.zones = window.getInitialData ? window.getInitialData(true).zones : window.mockData.zones;
 }
 
 function toggleDataMode(populated) {
