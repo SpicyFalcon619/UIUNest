@@ -136,8 +136,9 @@ img { display: block; max-width: 100%; }
   transition: all 0.15s ease;
   display: flex; align-items: center; justify-content: center;
 }
+.nav-links > a.mobile-nav-extra { display: none; }
 .nav-links > a .nav-icon { display: none; }
-.nav-links > a:hover  { color: var(--emerald); background: var(--emerald-soft); }
+.nav-links > a:hover:not(.mobile-nav-extra)  { color: var(--emerald); background: var(--emerald-soft); }
 .nav-indicator { display: none; }
 .nav-links > a.active { color: var(--emerald); background: var(--emerald-soft); font-weight: 600; }
 
