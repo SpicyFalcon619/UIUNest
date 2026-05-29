@@ -249,7 +249,14 @@ L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
 let currentZonePolygon = null;
 function highlightZone(id) {
   const zone = mockData.zones.find(z => z.id === id);
-  if (!zone || !zone.polygon) return;
+  if (!zone) {
+    if (window.showToast) showToast('Zone not found', 'error');
+    return;
+  }
+  if (!zone.polygon) {
+    if (window.showToast) showToast('Zone boundary data missing. Please do a hard refresh (Ctrl+Shift+R)!', 'error');
+    return;
+  }
 
   if (currentZonePolygon) {
     map.removeLayer(currentZonePolygon);
