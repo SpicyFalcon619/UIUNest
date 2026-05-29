@@ -477,7 +477,7 @@ function renderFooter() {
         <a href="listings.html">Listings</a> ·
         <a href="exchange.html">Exchange</a> ·
         <a href="seeking.html">Looking For</a> ·
-        <a href="admin.html">Admin</a>
+        <a href="#">About Us</a>
       </div>
       <div style="margin-top:10px">© 2025 UIUNest - United International University</div>
     </footer>`;
