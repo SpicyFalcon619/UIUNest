@@ -1,11 +1,11 @@
 window.getInitialData = function(populated = true) {
   const zones = [
-    { id: 1, name: "UIU Campus Area", lat: 23.7979, lng: 90.4497 },
-    { id: 2, name: "Sayed Nagar",     lat: 23.7950, lng: 90.4440 },
-    { id: 3, name: "Shatarkul",       lat: 23.7910, lng: 90.4350 },
-    { id: 4, name: "Nurer Chala",     lat: 23.8050, lng: 90.4380 },
-    { id: 5, name: "Aftabnagar",      lat: 23.7660, lng: 90.4340 },
-    { id: 6, name: "Notun Bazar",     lat: 23.7970, lng: 90.4220 }
+    { id: 1, name: "UIU Campus Area", lat: 23.7979, lng: 90.4497, polygon: [[23.8010, 90.4460], [23.8010, 90.4550], [23.7940, 90.4550], [23.7940, 90.4460]] },
+    { id: 2, name: "Sayed Nagar",     lat: 23.7950, lng: 90.4440, polygon: [[23.7970, 90.4410], [23.7970, 90.4470], [23.7910, 90.4470], [23.7910, 90.4410]] },
+    { id: 3, name: "Shatarkul",       lat: 23.7910, lng: 90.4350, polygon: [[23.7920, 90.4320], [23.7920, 90.4400], [23.7880, 90.4400], [23.7880, 90.4320]] },
+    { id: 4, name: "Nurer Chala",     lat: 23.8050, lng: 90.4380, polygon: [[23.8070, 90.4350], [23.8070, 90.4420], [23.8020, 90.4420], [23.8020, 90.4350]] },
+    { id: 5, name: "Aftabnagar",      lat: 23.7660, lng: 90.4340, polygon: [[23.7710, 90.4300], [23.7710, 90.4450], [23.7620, 90.4450], [23.7620, 90.4300]] },
+    { id: 6, name: "Notun Bazar",     lat: 23.7970, lng: 90.4220, polygon: [[23.7990, 90.4190], [23.7990, 90.4260], [23.7940, 90.4260], [23.7940, 90.4190]] }
   ];
 
   const emptyStats = {

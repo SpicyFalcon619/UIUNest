@@ -234,7 +234,7 @@ checkUserAndLoad();
 document.getElementById('zoneFilters').innerHTML = mockData.zones.map(z =>
   `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
      <label style="margin:0"><input type="checkbox" class="zone" value="${z.id}"> ${z.name}</label>
-     <button class="btn btn-outline btn-sm" style="padding:2px 6px; border:none;" onclick="highlightZone(${z.lat}, ${z.lng}, '${z.name}')" title="Show on Map">
+     <button class="btn btn-outline btn-sm" style="padding:2px 6px; border:none;" onclick="highlightZone(${z.id})" title="Show on Map">
        <i data-lucide="map-pin" style="width:14px;height:14px;color:var(--primary)"></i>
      </button>
    </div>`).join('');
@@ -246,18 +246,22 @@ L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
   attribution: '© Google Maps'
 }).addTo(map);
 
-let currentZoneCircle = null;
-function highlightZone(lat, lng, name) {
-  if (currentZoneCircle) {
-    map.removeLayer(currentZoneCircle);
+let currentZonePolygon = null;
+function highlightZone(id) {
+  const zone = mockData.zones.find(z => z.id === id);
+  if (!zone || !zone.polygon) return;
+
+  if (currentZonePolygon) {
+    map.removeLayer(currentZonePolygon);
   }
-  map.flyTo([lat, lng], 14, { animate: true, duration: 1.5 });
-  currentZoneCircle = L.circle([lat, lng], {
+  currentZonePolygon = L.polygon(zone.polygon, {
     color: 'var(--primary)',
     fillColor: 'var(--primary)',
     fillOpacity: 0.15,
-    radius: 1200
-  }).addTo(map).bindPopup('<b>' + name + ' Area</b>').openPopup();
+    weight: 2
+  }).addTo(map).bindPopup('<b>' + zone.name + ' Area</b>').openPopup();
+  
+  map.fitBounds(currentZonePolygon.getBounds(), { animate: true, duration: 1.5, padding: [20, 20] });
   
   if (window.innerWidth < 768) {
     // on mobile, close the sidebar so the user can see the map
