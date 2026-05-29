@@ -285,7 +285,7 @@ async function renderDetail() {
 
     // Map
     const m = L.map('map-detail').setView([l.lat || 23.7805, l.lng || 90.4200], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(m);
+    L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '© Google Maps' }).addTo(m);
     L.marker([l.lat || 23.7805, l.lng || 90.4200], { icon: createNavyIcon() }).addTo(m);
 
     // Rent chart
