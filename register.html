@@ -99,6 +99,7 @@
     <script src="app.js"></script>
     <script>
       mountChrome('register');
+      if (isLoggedIn()) location.replace('dashboard.html');
       
       document.querySelectorAll('input[name="role"]').forEach(radio => {
         radio.addEventListener('change', (e) => {

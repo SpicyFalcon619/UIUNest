@@ -49,6 +49,8 @@
     <script src="app.js"></script>
     <script>
       mountChrome('login');
+      if (isLoggedIn()) location.replace('dashboard.html');
+      
       async function doLogin(e) {
         e.preventDefault();
         const email = document.getElementById("email").value.trim();

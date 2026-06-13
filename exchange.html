@@ -147,7 +147,7 @@ function renderItems() {
   const sort = document.getElementById('fSort').value;
 
   let r = fetchedItems.filter(it => {
-    if (it.status === 'sold') return false; 
+    if (it.status !== 'available') return false; 
     if (cat !== 'all' && it.category !== cat) return false;
     if (cond !== 'all' && it.condition !== cond) return false;
     if (zone !== 'all' && it.zone !== zone) return false;
@@ -161,7 +161,9 @@ function renderItems() {
 
   document.getElementById('itemsGrid').innerHTML = r.map(it => `
     <div class="listing-card">
-      <img class="listing-photo" src="${it.photo}" alt="${it.title}" loading="lazy">
+      <div class="listing-photo-wrap">
+        <img class="listing-photo" src="${it.photo}" alt="${it.title}" loading="lazy">
+      </div>
       <div class="listing-body">
         <div class="badges">
           <span class="badge badge-navy">${it.category}</span>

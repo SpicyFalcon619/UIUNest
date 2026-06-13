@@ -41,8 +41,8 @@
       <label><input type="radio" name="ltype" value="Landlord Listed"> Landlord Listed</label>
       <label><input type="radio" name="ltype" value="Student Listed"> Student Listed</label>
 
-      <h4>Max monthly cost: <span class="range-val" id="budgetVal">৳15,000</span></h4>
-      <input type="range" id="budget" min="1000" max="15000" step="500" value="15000">
+      <h4>Max monthly cost: <span class="range-val" id="budgetVal">৳50,000</span></h4>
+      <input type="range" id="budget" min="1000" max="50000" step="500" value="50000">
 
 
 
@@ -287,11 +287,12 @@ function getFiltered() {
   const sort = document.getElementById('sort').value;
 
   let r = allListings.filter(l => {
+    if (l.status === 'occupied') return false;
     if (zones.length && !zones.includes(l.zoneId)) return false;
     if (ptypes.length && !ptypes.includes(l.propertyType)) return false;
     if (ltype !== 'all' && l.listingType !== ltype) return false;
     // Gender is no longer filtered from view
-    if (l.costs.totalMonthly > budget) return false;
+    if (!l.costs || l.costs.totalMonthly > budget) return false;
     for (const a of amens) {
       if (Array.isArray(l.amenities)) {
         return false;
@@ -301,8 +302,8 @@ function getFiltered() {
     }
     return true;
   });
-  if (sort === 'cost_asc') r.sort((a,b)=>a.costs.totalMonthly-b.costs.totalMonthly);
-  if (sort === 'cost_desc') r.sort((a,b)=>b.costs.totalMonthly-a.costs.totalMonthly);
+  if (sort === 'cost_asc') r.sort((a,b)=>(a.costs ? a.costs.totalMonthly : 0)-(b.costs ? b.costs.totalMonthly : 0));
+  if (sort === 'cost_desc') r.sort((a,b)=>(b.costs ? b.costs.totalMonthly : 0)-(a.costs ? a.costs.totalMonthly : 0));
   if (sort === 'rating') r.sort((a,b)=>b.compositeScore-a.compositeScore);
   return r;
 }
@@ -323,8 +324,8 @@ function resetFilters() {
   document.querySelectorAll('.zone, .ptype, .amen').forEach(c => c.checked = false);
   document.querySelector('input[name=ltype][value=all]').checked = true;
 
-  document.getElementById('budget').value = 15000;
-  document.getElementById('budgetVal').textContent = '৳15,000';
+  document.getElementById('budget').value = 50000;
+  document.getElementById('budgetVal').textContent = '৳50,000';
   document.getElementById('verifiedOnly').checked = false;
   document.getElementById('sort').value = 'cost_asc';
   applyFilters();

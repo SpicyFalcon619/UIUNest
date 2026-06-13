@@ -67,7 +67,6 @@ if (localStorage.getItem('uiunest_current_user_v4')) {
 }
 
 function saveMockData() {
-  recalculateAdminStats();
   localStorage.setItem('uiunest_db_v4', JSON.stringify(window.mockData));
   if (window.mockData.currentUser) {
     localStorage.setItem('uiunest_current_user_v4', JSON.stringify(window.mockData.currentUser));
@@ -563,6 +562,11 @@ function renderListingCard(l) {
     : '';
 
   const photoSrc = l.photos && l.photos[0] ? l.photos[0] : 'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\'><rect width=\'600\' height=\'400\' fill=\'%23EEF7F2\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'18\' fill=\'%231A5C45\' text-anchor=\'middle\' dominant-baseline=\'middle\'>No Photo</text></svg>';
+  let statusBadge = '';
+  if (l.status === 'occupied') statusBadge = '<span class="badge badge-red">Occupied</span>';
+  else if (l.status === 'soon_vacant') statusBadge = '<span class="badge badge-gold">Soon Vacant</span>';
+  else statusBadge = '<span class="badge badge-green">Available</span>';
+
   return `
     <div class="listing-card ${compatClass}">
       <div class="listing-photo-wrap">
@@ -574,11 +578,12 @@ function renderListingCard(l) {
       </div>
       <div class="listing-body">
         <div class="badges">
+          ${statusBadge}
           <span class="badge badge-navy">${l.zone}</span>
           ${typeBadge}
         </div>
         <div class="listing-title">${l.title}</div>
-        <div class="price">${fmt(l.costs.totalMonthly)}<span> /month</span></div>
+        <div class="price">${fmt(l.costs ? l.costs.totalMonthly : 0)}<span> /month</span></div>
         <div class="listing-meta">${gender} &nbsp;·&nbsp; ${l.currentOccupancy}/${l.totalRooms} occupied</div>
         <div class="listing-footer">
           <button class="heart ${wl ? 'active' : ''}" data-wl="${l.id}" title="Save"><i data-lucide="heart" style="${wl ? 'fill: currentColor' : ''}"></i></button>
