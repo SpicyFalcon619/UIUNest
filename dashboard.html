@@ -426,22 +426,38 @@ function renderDashboard() {
           <table class="table">
             <thead><tr><th>Item</th><th>Buyer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
-              ${offersRecv.map(o => {
-                let actionHtml = `<a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open</a>`;
-                if (o.status === 'pending') {
-                  actionHtml += `
-                    <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.offer_id})">Accept</button>
-                    <button class="btn btn-outline btn-sm" onclick="showCounterFormDash(${o.offer_id})">Counter</button>
-                    <button class="btn btn-danger btn-sm" onclick="setOfferStatus(${o.offer_id}, 'rejected')">Reject</button>
-                    <div id="dash-counter-box-${o.offer_id}" style="margin-top:4px; display:none; width:100%;">
-                      <input type="number" id="dash-counter-input-${o.offer_id}" placeholder="Price (৳)" style="padding:4px; border:1px solid var(--border); border-radius:4px; width:80px; font-size:12px;">
-                      <button class="btn btn-primary btn-sm" onclick="sendCounterDash(${o.offer_id})">Send</button>
-                    </div>`;
-                }
-                actionHtml += `<button class="btn btn-danger btn-sm" onclick="deleteItem(${o.item_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete Item</button>`;
+              ${(() => {
+                let grouped = {};
+                offersRecv.forEach(o => {
+                  if (!grouped[o.item_id]) grouped[o.item_id] = { title: o.title, offers: [] };
+                  grouped[o.item_id].offers.push(o);
+                });
+                return Object.values(grouped).map(group => {
+                  return group.offers.map((o, idx) => {
+                    let roman = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'][idx] || (idx+1);
+                    let actionHtml = `<a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open</a>`;
+                    if (o.status === 'pending') {
+                      actionHtml += `
+                        <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.offer_id})">Accept</button>
+                        <button class="btn btn-outline btn-sm" onclick="showCounterFormDash(${o.offer_id})">Counter</button>
+                        <button class="btn btn-danger btn-sm" onclick="setOfferStatus(${o.offer_id}, 'rejected')">Reject</button>
+                        <div id="dash-counter-box-${o.offer_id}" style="margin-top:4px; display:none; width:100%;">
+                          <input type="number" id="dash-counter-input-${o.offer_id}" placeholder="Price (৳)" style="padding:4px; border:1px solid var(--border); border-radius:4px; width:80px; font-size:12px;">
+                          <button class="btn btn-primary btn-sm" onclick="sendCounterDash(${o.offer_id})">Send</button>
+                        </div>`;
+                    }
+                    actionHtml += `<button class="btn btn-danger btn-sm" onclick="deleteItem(${o.item_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete Item</button>`;
 
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.buyer_name}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.buyer_name}" data-email="${o.buyer_email}" data-phone="${o.buyer_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap;">${actionHtml}</div></td></tr>`;
-              }).join('')}
+                    return `<tr>
+                      ${idx === 0 ? `<td rowspan="${group.offers.length}" style="vertical-align:top;border-right:1px solid var(--border)"><strong>${group.title}</strong></td>` : ''}
+                      <td><strong>${roman}.</strong> ${o.buyer_name}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.buyer_name}" data-email="${o.buyer_email}" data-phone="${o.buyer_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td>
+                      <td>${fmt(o.counter_price || o.offer_price)}</td>
+                      <td>${statusBadge(o.status)}</td>
+                      <td><div style="display:flex;gap:4px;flex-wrap:wrap;">${actionHtml}</div></td>
+                    </tr>`;
+                  }).join('');
+                }).join('');
+              })()}
             </tbody>
           </table>
         `}
@@ -455,20 +471,36 @@ function renderDashboard() {
           <table class="table">
             <thead><tr><th>Item</th><th>Seller</th><th>Your Bid</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
-              ${offersSent.map(o => {
-                let actionHtml = `<a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open</a>`;
-                if (o.status === 'countered') {
-                  actionHtml += `
-                    <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.offer_id})">Accept Counter</button>
-                    <button class="btn btn-danger btn-sm" onclick="setOfferStatus(${o.offer_id}, 'rejected')">Reject</button>
-                    <button class="btn btn-outline btn-sm" onclick="setOfferStatus(${o.offer_id}, 'withdrawn')">Withdraw</button>`;
-                } else if (o.status === 'pending') {
-                  actionHtml += `<button class="btn btn-outline btn-sm" onclick="setOfferStatus(${o.offer_id}, 'withdrawn')">Withdraw Offer</button>`;
-                }
-                actionHtml += `<button class="btn btn-danger btn-sm" onclick="deleteOffer(${o.offer_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete</button>`;
+              ${(() => {
+                let grouped = {};
+                offersSent.forEach(o => {
+                  if (!grouped[o.item_id]) grouped[o.item_id] = { title: o.title, offers: [] };
+                  grouped[o.item_id].offers.push(o);
+                });
+                return Object.values(grouped).map(group => {
+                  return group.offers.map((o, idx) => {
+                    let roman = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'][idx] || (idx+1);
+                    let actionHtml = `<a class="btn btn-outline btn-sm" href="item-detail.html?id=${o.item_id}">Open</a>`;
+                    if (o.status === 'countered') {
+                      actionHtml += `
+                        <button class="btn btn-success btn-sm" onclick="acceptOffer(${o.offer_id})">Accept Counter</button>
+                        <button class="btn btn-danger btn-sm" onclick="setOfferStatus(${o.offer_id}, 'rejected')">Reject</button>
+                        <button class="btn btn-outline btn-sm" onclick="setOfferStatus(${o.offer_id}, 'withdrawn')">Withdraw</button>`;
+                    } else if (o.status === 'pending') {
+                      actionHtml += `<button class="btn btn-outline btn-sm" onclick="setOfferStatus(${o.offer_id}, 'withdrawn')">Withdraw Offer</button>`;
+                    }
+                    actionHtml += `<button class="btn btn-danger btn-sm" onclick="deleteOffer(${o.offer_id})"><i data-lucide="trash-2" class="lucide-sm"></i> Delete</button>`;
 
-                return `<tr><td><strong>${o.title}</strong></td><td>${o.seller_name}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.seller_name}" data-email="${o.seller_email}" data-phone="${o.seller_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td><td>${fmt(o.counter_price || o.offer_price)}</td><td>${statusBadge(o.status)}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap;">${actionHtml}</div></td></tr>`;
-              }).join('')}
+                    return `<tr>
+                      ${idx === 0 ? `<td rowspan="${group.offers.length}" style="vertical-align:top;border-right:1px solid var(--border)"><strong>${group.title}</strong></td>` : ''}
+                      <td><strong>${roman}.</strong> ${o.seller_name}<br><button class="btn btn-outline btn-sm" style="margin-top:6px;padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="showContactModal(this.dataset.name, this.dataset.email, this.dataset.phone)" data-name="${o.seller_name}" data-email="${o.seller_email}" data-phone="${o.seller_phone || ''}"><i data-lucide="user-check" class="lucide-sm"></i> Contact</button></td>
+                      <td>${fmt(o.counter_price || o.offer_price)}</td>
+                      <td>${statusBadge(o.status)}</td>
+                      <td><div style="display:flex;gap:4px;flex-wrap:wrap;">${actionHtml}</div></td>
+                    </tr>`;
+                  }).join('');
+                }).join('');
+              })()}
             </tbody>
           </table>
         `}
