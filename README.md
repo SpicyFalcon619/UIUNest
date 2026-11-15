@@ -87,7 +87,7 @@ The schema includes a `reset_db.php` utility that seeds the master admin:
 - **Login:** `ADM-MASTER` or `master@admin.com`
 - **Password:** `1265Master`
 
-> **Security Note:** Delete or password-protect `api/reset_db.php` before deploying to production.
+> **Security note:** `api/reset_db.php`, `api/alter_db_interactions.php` and `database/seed.php` only run from the command line (for example `php api/reset_db.php`); the web server refuses them. Change the master admin password straight after the first login.
 
 ## Project Structure
 

@@ -1,4 +1,7 @@
 <?php
+// Maintenance script: it changes or wipes the database, so it only runs from the command line
+// (php api/reset_db.php), never through the web server.
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 require 'db.php';
 
 try {
