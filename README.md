@@ -1,169 +1,59 @@
 # UIUNest
 
-![PHP](https://img.shields.io/badge/PHP-Backend-777BB4?style=flat-square&logo=php&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql&logoColor=white)
-![HTML5](https://img.shields.io/badge/HTML5-Frontend-E34F26?style=flat-square&logo=html5&logoColor=white)
-![Railway](https://img.shields.io/badge/Deployed_on-Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white)
+**The first version of Nestly.** A housing, flatmate-matching and peer-to-peer marketplace platform for UIU students and landlords, built with PHP and MySQL as a database-course project. It was later rebuilt from scratch, with a team, as **[Nestly](https://github.com/SpicyFalcon619/nestly-core)** (Next.js and Supabase, live at [nestly-core.vercel.app](https://nestly-core.vercel.app)). This repository is kept as the original, and Nestly is where development continues.
 
-**Live Platform:** [https://uiunest-production.up.railway.app/](https://uiunest-production.up.railway.app/)
+![PHP](https://img.shields.io/badge/PHP-8-777BB4?style=flat-square&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-database-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![Vanilla JS](https://img.shields.io/badge/JavaScript-vanilla-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 
-UIUNest is a comprehensive platform designed for UIU (United International University) students, landlords, and administrators. It covers verified housing discovery, flatmate compatibility matching, a peer-to-peer exchange marketplace, mess bill management, and a full admin dashboard — all in a single, mobile-friendly web application.
+![UIUNest home page](UIUNest%20report/screenshot_home.png)
 
-### 🎉 What's New in v1.2.1 (Animated Navbar Update)
-- **Fluid Mobile Navigation**: Completely redesigned the mobile navbar into a floating pill shape. Features a dynamic, sliding emerald bubble that perfectly tracks your interactions via a custom JavaScript `requestAnimationFrame` engine for 60fps buttery-smooth transitions.
-- **Context-Aware Auth States**: The center account button now intelligently shape-shifts depending on your authentication state, turning into an animated "Login" or "Register" button based on the page you are viewing.
+## What it does
 
-### What's New in v1.2.0 (Final Polish Release)
-- **Responsive Mobile Perfection**: Fixed overflow issues on the Mess Bill Manager and Profile pages, ensuring custom dropdowns and file uploads flawlessly adapt to small screens.
-- **Sleek Navbar Behavior**: Engineered a smart navbar that remains permanently pinned on the homepage, but smoothly auto-hides with a graceful transition on sub-pages to maximize vertical screen real estate.
-- **Natural Copywriting**: Completely rewrote the homepage marketing copy to sound conversational, warm, and distinctly human.
-- **Refined Aesthetics**: Softened the active navigation pill radiuses to perfect the "squircle" look.
+| For | Features |
+|---|---|
+| **Students** | Browse verified listings around campus on a Leaflet map with zone and price filters; find flatmates with a weighted compatibility score (sleep, diet, noise, cleanliness, guests); buy and sell furniture and study materials with offers and counter-offers; split monthly mess bills; post "Looking For" ads; keep a watchlist; get in-app notifications |
+| **Landlords** | Create and manage listings with photos, amenities and pricing; review tenancy applications; upload identity documents for a verified badge; create monthly bills for tenants |
+| **Master admin** | Manage users (suspend, activate, revoke verification), approve or reject verification documents, resolve complaints, and see live platform statistics |
 
-## Features
+## Tech stack
 
-### For Students
-- **Housing Listings:** Browse verified properties around the UIU campus with Leaflet maps, zone filters, and price ranges.
-- **Flatmate Matching:** Find roommates with a weighted compatibility score based on sleep schedule, diet, noise tolerance, cleanliness, and guest policy.
-- **Exchange Marketplace:** Buy and sell furniture, appliances, and study materials with direct offer/counter-offer negotiation.
-- **Mess Bill Manager:** Track, split, and pay monthly utility and rent bills among housemates.
-- **Looking For:** Post or respond to "Looking For" ads to find accommodation quickly.
-- **Watchlist:** Save favourite listings for later.
-- **Notifications:** Real-time in-app notifications for verification updates, offer responses, and more.
+PHP 8 with PDO (prepared statements, `password_hash`), MySQL (19 tables), vanilla JavaScript, [Leaflet](https://leafletjs.com), [Chart.js](https://www.chartjs.org/) and [Lucide](https://lucide.dev) icons.
 
-### For Landlords
-- **Property Listings:** Create and manage rental listings with photos, amenities, and pricing.
-- **Tenant Applications:** Review and accept or reject tenancy applications.
-- **Verification:** Upload identity documents for admin verification to earn a verified badge on all listings.
-- **Bills Management:** Create and manage monthly bills for tenants.
+## Run it locally
 
-### For Master Admin
-- **User Management:** View all users, suspend/activate accounts, and revoke verifications.
-- **Verification Review:** Approve or reject landlord/user verification document submissions with one click, automatically notifying the user.
-- **Complaints Handling:** Review, escalate, and resolve complaints between users.
-- **Admin Stats:** Real-time dashboard with total users, listings, pending verifications, and open complaints.
+You need a PHP and MySQL stack such as [XAMPP](https://www.apachefriends.org/).
 
-## Tech Stack
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript
-- **Backend:** PHP 8+
-- **Database:** MySQL
-- **Icons:** [Lucide Icons](https://lucide.dev)
-- **Maps:** [Leaflet.js](https://leafletjs.com)
-- **Charts:** [Chart.js](https://www.chartjs.org/)
+1. Start **Apache** and **MySQL**.
+2. In phpMyAdmin, create a database named `uiunest` and import [`database/schema.sql`](database/schema.sql).
+3. Put the folder in `htdocs/UIU-Nest` (or symlink it) and open `http://localhost/UIU-Nest`.
+4. To load the master admin and clean tables, run from a terminal: `php api/reset_db.php`. The maintenance scripts (`reset_db.php`, `alter_db_interactions.php`, `database/seed.php`) only run from the command line; the web server refuses them.
 
-## Local Development & Setup
+### Master admin account
 
-This project requires a PHP + MySQL server environment. [XAMPP](https://www.apachefriends.org/) is recommended.
-
-### 1. Start Your Server
-1. Open the XAMPP Control Panel and start **Apache** and **MySQL**.
-
-### 2. Database Setup
-1. Open `http://localhost/phpmyadmin` in your browser.
-2. Create a new database named **`uiunest`**.
-3. Select the `uiunest` database → go to the **Import** tab → upload `database/schema.sql` → click **Import**.
-
-This creates all 19 tables including users, listings, verifications, notifications, marketplace items, bills, and more.
-
-### 3. Place the Project in htdocs
-
-#### Option A: Direct Folder (Recommended)
-Clone or move the repository directly into XAMPP's `htdocs` directory:
-- **Windows:** `C:\xampp\htdocs\UIU-Nest`
-- **Mac:** `/Applications/XAMPP/htdocs/UIU-Nest`
-
-#### Option B: Symbolic Link
-Keep the repo anywhere and create a shortcut into `htdocs`.
-
-**Windows (run as Administrator):**
-```cmd
-mklink /D "C:\xampp\htdocs\UIU-Nest" "C:\Users\YourName\Downloads\UIU-Nest"
-```
-
-### 4. Open the App
-Navigate to: `http://localhost/UIU-Nest`
-
-### 5. Master Admin Account
-The schema includes a `reset_db.php` utility that seeds the master admin:
 - **Login:** `ADM-MASTER` or `master@admin.com`
 - **Password:** `1265Master`
 
-> **Security note:** `api/reset_db.php`, `api/alter_db_interactions.php` and `database/seed.php` only run from the command line (for example `php api/reset_db.php`); the web server refuses them. Change the master admin password straight after the first login.
+This is a development account for local use.
 
-## Project Structure
+## Project structure
 
-```
-UIU-Nest/
-├── api/                         # All PHP backend endpoints
-│   ├── db.php                   # PDO database connection
-│   ├── login.php                # Authentication + session creation
-│   ├── logout.php               # Session teardown
-│   ├── register.php             # New user registration
-│   ├── me.php                   # Fetch current session user
-│   ├── profile.php              # Profile read/update (incl. profile_pic)
-│   ├── upload.php               # Secure file upload handler (images, PDFs)
-│   ├── listings.php             # Listing CRUD
-│   ├── applications.php         # Tenancy applications
-│   ├── watchlist.php            # User watchlist (save/remove listings)
-│   ├── bills.php                # Mess bill create/read/pay
-│   ├── exchange.php             # Marketplace item CRUD
-│   ├── offers.php               # Offer/counter-offer management
-│   ├── complaint.php            # Submit complaints
-│   ├── seeking.php              # Looking-For post CRUD
-│   ├── seeking_responses.php    # Responses to seeking posts
-│   ├── verify.php               # Submit verification request
-│   ├── verif_status.php         # Check own verification status
-│   ├── notifications.php        # Fetch + mark-read notifications
-│   ├── dashboard.php            # Dashboard data aggregation
-│   ├── update_status.php        # Update listing/offer/application status
-│   ├── check.php                # Auth check helper
-│   ├── admin_stats.php          # Admin dashboard stats
-│   ├── admin_users.php          # List all users for admin
-│   ├── admin_action_user.php    # Admin suspend/activate user
-│   ├── admin_verifications.php  # List all verification requests
-│   ├── admin_action_verif.php   # Admin approve/reject verification
-│   ├── admin_revoke_verif.php   # Admin revoke verification
-│   ├── admin_complaints.php     # List all complaints for admin
-│   ├── admin_action_complaint.php # Admin resolve/escalate complaint
-│   ├── admin_action_listing.php # Admin delete listing
-│   ├── alter_db_interactions.php # One-time DB migration (seeking_responses + notifications tables)
-│   └── reset_db.php             # Dev only — truncates all tables + seeds master admin
-├── database/
-│   ├── schema.sql               # Full MySQL schema (19 tables)
-│   ├── seed.sql                 # Optional sample data
-│   └── seed.php                 # PHP seeder script
-├── docs/
-│   ├── system_architecture.md   # Technical architecture overview
-│   ├── walkthrough.md           # Feature implementation log
-│   ├── changelog_vs_report.md   # Deviations from original academic ERD
-│   ├── implementation_plan.md   # Current/past dev plan
-│   └── task.md                  # Dev task checklist
-├── uploads/                     # User-uploaded files (gitignored)
-│   ├── listings/
-│   ├── items/
-│   ├── verifications/
-│   └── profiles/
-├── admin.html                   # Admin dashboard (admin-only)
-├── bills.html                   # Mess bill manager
-├── dashboard.html               # User dashboard (listings, offers, watchlist, bills)
-├── exchange.html                # Marketplace browse
-├── index.html                   # Home / landing page
-├── item-detail.html             # Single marketplace item view
-├── listing-detail.html          # Single housing listing view
-├── listings.html                # Housing listings browse
-├── login.html                   # Login page
-├── profile.html                 # Profile + preferences + verification
-├── register.html                # Registration page
-├── seeking.html                 # Looking For posts
-├── app.js                       # Core JS: nav, auth, localStorage, utilities
-├── data.js                      # Static seed/fallback data
-├── style.css                    # Global design system
-└── .gitignore
+```text
+api/        PHP endpoints: login, listings, applications, bills, marketplace, offers, complaints, notifications, admin actions
+database/   schema.sql (19 tables), optional seed data
+docs/       architecture notes, feature log, differences from the original ERD
+*.html      pages: home, listings, exchange, bills, dashboard, profile, admin
+app.js      navigation, auth state and shared helpers
+style.css   the design system
 ```
 
-## Developer Documentation
-For teammates and future developers, the `docs/` folder contains up-to-date architectural notes:
-- `docs/system_architecture.md` — Technical overview of the frontend Chrome system, database schema, API flows, and feature algorithms.
-- `docs/walkthrough.md` — Log of all major completed implementations and what changed.
+More detail is in [`docs/system_architecture.md`](docs/system_architecture.md), and the course report is in `UIUNest report/`.
 
-### Note for AI Assistants
-If you are using an AI assistant to help build this project, instruct it to read `docs/system_architecture.md` and `docs/walkthrough.md` to instantly understand the backend architecture and history of changes.
+## Release notes
+
+- **v1.2.1:** a floating pill-shaped mobile navbar with a sliding indicator, and login and register buttons that follow the account state.
+- **v1.2.0:** responsive fixes on the bills and profile pages, a navbar that pins on the home page and hides on inner pages, and rewritten home-page copy.
+
+## Author
+
+Ahmad Maruf Hossain ([@SpicyFalcon619](https://github.com/SpicyFalcon619)), United International University. The Next.js rewrite, Nestly, was built with Sadia Noman Tonni, Nazha Tarannum Roza and Mohammad Mahadi Hasan.
